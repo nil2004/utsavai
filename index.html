@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UtsavAI Chat</title>
+    <meta name="description" content="Event Planning Assistant" />
+    <meta name="author" content="UtsavAI" />
+    <meta property="og:title" content="UtsavAI Chat" />
+    <meta property="og:description" content="Event Planning Assistant" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/opengraph-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="UtsavAI Chat" />
+    <meta name="twitter:description" content="Event Planning Assistant" />
+    <meta name="twitter:image" content="/opengraph-image.png" />
+    <style>
+      /* Hide admin panel buttons for regular users */
+      .view-in-admin-panel-button,
+      button:hover a[href*="admin"],
+      a[href*="admin"],
+      button:has(span:contains("View in Admin")),
+      [role="button"]:has(span:contains("View in Admin")),
+      .success-dialog a[href*="/admin"],
+      .success-dialog button:contains("Admin") {
+        display: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Hide admin panel buttons that might be dynamically added
+      document.addEventListener('DOMContentLoaded', function() {
+        // Function to hide admin panel buttons
+        function hideAdminButtons() {
+          var buttons = document.querySelectorAll('button, a, [role="button"]');
+          buttons.forEach(function(button) {
+            var text = button.textContent || '';
+            if (text.toLowerCase().includes('admin') || 
+                text.toLowerCase().includes('view in admin')) {
+              button.style.display = 'none';
+            }
+          });
+        }
+        
+        // Run initially
+        hideAdminButtons();
+        
+        // Set up observer to watch for DOM changes
+        var observer = new MutationObserver(hideAdminButtons);
+        observer.observe(document.body, { 
+          childList: true, 
+          subtree: true 
+        });
+      });
+    </script>
+  </body>
+</html>
