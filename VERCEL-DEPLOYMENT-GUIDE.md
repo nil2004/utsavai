@@ -1,70 +1,78 @@
-# Vercel Deployment Guide for UtsavAI
+# UtsavAI Vercel Deployment Guide
 
-This guide will help you successfully deploy your UtsavAI application to Vercel.
+This guide provides instructions for deploying your UtsavAI application to Vercel, with a focus on properly configuring Supabase environment variables and handling CORS issues.
 
-## Step 1: Configure Environment Variables
+## 1. Environment Variables Setup
 
-When deploying to Vercel, you must add the following environment variables to your project:
+You must add the following environment variables in your Vercel project:
 
-1. Go to your Vercel project dashboard
-2. Navigate to Settings > Environment Variables
-3. Add the following variables exactly as they appear in your local `.env` file:
+1. Navigate to your project in the Vercel dashboard
+2. Go to Settings → Environment Variables
+3. Add the following variables:
 
 ```
 VITE_SUPABASE_URL=https://kjahicdvhulwvutldaan.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqYWhpY2R2aHVsd3Z1dGxkYWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1MjYxNTEsImV4cCI6MjA2MDEwMjE1MX0.z2kpTrdVD6DVQ2y4YlXC0zNvfxzcB_hvU5JEyeOaGIo
+VITE_SUPABASE_ANON_KEY=your-anon-key-value
 ```
 
-Make sure to set the environment variables to be available in all environments (Production, Preview, and Development).
+Make sure to use your actual Supabase anon key value.
 
-## Step 2: Deploy Your Application
+## 2. API Proxy for CORS Issues
 
-There are two ways to deploy your application to Vercel:
+We've implemented a proxy solution to solve potential CORS issues when accessing Supabase from your custom domain. The proxy is already set up in the code:
+
+1. The `/api/supabase-proxy.js` file works as a serverless function that forwards requests to Supabase
+2. The `src/lib/supabase-proxy.ts` file provides a Supabase client that routes requests through the proxy
+
+When deploying to Vercel, these files will be automatically recognized and deployed as serverless functions. No additional configuration is needed.
+
+To test if the proxy is working:
+- Navigate to `/supabase-status` on your deployed site
+- Check if both direct and proxy connections show as successful
+
+If the direct connection works but the proxy doesn't, check your Vercel function logs for errors.
+
+## 3. Deploying the Application
 
 ### Option 1: Deploy from Git Repository
 
-1. Connect your GitHub repository to Vercel
-2. Select the repository and branch to deploy
-3. Vercel will automatically detect your Vite project
-4. Make sure the following settings are correct:
-   - Framework Preset: `Vite`
+1. Login to Vercel (https://vercel.com)
+2. Click "Add New..." → "Project"
+3. Import your repository
+4. Select "Vite" as the framework preset
+5. Configure project:
    - Build Command: `npm run build`
    - Output Directory: `dist`
    - Install Command: `npm install`
+6. Add the environment variables from Step 1
+7. Click "Deploy"
 
 ### Option 2: Deploy via Vercel CLI
 
-1. Install Vercel CLI globally: `npm i -g vercel`
-2. Run `vercel` in your project directory
-3. Follow the prompts to log in and configure your project
-4. Deploy your application with `vercel --prod`
+1. Install Vercel CLI: `npm install -g vercel`
+2. Login to Vercel: `vercel login`
+3. From your project directory, run: `vercel`
+4. Follow the prompts and make sure to add your environment variables
 
-## Step 3: Verify Your Deployment
+## 4. Verifying the Deployment
 
-After deployment, check the following:
+After deployment, check:
 
-1. Visit your deployed site and verify that the application loads correctly
-2. Test the authentication functionality
-3. Verify that data is being fetched from Supabase
-4. Check the browser console for any errors
+1. The application loads correctly
+2. Authentication with Supabase works
+3. Data fetching from Supabase works
+4. The CORS proxy is functioning by visiting the `/supabase-status` page
 
-## Troubleshooting
+## 5. Troubleshooting
 
-If you encounter issues with your deployment:
+### CORS Issues
+If you still encounter CORS issues:
 
-1. **Blank Screen or 404 Error**: Check if the `vercel.json` file is present with proper SPA routing configuration
-2. **Authentication Issues**: Verify that your Supabase environment variables are set correctly
-3. **CORS Issues**: Ensure that your Supabase project has the correct CORS configuration
-4. **Build Failures**: Check the build logs for specific errors
+1. Verify the proxy is correctly deployed by checking the Network tab in your browser's developer tools
+2. Ensure your environment variables are correctly set in Vercel
+3. Try redeploying with `vercel --prod` to ensure latest changes are applied
 
-## Supabase CORS Configuration
-
-If you experience CORS issues, configure your Supabase project:
-
-1. Go to your Supabase dashboard > Project Settings > API
-2. Under "CORS Origins", add your Vercel domain (e.g., `https://your-app.vercel.app`)
-3. Save your changes
-
-## Need Help?
-
-If you continue to experience issues with your Vercel deployment, please check the Vercel logs or contact support for assistance. 
+### Need Help?
+- Check Vercel deployment logs for any errors
+- Inspect browser console for error messages
+- Contact support for further assistance 
