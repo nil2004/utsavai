@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from './supabase-adapter';
 import type { Database } from './supabase';
 
 export type Vendor = Database['public']['Tables']['vendors']['Row'];

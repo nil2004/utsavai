@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { MapPin, Star, Filter, Search } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { getFrontendVendors, type Vendor } from '@/lib/vendor-service';
+import { supabase } from '../lib/supabase-adapter';
 
 // Interface for sample vendors (matches hardcoded data structure)
 interface SampleVendor {
