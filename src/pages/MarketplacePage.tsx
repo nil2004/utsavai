@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MapPin, Star, Filter, Search } from 'lucide-react';
-import { Slider } from '@/components/ui/slider';
+import { RangeSlider } from '@/components/ui/range-slider';
 import { getFrontendVendors, type Vendor } from '@/lib/vendor-service';
 import '@/styles/marketplace.css';
 
@@ -308,7 +308,7 @@ const MarketplacePage: React.FC = () => {
                   <span>{formatPrice(priceRange[0])}</span>
                   <span>{formatPrice(priceRange[1])}</span>
                 </div>
-                <Slider
+                <RangeSlider
                   defaultValue={[5000, 120000]}
                   min={5000}
                   max={120000}
