@@ -10,53 +10,52 @@ export default function AuthCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleCallback = async () => {
+    // Extract hash params and search params
+    const hashParams = new URLSearchParams(location.hash.substring(1));
+    const searchParams = new URLSearchParams(location.search);
+    
+    // Check for errors in URL
+    const errorParam = hashParams.get('error') || searchParams.get('error');
+    const errorDescription = hashParams.get('error_description') || searchParams.get('error_description');
+    
+    if (errorParam || errorDescription) {
+      console.error('Auth error from URL:', { errorParam, errorDescription });
+      setError(errorDescription || errorParam || 'Authentication failed');
+      
+      // Show error toast
+      toast({
+        title: "Authentication Error",
+        description: (errorDescription || 'Authentication failed').replace(/\+/g, ' '),
+        variant: "destructive",
+      });
+      
+      // Redirect to login after delay
+      setTimeout(() => navigate('/login'), 3000);
+      return;
+    }
+
+    // If no error in URL, check session
+    const checkSession = async () => {
       try {
-        // First try to get the code from URL
-        const code = new URLSearchParams(location.search).get('code');
+        const { data, error } = await supabase.auth.getSession();
         
-        if (code) {
-          // Handle PKCE flow
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) throw error;
-          if (!data.session) throw new Error('No session data received');
-          
+        if (error) throw error;
+        
+        if (data.session) {
           console.log('User authenticated:', data.session.user);
           toast({
             title: "Authentication Successful",
             description: "You have been successfully logged in",
           });
           navigate('/');
-          return;
+        } else {
+          // No session found but also no error in URL - strange case
+          console.warn('No session found but no error in callback URL');
+          navigate('/login');
         }
-
-        // If no code, check for access_token in hash params (implicit flow)
-        const hashParams = new URLSearchParams(location.hash.substring(1));
-        const access_token = hashParams.get('access_token');
-        
-        if (access_token) {
-          const { data: { user }, error } = await supabase.auth.getUser(access_token);
-          if (error) throw error;
-          if (!user) throw new Error('No user data received');
-          
-          console.log('User authenticated:', user);
-          toast({
-            title: "Authentication Successful",
-            description: "You have been successfully logged in",
-          });
-          navigate('/');
-          return;
-        }
-
-        // If neither code nor access_token is present, check for error
-        const errorMessage = hashParams.get('error_description') || 
-                           new URLSearchParams(location.search).get('error_description') ||
-                           'Authentication failed';
-        throw new Error(errorMessage);
-
       } catch (err) {
-        console.error('Error in auth callback:', err);
-        setError(err instanceof Error ? err.message : 'Authentication failed');
+        console.error('Error checking session:', err);
+        setError('Error verifying your login. Please try again.');
         toast({
           title: "Authentication Error",
           description: "There was a problem logging you in. Please try again.",
@@ -66,7 +65,7 @@ export default function AuthCallbackPage() {
       }
     };
 
-    handleCallback();
+    checkSession();
   }, [navigate, location, toast]);
 
   if (error) {
@@ -74,7 +73,7 @@ export default function AuthCallbackPage() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md w-full">
           <h2 className="text-lg font-semibold text-red-800 mb-2">Authentication Error</h2>
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">{error.replace(/\+/g, ' ')}</p>
           <p className="text-sm text-gray-500 mt-2">Redirecting you back to login...</p>
         </div>
       </div>

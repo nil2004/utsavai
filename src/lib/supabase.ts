@@ -198,11 +198,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce',
-    storage: window.localStorage,
-    storageKey: 'utsavai_auth',
-    redirectTo: 'https://utsavai.com/auth/callback'
+    detectSessionInUrl: true
   },
   db: {
     schema: 'public'
