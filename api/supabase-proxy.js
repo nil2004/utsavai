@@ -1,20 +1,46 @@
 // /api/supabase-proxy.js
 export default async function handler(req, res) {
   // Set CORS headers to allow requests from your domain
-  res.setHeader('Access-Control-Allow-Origin', 'https://utsavai.com');
+  res.setHeader('Access-Control-Allow-Origin', '*');  // Temporarily allow all origins for testing
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, apikey');
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
   
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+  // Try both VITE_ and NEXT_PUBLIC_ prefixes for environment variables
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  // Debug logging
+  console.log('Proxy request received:', {
+    url: req.url,
+    method: req.method,
+    hasAuthHeader: !!req.headers.authorization,
+    hasApiKey: !!req.headers.apikey,
+    envVars: {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasSupabaseKey: !!supabaseKey,
+      supabaseUrlStart: supabaseUrl ? supabaseUrl.substring(0, 15) + '...' : null
+    }
+  });
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing Supabase environment variables in proxy');
+    return res.status(500).json({ 
+      error: 'Server configuration error: Missing Supabase credentials',
+      debug: {
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseKey
+      }
+    });
+  }
   
   try {
     // Forward the request to Supabase
     const targetUrl = `${supabaseUrl}${req.url.replace('/api/supabase-proxy', '')}`;
+    console.log(`Forwarding to: ${targetUrl.replace(supabaseKey, '[REDACTED]')}`);
     
     const headers = {
       'Content-Type': 'application/json',
@@ -28,10 +54,17 @@ export default async function handler(req, res) {
       body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined
     });
     
+    if (!response.ok) {
+      console.error(`Supabase returned error status: ${response.status}`);
+    }
+    
     const data = await response.json();
     return res.status(response.status).json(data);
   } catch (error) {
     console.error('Proxy error:', error);
-    return res.status(500).json({ error: 'Failed to proxy request' });
+    return res.status(500).json({ 
+      error: 'Failed to proxy request',
+      message: error.message 
+    });
   }
 } 
