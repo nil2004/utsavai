@@ -205,12 +205,35 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
-// Test the connection immediately
-supabase.from('vendors').select('count', { count: 'exact', head: true })
-  .then(({ error }) => {
+// Enhanced connection testing
+async function testSupabaseConnection() {
+  try {
+    console.log('Testing Supabase connection...');
+    console.log('Supabase URL:', supabaseUrl);
+    console.log('Anon Key exists:', !!supabaseAnonKey);
+    
+    const { data, error, count } = await supabase
+      .from('vendors')
+      .select('*', { count: 'exact', head: true });
+    
     if (error) {
       console.error('Supabase connection test failed:', error);
-    } else {
-      console.log('Supabase connection test successful');
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details
+      });
+      throw error;
     }
-  }); 
+    
+    console.log('Supabase connection test successful');
+    console.log('Vendors count:', count);
+    return true;
+  } catch (err) {
+    console.error('Unexpected error during Supabase connection test:', err);
+    return false;
+  }
+}
+
+// Run the connection test
+testSupabaseConnection(); 
