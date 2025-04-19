@@ -76,6 +76,62 @@
     max-width: 100% !important;
     height: auto !important;
   }
+  
+  /* Chat page specific fixes */
+  /* Fix for event selection grid */
+  [class*="utsavai.com/chat"] .grid-cols-2, 
+  [class*="utsavai.com/chat"] .grid-cols-3 {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+  
+  /* Make chat message bubbles more compact */
+  [class*="utsavai.com/chat"] div[class*="message"] {
+    padding: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+    max-width: 95% !important;
+  }
+  
+  /* Make emoji icons smaller but still visible */
+  [class*="utsavai.com/chat"] div[class*="text-xl"],
+  [class*="utsavai.com/chat"] div[class*="text-4xl"],
+  [class*="utsavai.com/chat"] span[class*="text-4xl"] {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Fix the bottom input area */
+  [class*="utsavai.com/chat"] div[class*="sticky bottom-0"] {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    padding: 0.5rem !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
+    z-index: 50 !important;
+  }
+  
+  /* Ensure the input area is visible and usable */
+  [class*="utsavai.com/chat"] textarea {
+    padding: 0.75rem !important;
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+  
+  /* Add some bottom padding to prevent content from being hidden behind input */
+  [class*="utsavai.com/chat"] main,
+  [class*="utsavai.com/chat"] .h-screen,
+  [class*="utsavai.com/chat"] [class*="flex-1"] {
+    padding-bottom: 80px !important;
+  }
+  
+  /* Ensure vendor cards display properly */
+  [class*="utsavai.com/chat"] [class*="grid-cols-"] .card,
+  [class*="utsavai.com/chat"] [class*="grid-cols-"] div[class*="overflow-hidden"] {
+    width: 100% !important;
+    margin-bottom: 0.75rem !important;
+  }
 }
 
 /* Medium screens (tablets) */
