@@ -201,7 +201,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
     flowType: 'pkce',
     storage: window.localStorage,
-    storageKey: 'utsavai_auth'
+    storageKey: 'utsavai_auth',
+    redirectTo: 'https://utsavai.com/auth/callback'
   },
   db: {
     schema: 'public'

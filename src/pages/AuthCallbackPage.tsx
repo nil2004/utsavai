@@ -12,27 +12,48 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Get the code from URL
+        // First try to get the code from URL
         const code = new URLSearchParams(location.search).get('code');
-        if (!code) {
-          throw new Error('No code parameter found in URL');
-        }
-
-        // Exchange code for session
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
         
-        if (error) throw error;
-        
-        if (data.session) {
+        if (code) {
+          // Handle PKCE flow
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+          if (!data.session) throw new Error('No session data received');
+          
           console.log('User authenticated:', data.session.user);
           toast({
             title: "Authentication Successful",
             description: "You have been successfully logged in",
           });
           navigate('/');
-        } else {
-          throw new Error('No session data received');
+          return;
         }
+
+        // If no code, check for access_token in hash params (implicit flow)
+        const hashParams = new URLSearchParams(location.hash.substring(1));
+        const access_token = hashParams.get('access_token');
+        
+        if (access_token) {
+          const { data: { user }, error } = await supabase.auth.getUser(access_token);
+          if (error) throw error;
+          if (!user) throw new Error('No user data received');
+          
+          console.log('User authenticated:', user);
+          toast({
+            title: "Authentication Successful",
+            description: "You have been successfully logged in",
+          });
+          navigate('/');
+          return;
+        }
+
+        // If neither code nor access_token is present, check for error
+        const errorMessage = hashParams.get('error_description') || 
+                           new URLSearchParams(location.search).get('error_description') ||
+                           'Authentication failed';
+        throw new Error(errorMessage);
+
       } catch (err) {
         console.error('Error in auth callback:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
