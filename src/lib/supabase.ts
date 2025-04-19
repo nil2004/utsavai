@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { Database } from './database.types';
 
 // Define the type for your database schema
 export type Database = {
@@ -194,14 +195,18 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Create a single supabase client for interacting with your database
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
   },
-  db: {
-    schema: 'public'
+  global: {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+    }
   }
 });
 
@@ -213,4 +218,7 @@ supabase.from('vendors').select('count', { count: 'exact', head: true })
     } else {
       console.log('Supabase connection test successful');
     }
-  }); 
+  });
+
+// Export types
+export type { Database }; 

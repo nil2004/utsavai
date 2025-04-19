@@ -11,6 +11,7 @@ export function SupabaseConnectionTest() {
   const [proxyStatus, setProxyStatus] = useState<'checking' | 'success' | 'error'>('checking');
   const [directError, setDirectError] = useState<string>('');
   const [proxyError, setProxyError] = useState<string>('');
+  const [detailedError, setDetailedError] = useState<string>('');
 
   useEffect(() => {
     testDirectConnection();
@@ -20,19 +21,36 @@ export function SupabaseConnectionTest() {
     try {
       setDirectStatus('checking');
       setDirectError('');
+      setDetailedError('');
+      
+      console.log('Testing Supabase connection...');
+      console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
       
       // Try to fetch vendors
-      const { error } = await supabase
+      const { data, error, status } = await supabase
         .from('vendors')
         .select('count', { count: 'exact', head: true });
 
-      if (error) throw error;
+      console.log('Response status:', status);
+      console.log('Response data:', data);
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
       setDirectStatus('success');
     } catch (error) {
       console.error('Direct connection test failed:', error);
       setDirectStatus('error');
-      setDirectError(error instanceof Error ? error.message : 'Unknown error occurred');
+      
+      if (error instanceof Error) {
+        setDirectError(error.message);
+        setDetailedError(JSON.stringify(error, null, 2));
+      } else {
+        setDirectError('Unknown error occurred');
+        setDetailedError(JSON.stringify(error, null, 2));
+      }
     }
   };
 
@@ -82,7 +100,14 @@ export function SupabaseConnectionTest() {
               </Badge>
             </div>
             {directStatus === 'error' && (
-              <p className="text-sm">{directError}</p>
+              <>
+                <p className="text-sm font-medium mb-2">{directError}</p>
+                {detailedError && (
+                  <div className="mt-2 p-2 bg-red-100 rounded text-xs font-mono whitespace-pre-wrap">
+                    {detailedError}
+                  </div>
+                )}
+              </>
             )}
             {directStatus === 'success' && (
               <p className="text-sm">Successfully connected to Supabase directly</p>
