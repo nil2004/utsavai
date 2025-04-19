@@ -1,0 +1,92 @@
+/* responsive.css - Mobile-friendly styles */
+
+/* Small screens (phones) */
+@media (max-width: 640px) {
+  /* Text size adjustments */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+  
+  h2 {
+    font-size: 1.25rem !important;
+  }
+  
+  h3 {
+    font-size: 1.1rem !important;
+  }
+  
+  /* Spacing adjustments */
+  .container {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  
+  /* Button adjustments for touch */
+  button, 
+  [role="button"],
+  .button {
+    min-height: 40px !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+  
+  /* Improved form controls */
+  input, 
+  textarea, 
+  select {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+    min-height: 40px !important;
+  }
+  
+  /* Chat page specific styles */
+  .message-container {
+    padding: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .vendor-card {
+    width: 100% !important;
+  }
+  
+  /* Dialog/modal adjustments */
+  [role="dialog"] {
+    padding: 0.5rem !important;
+  }
+  
+  [role="dialog"] [role="document"] {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    padding: 0.75rem !important;
+  }
+  
+  /* Grid adjustments */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Force single column layout */
+  .cols-2,
+  .cols-3,
+  [class*="grid-cols-"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Adjust image sizes */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* Medium screens (tablets) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Tablet-specific adjustments */
+  .vendor-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+} 
