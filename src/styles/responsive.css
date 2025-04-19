@@ -36,89 +36,7 @@
     font-size: 16px !important;
     min-height: 40px !important;
   }
-  
-  /* Chat page specific styles */
-  .message-container {
-    padding: 0.5rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-  
-  /* Vendor card specific fixes */
-  .vendor-card {
-    width: 100% !important;
-    margin-bottom: 1rem !important;
-    overflow: hidden !important;
-    position: relative !important;
-    display: flex !important;
-    flex-direction: column !important;
-    background: white !important;
-    border-radius: 1rem !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-  }
-  
-  .vendor-card > div:first-child {
-    width: 100% !important;
-    aspect-ratio: 16/9 !important;
-    position: relative !important;
-    overflow: hidden !important;
-    border-radius: 1rem 1rem 0 0 !important;
-  }
-  
-  .vendor-card img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    border-radius: 1rem 1rem 0 0 !important;
-  }
-  
-  .vendor-card > div:last-child {
-    padding: 1rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-    background: white !important;
-  }
-  
-  .vendor-card .vendor-info {
-    padding: 0 !important;
-  }
-  
-  .vendor-card .vendor-info h3 {
-    font-size: 1rem !important;
-    line-height: 1.4 !important;
-    margin-bottom: 0.25rem !important;
-    color: #1a1a1a !important;
-  }
-  
-  .vendor-card .vendor-info p {
-    font-size: 0.875rem !important;
-    line-height: 1.4 !important;
-    color: #666 !important;
-    margin-bottom: 0.25rem !important;
-  }
-  
-  /* Grid layout fixes */
-  div[class*="grid grid-cols-1 sm:grid-cols-2"] {
-    gap: 1rem !important;
-    padding: 0.5rem !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-  }
-  
-  div[class*="grid grid-cols-1 sm:grid-cols-2"] > * {
-    width: 100% !important;
-    margin-bottom: 1rem !important;
-  }
-  
-  /* Vendor recommendations specific fixes */
-  div[class*="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"] {
-    gap: 1.5rem !important;
-    margin-bottom: 1.5rem !important;
-    padding: 0.5rem !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-  }
-  
+
   /* Dialog/modal adjustments */
   [role="dialog"] {
     padding: 0.5rem !important;
@@ -129,26 +47,7 @@
     max-width: 95vw !important;
     padding: 0.75rem !important;
   }
-  
-  /* Grid adjustments */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr !important;
-  }
-  
-  /* Force single column layout */
-  .cols-2,
-  .cols-3,
-  [class*="grid-cols-"] {
-    grid-template-columns: 1fr !important;
-  }
-  
-  /* Adjust image sizes */
-  img {
-    max-width: 100% !important;
-    height: auto !important;
-  }
-  
+
   /* CHAT PAGE MOBILE OPTIMIZATIONS */
   
   /* Hide suggestion buttons above the text input */
@@ -174,14 +73,7 @@
     margin-bottom: 0.5rem !important;
     max-width: 95% !important;
   }
-  
-  /* Scale down vendor cards */
-  div[class*="grid grid-cols-1 sm:grid-cols-2"] > * {
-    transform: none !important;
-    margin-bottom: 1rem !important;
-    width: 100% !important;
-  }
-  
+
   /* Reduce padding in scroll area */
   div[class*="h-full px-4 md:px-8 py-6 pb-36"] {
     padding: 0.5rem !important;
@@ -199,36 +91,58 @@
     font-size: 0.9rem !important;
     padding: 0.5rem 1rem !important;
   }
-  
-  /* Card content fixes */
-  .card-content {
-    padding: 1rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.5rem !important;
+
+  /* Vendor card specific fixes - MOBILE ONLY */
+  .vendor-card {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+    overflow: hidden !important;
+    border-radius: 0.75rem !important;
     background: white !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
   }
   
-  /* Button container fixes */
-  .button-container {
-    display: flex !important;
-    gap: 0.5rem !important;
-    margin-top: 0.5rem !important;
-  }
-  
-  /* Image container fixes */
-  .image-container {
+  .vendor-card .image-container {
     width: 100% !important;
     aspect-ratio: 16/9 !important;
     position: relative !important;
     overflow: hidden !important;
-    border-radius: 1rem 1rem 0 0 !important;
+    border-radius: 0.75rem 0.75rem 0 0 !important;
   }
   
-  .image-container img {
+  .vendor-card .image-container img {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
+  }
+  
+  .vendor-card .card-content {
+    padding: 1rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .vendor-card .button-container {
+    display: flex !important;
+    gap: 0.5rem !important;
+    margin-top: 0.5rem !important;
+  }
+
+  /* Grid layout fixes */
+  div[class*="grid grid-cols-1 sm:grid-cols-2"],
+  div[class*="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"] {
+    gap: 1rem !important;
+    padding: 0.5rem !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Message container adjustments */
+  .message-container {
+    padding: 1rem !important;
+    margin: 0 0.5rem 0.75rem 0.5rem !important;
+    border-radius: 1rem !important;
   }
 
   /* Vendor selection list fixes */
@@ -246,50 +160,6 @@
     margin: 0 !important;
     border-radius: 0.75rem !important;
     transition: all 0.2s ease-in-out !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-  }
-
-  /* Icon in vendor item */
-  div[class*="flex items-center p-3 rounded-lg cursor-pointer"] svg {
-    width: 1rem !important;
-    height: 1rem !important;
-    margin-right: 0.5rem !important;
-  }
-
-  /* Vendor name text */
-  div[class*="flex items-center p-3 rounded-lg cursor-pointer"] label {
-    font-size: 0.9375rem !important;
-    font-weight: 500 !important;
-  }
-
-  /* Checkmark styles */
-  div[class*="flex items-center p-3 rounded-lg cursor-pointer"] .ml-2.text-lg {
-    font-weight: bold !important;
-    font-size: 1.125rem !important;
-  }
-
-  /* Title text */
-  .font-medium.mb-3.text-lg {
-    font-size: 1rem !important;
-    margin-bottom: 0.75rem !important;
-    padding: 0 0.5rem !important;
-  }
-
-  /* Confirm selection button */
-  button[class*="mt-6 bg-accent"] {
-    margin: 1rem 0.5rem !important;
-    padding: 0.625rem !important;
-    font-size: 0.9375rem !important;
-    border-radius: 0.75rem !important;
-  }
-
-  /* Message container adjustments */
-  .message-container {
-    padding: 1rem !important;
-    margin: 0 0.5rem 0.75rem 0.5rem !important;
-    border-radius: 1rem !important;
   }
 }
 
