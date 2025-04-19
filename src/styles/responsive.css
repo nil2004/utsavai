@@ -1,48 +1,5 @@
 /* responsive.css - Mobile-friendly styles */
 
-/* Default (Desktop) Vendor Card Styles */
-.vendor-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-in-out;
-}
-
-.vendor-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.vendor-card .image-container {
-  width: 100%;
-  aspect-ratio: 16/9;
-  position: relative;
-  overflow: hidden;
-  border-radius: 1rem 1rem 0 0;
-}
-
-.vendor-card .image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.vendor-card .card-content {
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.vendor-card .button-container {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
 /* Small screens (phones) */
 @media (max-width: 640px) {
   /* Text size adjustments */
@@ -79,6 +36,65 @@
     font-size: 16px !important;
     min-height: 40px !important;
   }
+  
+  /* Chat page specific styles */
+  .message-container {
+    padding: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Vendor card specific fixes - MOBILE ONLY */
+  .vendor-card {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+    overflow: hidden !important;
+  }
+  
+  .vendor-card .image-container {
+    width: 100% !important;
+    aspect-ratio: 16/9 !important;
+    position: relative !important;
+    overflow: hidden !important;
+    border-radius: 1rem 1rem 0 0 !important;
+  }
+  
+  .vendor-card .image-container img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  
+  .vendor-card .card-content {
+    padding: 1rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .vendor-card .button-container {
+    display: flex !important;
+    gap: 0.5rem !important;
+    margin-top: 0.5rem !important;
+  }
+
+  /* Grid layout fixes */
+  div[class*="grid grid-cols-1 sm:grid-cols-2"] {
+    gap: 1rem !important;
+    padding: 0.5rem !important;
+  }
+  
+  div[class*="grid grid-cols-1 sm:grid-cols-2"] > * {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Vendor recommendations specific fixes */
+  div[class*="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"] {
+    gap: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    padding: 0.5rem !important;
+    grid-template-columns: 1fr !important;
+  }
 
   /* Dialog/modal adjustments */
   [role="dialog"] {
@@ -90,7 +106,12 @@
     max-width: 95vw !important;
     padding: 0.75rem !important;
   }
-
+  
+  /* Force single column layout */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+  
   /* CHAT PAGE MOBILE OPTIMIZATIONS */
   
   /* Hide suggestion buttons above the text input */
@@ -116,12 +137,6 @@
     margin-bottom: 0.5rem !important;
     max-width: 95% !important;
   }
-
-  /* Reduce padding in scroll area */
-  div[class*="h-full px-4 md:px-8 py-6 pb-36"] {
-    padding: 0.5rem !important;
-    padding-bottom: 6rem !important;
-  }
   
   /* Make the input area more compact */
   div[class*="relative flex items-end w-full bg-white/90"] {
@@ -133,82 +148,6 @@
   textarea[class*="w-full resize-none"] {
     font-size: 0.9rem !important;
     padding: 0.5rem 1rem !important;
-  }
-
-  /* Vendor card specific fixes - MOBILE ONLY */
-  .vendor-card {
-    width: 100% !important;
-    margin-bottom: 1rem !important;
-    overflow: hidden !important;
-    border-radius: 0.75rem !important;
-    background: white !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-    transform: none !important;
-  }
-  
-  .vendor-card:hover {
-    transform: none !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-  }
-  
-  .vendor-card .image-container {
-    width: 100% !important;
-    aspect-ratio: 16/9 !important;
-    position: relative !important;
-    overflow: hidden !important;
-    border-radius: 0.75rem 0.75rem 0 0 !important;
-  }
-  
-  .vendor-card .image-container img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-  }
-  
-  .vendor-card .card-content {
-    padding: 1rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-  }
-  
-  .vendor-card .button-container {
-    display: flex !important;
-    gap: 0.5rem !important;
-    margin-top: 0.5rem !important;
-  }
-
-  /* Grid layout fixes */
-  div[class*="grid grid-cols-1 sm:grid-cols-2"],
-  div[class*="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"] {
-    gap: 1rem !important;
-    padding: 0.5rem !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Message container adjustments */
-  .message-container {
-    padding: 1rem !important;
-    margin: 0 0.5rem 0.75rem 0.5rem !important;
-    border-radius: 1rem !important;
-  }
-
-  /* Vendor selection list fixes */
-  div[class*="grid grid-cols-1 sm:grid-cols-2 gap-3"] {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-    padding: 0 0.5rem !important;
-  }
-
-  /* Vendor checkbox item styles */
-  div[class*="flex items-center p-3 rounded-lg cursor-pointer"] {
-    min-height: 2.75rem !important;
-    padding: 0.5rem 0.75rem !important;
-    margin: 0 !important;
-    border-radius: 0.75rem !important;
-    transition: all 0.2s ease-in-out !important;
   }
 }
 

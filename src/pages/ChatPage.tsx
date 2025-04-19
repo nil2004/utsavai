@@ -1662,8 +1662,8 @@ const ChatPage: React.FC = () => {
                         >
                           View Details
                         </Button>
-                      </div>
                     </div>
+                  </div>
                   </Card>
                 );
               })}
