@@ -76,6 +76,61 @@
     max-width: 100% !important;
     height: auto !important;
   }
+  
+  /* CHAT PAGE MOBILE OPTIMIZATIONS */
+  
+  /* Hide suggestion buttons above the text input */
+  div[class*="mb-3 flex flex-wrap gap-1.5"] {
+    display: none !important;
+  }
+  
+  /* Adjust chat input position */
+  div[class*="sticky bottom-0 left-0 right-0"] {
+    bottom: 10px !important;
+  }
+  
+  div[class*="mx-auto max-w-4xl px-4"] {
+    padding-bottom: 15px !important;
+  }
+  
+  /* Make chat messages smaller */
+  div[class*="bg-white/80"],
+  div[class*="bg-white/90"],
+  div[class*="bg-primary/10"] {
+    font-size: 0.9rem !important;
+    padding: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+    max-width: 95% !important;
+  }
+  
+  /* Scale down vendor cards */
+  div[class*="grid grid-cols-1 sm:grid-cols-2"] > * {
+    transform: scale(0.95);
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Reduce padding in scroll area */
+  div[class*="h-full px-4 md:px-8 py-6 pb-36"] {
+    padding: 0.5rem !important;
+    padding-bottom: 6rem !important;
+  }
+  
+  /* Make the input area more compact */
+  div[class*="relative flex items-end w-full bg-white/90"] {
+    padding: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+  
+  /* Fix vendor recommendations display */
+  div[class*="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"] {
+    gap: 0.5rem !important;
+  }
+  
+  /* Make text in the input smaller */
+  textarea[class*="w-full resize-none"] {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 1rem !important;
+  }
 }
 
 /* Medium screens (tablets) */
