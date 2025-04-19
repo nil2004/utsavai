@@ -241,52 +241,7 @@ export const getFrontendVendors = async (filters?: {
   maxPrice?: number;
   search?: string;
 }): Promise<Vendor[]> => {
-  try {
-    console.log('Fetching frontend vendors with filters:', filters);
-    
-    try {
-      let query = supabase
-        .from('vendors')
-        .select('*')
-        // Remove status filter to show all vendors
-        // .eq('status', VENDOR_STATUSES.ACTIVE) 
-        .order('rating', { ascending: false }); // Sort by rating
-      
-      // Apply additional filters if provided
-      if (filters) {
-        if (filters.category) {
-          query = query.eq('category', filters.category);
-        }
-        if (filters.city) {
-          query = query.eq('city', filters.city);
-        }
-        if (filters.maxPrice) {
-          query = query.lte('price', filters.maxPrice);
-        }
-        if (filters.search) {
-          query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
-        }
-      }
-      
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error('Error fetching frontend vendors:', error);
-        throw error;
-      }
-      
-      console.log(`Found ${data?.length || 0} vendors for frontend`);
-      return data || [];
-      
-    } catch (dbError) {
-      console.error('Database query failed, falling back to sample data:', dbError);
-      console.log('Using sample vendor data as fallback');
-      
-      // Return sample data as fallback when database errors occur
-      return SAMPLE_VENDORS;
-    }
-  } catch (error) {
-    console.error('Unexpected error in getFrontendVendors:', error);
-    return SAMPLE_VENDORS;
-  }
+  // Return sample data immediately without attempting database connection
+  console.log('Using sample data without attempting database connection');
+  return SAMPLE_VENDORS;
 }; 
