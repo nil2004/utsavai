@@ -181,18 +181,18 @@ const HomePage = () => {
           <div className="absolute left-1/4 -bottom-6 w-20 h-20 bg-pink-400 rounded-full opacity-20 blur-xl"></div>
           <div className="absolute right-1/3 top-1/2 w-4 h-4 bg-blue-300 rounded-full opacity-60 animate-pulse"></div>
           
-          <div className="container mx-auto flex flex-wrap justify-center items-center gap-3 md:gap-6 relative z-10">
+          <div className="container mx-auto flex flex-col sm:flex-row justify-center items-center gap-3 md:gap-6 relative z-10">
             <div className="flex items-center transform hover:scale-105 transition-transform">
-              <Gift className="h-6 w-6 mr-2 text-yellow-300 drop-shadow-glow animate-pulse" />
-              <span className="font-semibold text-lg">🎁 FREE Expert Event Planning</span>
+              <Gift className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-yellow-300 drop-shadow-glow animate-pulse" />
+              <span className="font-semibold text-base sm:text-lg">🎁 FREE Expert Event Planning</span>
             </div>
-            <div className="flex items-center backdrop-blur-sm bg-white/10 rounded-full px-4 py-1.5">
-              <Clock className="h-5 w-5 mr-2 text-yellow-200" />
+            <div className="flex items-center backdrop-blur-sm bg-white/10 rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-sm sm:text-base">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-yellow-200" />
               <span className="font-medium">Login required - First 7 days trial!</span>
             </div>
             <Button 
               size="sm" 
-              className="bg-white text-violet-700 hover:bg-yellow-100 whitespace-nowrap font-semibold shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              className="bg-white text-violet-700 hover:bg-yellow-100 whitespace-nowrap font-semibold shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-sm sm:text-base mt-2 sm:mt-0"
               onClick={handleGetExpertAdvice}
             >
               Get Free Expert Advice
@@ -202,25 +202,25 @@ const HomePage = () => {
       )}
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-light to-white py-20 px-6">
+      <section className="bg-gradient-to-r from-primary-light to-white py-10 sm:py-20 px-4 sm:px-6">
         <div className="container mx-auto flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 mb-10 md:mb-0 md:pr-10">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+          <div className="md:w-1/2 mb-8 md:mb-0 md:pr-10">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
               Plan Your Perfect Event with <span className="text-primary">AI</span> Assistance
             </h1>
-            <p className="mt-4 text-xl text-gray-700">
+            <p className="mt-3 sm:mt-4 text-lg sm:text-xl text-gray-700">
               UtsavAI connects you with the right vendors for your special occasions through smart, AI-powered recommendations.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white w-full sm:w-auto">
                 <Link to="/chat">Start Planning with AI</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary-light">
+              <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary-light w-full sm:w-auto mt-3 sm:mt-0">
                 <Link to="/marketplace">Marketplace</Link>
               </Button>
             </div>
           </div>
-          <div className="md:w-1/2">
+          <div className="md:w-1/2 mt-6 md:mt-0">
             <img 
               src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=2070" 
               alt="Event planning" 
@@ -231,15 +231,15 @@ const HomePage = () => {
       </section>
 
       {/* Event Types Section */}
-      <section className="py-16 px-6 bg-white">
+      <section className="py-10 sm:py-16 px-4 sm:px-6 bg-white">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Plan Any Type of Event</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Plan Any Type of Event</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6">
             {eventTypes.map((type, index) => (
               <Link to="/chat" key={index} className="group">
-                <div className={`${type.color} rounded-lg p-6 text-center transition-all duration-300 group-hover:shadow-md transform group-hover:-translate-y-1`}>
-                  <div className="text-4xl mb-3">{type.icon}</div>
-                  <h3 className="font-medium text-gray-800">{type.name}</h3>
+                <div className={`${type.color} rounded-lg p-4 sm:p-6 text-center transition-all duration-300 group-hover:shadow-md transform group-hover:-translate-y-1`}>
+                  <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">{type.icon}</div>
+                  <h3 className="font-medium text-sm sm:text-base text-gray-800">{type.name}</h3>
                 </div>
               </Link>
             ))}
