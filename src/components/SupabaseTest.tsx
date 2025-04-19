@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase-adapter';
+import { supabase } from '../lib/supabase';
 
 export function SupabaseTest() {
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'success' | 'error'>('checking');

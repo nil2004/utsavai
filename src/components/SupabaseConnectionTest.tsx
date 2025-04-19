@@ -1,164 +1,279 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { supabaseProxy } from '../lib/supabase-proxy';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Separator } from './ui/separator';
+import { supabase } from '@/lib/supabase';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckCircle, XCircle, AlertCircle, RefreshCw, PlusCircle, Loader2 } from 'lucide-react';
 
-export function SupabaseConnectionTest() {
-  const [directStatus, setDirectStatus] = useState<'checking' | 'success' | 'error'>('checking');
-  const [proxyStatus, setProxyStatus] = useState<'checking' | 'success' | 'error'>('checking');
-  const [directError, setDirectError] = useState<string>('');
-  const [proxyError, setProxyError] = useState<string>('');
-  const [detailedError, setDetailedError] = useState<string>('');
+interface TableInfo {
+  name: string;
+  rowCount: number;
+  exists: boolean;
+}
 
-  useEffect(() => {
-    testDirectConnection();
-  }, []);
+export const SupabaseConnectionTest = () => {
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [error, setError] = useState<string | null>(null);
+  const [tables, setTables] = useState<TableInfo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [testVendorResult, setTestVendorResult] = useState<string | null>(null);
+  const [isCreatingVendor, setIsCreatingVendor] = useState(false);
 
-  const testDirectConnection = async () => {
+  const requiredTables = [
+    'admin_users',
+    'vendors',
+    'event_requests',
+    'user_details',
+    'event_vendors'
+  ];
+
+  const checkTables = async () => {
+    console.log('Checking tables status...');
+    const tableInfoPromises = requiredTables.map(async (tableName) => {
+      try {
+        const { count, error } = await supabase
+          .from(tableName)
+          .select('*', { count: 'exact', head: true });
+          
+        if (error) {
+          console.error(`Error checking table ${tableName}:`, error);
+          return {
+            name: tableName,
+            rowCount: 0,
+            exists: false
+          };
+        }
+        
+        return {
+          name: tableName,
+          rowCount: count || 0,
+          exists: true
+        };
+      } catch (err) {
+        console.error(`Error checking table ${tableName}:`, err);
+        return {
+          name: tableName,
+          rowCount: 0,
+          exists: false
+        };
+      }
+    });
+    
     try {
-      setDirectStatus('checking');
-      setDirectError('');
-      setDetailedError('');
-      
-      console.log('Testing Supabase connection...');
-      console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
-      
-      // Try to fetch vendors
-      const { data, error, status } = await supabase
-        .from('vendors')
-        .select('count', { count: 'exact', head: true });
-
-      console.log('Response status:', status);
-      console.log('Response data:', data);
-      
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-      
-      setDirectStatus('success');
-    } catch (error) {
-      console.error('Direct connection test failed:', error);
-      setDirectStatus('error');
-      
-      if (error instanceof Error) {
-        setDirectError(error.message);
-        setDetailedError(JSON.stringify(error, null, 2));
-      } else {
-        setDirectError('Unknown error occurred');
-        setDetailedError(JSON.stringify(error, null, 2));
-      }
+      const tableResults = await Promise.all(tableInfoPromises);
+      console.log('Table check results:', tableResults);
+      setTables(tableResults);
+    } catch (err) {
+      console.error('Error checking tables:', err);
+      setError('Failed to check table status');
     }
   };
 
-  const testProxyConnection = async () => {
+  const testConnection = async () => {
+    setStatus('loading');
+    setError(null);
+    setIsLoading(true);
+    
     try {
-      setProxyStatus('checking');
-      setProxyError('');
-      
-      // Try to fetch vendors through proxy
-      const { error } = await supabaseProxy
+      // Test basic connection
+      const { count, error: countError } = await supabase
         .from('vendors')
-        .select('count', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true });
 
-      if (error) throw error;
+      if (countError) {
+        throw countError;
+      }
+
+      setStatus('success');
       
-      setProxyStatus('success');
-    } catch (error) {
-      console.error('Proxy connection test failed:', error);
-      setProxyStatus('error');
-      setProxyError(error instanceof Error ? error.message : 'Unknown error occurred');
+      // After successful connection, check tables
+      await checkTables();
+      
+    } catch (err) {
+      console.error('Connection test failed:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error during test connection');
+      setStatus('error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initial connection test
+  useEffect(() => {
+    testConnection();
+  }, []);
+
+  const getStatusIcon = (status: boolean | null) => {
+    if (status === null) return <AlertCircle className="h-5 w-5 text-gray-400" />;
+    if (status) return <CheckCircle className="h-5 w-5 text-green-500" />;
+    return <XCircle className="h-5 w-5 text-red-500" />;
+  };
+
+  // Test vendor creation directly
+  const testVendorCreation = async () => {
+    setIsCreatingVendor(true);
+    setTestVendorResult(null);
+    
+    try {
+      // Create minimal test vendor
+      const testVendor = {
+        name: "Test Vendor " + new Date().toISOString(),
+        category: "Other",
+        city: "Test City",
+        price: 1000,
+        description: "This is a test vendor created from the connection test component",
+        contact_email: "test@example.com",
+        contact_phone: "+91 1234567890",
+        status: "pending"
+      };
+      
+      console.log('Attempting to create test vendor:', testVendor);
+      
+      const { data, error } = await supabase
+        .from('vendors')
+        .insert(testVendor)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error creating test vendor:', error);
+        setTestVendorResult(`Error: ${error.message}`);
+        return;
+      }
+      
+      console.log('Successfully created test vendor:', data);
+      setTestVendorResult(`Success! Created vendor ID: ${data.id}`);
+    } catch (err) {
+      console.error('Unexpected error creating test vendor:', err);
+      setTestVendorResult(`Unexpected error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setIsCreatingVendor(false);
     }
   };
 
   return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Direct Connection Test</CardTitle>
-          <CardDescription>
-            Tests connection directly to Supabase
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className={`p-4 rounded-md ${
-            directStatus === 'checking' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
-            directStatus === 'success' ? 'bg-green-50 text-green-700 border-green-100' :
-            'bg-red-50 text-red-700 border-red-100'
-          } border`}>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge className={
-                directStatus === 'checking' ? 'bg-yellow-500' :
-                directStatus === 'success' ? 'bg-green-500' : 
-                'bg-red-500'
-              }>
-                {directStatus === 'checking' ? 'Checking...' : 
-                 directStatus === 'success' ? 'Success' : 'Failed'}
-              </Badge>
+    <Card className="w-full max-w-3xl mx-auto">
+      <CardHeader>
+        <CardTitle>Supabase Connection Test</CardTitle>
+        <CardDescription>
+          Check the connection to your Supabase database and verify required tables
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent>
+        <div className="space-y-6">
+          {/* Connection Status */}
+          <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+            <div>
+              <h3 className="font-medium">Connection Status</h3>
+              <p className="text-sm text-muted-foreground">
+                {status === 'loading' ? 'Testing database connection...' : 
+                  status === 'success' ? 'Connected to Supabase' : 'Failed to connect to Supabase'}
+              </p>
+              {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
             </div>
-            {directStatus === 'error' && (
-              <>
-                <p className="text-sm font-medium mb-2">{directError}</p>
-                {detailedError && (
-                  <div className="mt-2 p-2 bg-red-100 rounded text-xs font-mono whitespace-pre-wrap">
-                    {detailedError}
-                  </div>
-                )}
-              </>
-            )}
-            {directStatus === 'success' && (
-              <p className="text-sm">Successfully connected to Supabase directly</p>
+            <div>
+              {status === 'loading' ? 
+                <Loader2 className="h-5 w-5 animate-spin" /> : 
+                getStatusIcon(status === 'success')}
+            </div>
+          </div>
+          
+          {/* Table Status */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Required Tables Status</h3>
+            
+            {isLoading ? (
+              <div className="flex justify-center p-4">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : (
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="px-4 py-2 text-left">Table Name</th>
+                      <th className="px-4 py-2 text-center">Exists</th>
+                      <th className="px-4 py-2 text-right">Row Count</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {tables.map((table) => (
+                      <tr key={table.name} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">{table.name}</td>
+                        <td className="px-4 py-3 text-center">
+                          {getStatusIcon(table.exists)}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          {table.exists ? table.rowCount : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={testDirectConnection} variant="default">
-            Test Direct Connection
-          </Button>
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Proxy Connection Test</CardTitle>
-          <CardDescription>
-            Tests connection through API Proxy
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className={`p-4 rounded-md ${
-            proxyStatus === 'checking' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
-            proxyStatus === 'success' ? 'bg-green-50 text-green-700 border-green-100' :
-            'bg-red-50 text-red-700 border-red-100'
-          } border`}>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge className={
-                proxyStatus === 'checking' ? 'bg-yellow-500' :
-                proxyStatus === 'success' ? 'bg-green-500' : 
-                'bg-red-500'
-              }>
-                {proxyStatus === 'checking' ? 'Not Tested' : 
-                 proxyStatus === 'success' ? 'Success' : 'Failed'}
-              </Badge>
-            </div>
-            {proxyStatus === 'error' && (
-              <p className="text-sm">{proxyError}</p>
+          
+          {/* Add test vendor creation section */}
+          <div className="border rounded-lg p-4 mt-4">
+            <h3 className="font-medium mb-2">Test Vendor Creation</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Create a test vendor to verify database write access
+            </p>
+            
+            {testVendorResult && (
+              <div className={`p-3 rounded-md mb-4 ${
+                testVendorResult.startsWith('Success') 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {testVendorResult}
+              </div>
             )}
-            {proxyStatus === 'success' && (
-              <p className="text-sm">Successfully connected through proxy</p>
-            )}
-            <p className="text-sm mt-2 text-amber-600">Proxy connection is disabled in favor of direct connection</p>
+            
+            <Button 
+              onClick={testVendorCreation} 
+              disabled={isCreatingVendor || status !== 'success'}
+              className="w-full"
+            >
+              {isCreatingVendor ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-t-current animate-spin rounded-full mr-2" />
+                  Creating Test Vendor...
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Create Test Vendor
+                </>
+              )}
+            </Button>
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={testProxyConnection} variant="outline">
-            Test Proxy Connection
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+      
+      <CardFooter className="flex justify-between">
+        <div className="text-sm text-muted-foreground">
+          Database: <code className="bg-gray-100 px-1 py-0.5 rounded">Supabase Project</code>
+        </div>
+        <Button 
+          onClick={testConnection} 
+          disabled={isLoading}
+          variant="outline"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Checking...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh Check
+            </>
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
   );
-} 
+}; 

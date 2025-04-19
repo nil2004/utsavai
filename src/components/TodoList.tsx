@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase-adapter';
+import { supabase } from '../lib/supabase';
 
 interface Todo {
   id: number;

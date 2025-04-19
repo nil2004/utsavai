@@ -479,109 +479,129 @@ const Message: React.FC<MessageProps> = ({
   onConfirm = () => {},
   selectedVendors = []
 }) => {
-  const [checklist, setChecklist] = useState<VendorChecklistItem[]>(content as VendorChecklistItem[]);
-  
+  const [localContent, setLocalContent] = useState<VendorChecklistItem[]>(
+    Array.isArray(content) ? [...content] : []
+  );
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+
+  useEffect(() => {
+    if (Array.isArray(content)) {
+      setLocalContent([...content]);
+    }
+  }, [content]);
+
   const handleItemToggle = (id: string) => {
-    setChecklist(prev => 
+    setLocalContent(prev => 
       prev.map(item => 
         item.id === id ? { ...item, selected: !item.selected } : item
       )
     );
   };
-  
-  return (
-    <div className={`flex ${sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
-      {sender === 'bot' && (
-        <div className="mr-2 mt-1">
-          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-            <Bot size={18} className="text-blue-600" />
-          </div>
-        </div>
-      )}
-      
-      <div className={`rounded-lg p-3 max-w-[85%] sm:max-w-[75%] ${
-        sender === 'user' 
-          ? 'bg-blue-500 text-white rounded-br-none' 
-          : 'bg-gray-100 text-gray-800 rounded-bl-none'
-      }`}>
-        {isVendorList ? (
-          <div>
-            <p className="font-medium mb-3">Please select the vendors you need:</p>
-            <div className="space-y-2">
-              {(content as VendorChecklistItem[]).map((item) => (
-                <div key={item.id} className="flex items-center">
-                  <Checkbox 
-                    id={item.id} 
-                    checked={item.selected}
-                    onCheckedChange={() => handleItemToggle(item.id)}
-                  />
-                  <label htmlFor={item.id} className="ml-2 text-sm cursor-pointer">
+
+  if (isVendorList) {
+    return (
+      <div className={`flex ${sender === 'user' ? 'justify-end' : 'justify-start'} mb-4 animate-fadeIn`}>
+        <div className={`${
+          sender === 'user' 
+            ? 'bg-gradient-to-r from-primary to-primary/90 text-white shadow-md' 
+            : 'bg-white border border-gray-200 text-gray-800 shadow-sm'
+        } rounded-2xl p-5 max-w-[85%]`}>
+          <div className="font-medium mb-3 text-lg">Please select the vendors you need:</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {Array.isArray(localContent) && localContent.map((item) => (
+              <div 
+                key={item.id} 
+                className={`flex items-center p-3 rounded-lg cursor-pointer transition-all ${
+                  item.selected 
+                    ? 'bg-primary/10 border border-primary/30' 
+                    : 'hover:bg-black/5 border border-transparent'
+                }`}
+                onClick={() => handleItemToggle(item.id)}
+              >
+                <Checkbox
+                  id={`vendor-${item.id}`}
+                  checked={item.selected}
+                  onCheckedChange={() => handleItemToggle(item.id)}
+                  className="mr-3 data-[state=checked]:bg-accent"
+                />
+                <div className="flex items-center flex-1">
+                  {getVendorIcon(item.name)}
+                  <label 
+                    htmlFor={`vendor-${item.id}`} 
+                    className="font-medium ml-2 cursor-pointer"
+                  >
                     {item.name}
                   </label>
-                </div>
-              ))}
-            </div>
-            <Button className="mt-3 w-full sm:w-auto" onClick={onConfirm}>
-              Confirm Selection
-            </Button>
           </div>
-        ) : isVendorSuggestions ? (
-          <div>
-            <p className="font-medium mb-3">Here are some vendor suggestions based on your needs:</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {vendors.map((vendor) => (
-                <Card key={vendor.id} className="overflow-hidden border shadow-sm hover:shadow transition-shadow">
-                  <div className="aspect-video overflow-hidden">
-                    <img 
-                      src={vendor.image} 
-                      alt={vendor.name} 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-medium text-sm">{vendor.name}</h3>
-                      <div className="flex items-center text-amber-500">
-                        <Star size={14} className="fill-current" />
-                        <span className="text-xs ml-1">{vendor.rating}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center text-xs text-gray-500 mb-1">
-                      <MapPin size={12} className="mr-1" />
-                      <span>{vendor.city}</span>
-                    </div>
-                    <div className="text-xs font-medium mb-2">{vendor.priceRange}</div>
-                    
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="w-full text-xs h-8"
-                      onClick={() => onBookVendor(vendor)}
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
-            <div className="mt-3 text-xs">
-              {selectedVendors.length > 0 && (
-                <p className="font-medium">You've selected {selectedVendors.length} vendor(s) so far.</p>
-              )}
-            </div>
+              </div>
+            ))}
           </div>
-        ) : (
-          <p className="whitespace-pre-wrap text-sm sm:text-base">{content as string}</p>
+          <Button 
+            className="mt-6 bg-accent hover:bg-accent/90 shadow-sm transition-all hover:shadow w-full" 
+            onClick={() => onConfirm()}
+          >
+            Confirm Selection
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  
+  if (isVendorSuggestions) {
+    const categorizedVendors: Record<string, Vendor[]> = {};
+    
+    // Group vendors by category
+    if (Array.isArray(vendors)) {
+      vendors.forEach((vendor) => {
+        if (!categorizedVendors[vendor.category]) {
+          categorizedVendors[vendor.category] = [];
+        }
+        categorizedVendors[vendor.category].push(vendor);
+      });
+    }
+
+    return (
+      <div className="flex justify-start mb-6 animate-fadeIn">
+        <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-5 max-w-[95%] w-full shadow-[0_8px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.1)] transition-all duration-300">
+          <div className="whitespace-pre-wrap break-words">{typeof content === 'string' ? content : 'No description available'}</div>
+              </div>
+        {selectedVendor && (
+          <VendorDetailsDialog
+            isOpen={!!selectedVendor}
+            onClose={() => setSelectedVendor(null)}
+            vendor={selectedVendor}
+          />
         )}
       </div>
-      
-      {sender === 'user' && (
-        <div className="ml-2 mt-1">
-          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-            <User size={18} className="text-white" />
-          </div>
-        </div>
-      )}
+    );
+  }
+
+  // Regular text message
+  return (
+    <div className={`flex ${sender === 'user' ? 'justify-end' : 'justify-start'} mb-6 animate-fadeIn`}>
+      <div className="flex items-start max-w-[85%] group">
+        {sender === 'bot' && (
+          <div className="bg-gradient-to-br from-primary to-primary/80 text-white p-3 rounded-2xl mr-3 shadow-[0_8px_16px_rgba(139,92,246,0.3)] transform hover:scale-105 transition-all duration-300">
+            <Bot className="h-6 w-6" />
+                      </div>
+        )}
+        <div 
+          className={`${
+            sender === 'user' 
+              ? 'bg-gradient-to-br from-primary to-primary/90 text-white shadow-[0_8px_16px_rgba(139,92,246,0.2)] hover:shadow-[0_12px_20px_rgba(139,92,246,0.3)] transform hover:-translate-y-0.5' 
+              : 'bg-white border border-gray-200/50 text-gray-800 shadow-[0_8px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_20px_rgba(0,0,0,0.08)] transform hover:-translate-y-0.5'
+          } rounded-2xl px-6 py-4 text-base backdrop-blur-sm transition-all duration-300 ${
+            sender === 'user' ? 'rounded-tr-sm' : 'rounded-tl-sm'
+          }`}
+        >
+          {typeof content === 'string' ? content : 'Invalid message content'}
+                          </div>
+        {sender === 'user' && (
+          <div className="bg-gradient-to-br from-accent to-accent/80 text-white p-3 rounded-2xl ml-3 shadow-[0_8px_16px_rgba(249,115,22,0.3)] transform hover:scale-105 transition-all duration-300">
+            <User className="h-6 w-6" />
+                          </div>
+        )}
+                        </div>
     </div>
   );
 };
@@ -651,30 +671,43 @@ interface BudgetInputProps {
 
 const BudgetInput: React.FC<BudgetInputProps> = ({ budget, setBudget, onConfirm }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && budget.trim()) {
       onConfirm();
     }
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-      <Label htmlFor="budget" className="whitespace-nowrap">Enter your budget (₹):</Label>
-      <div className="flex items-center gap-2 w-full sm:w-auto">
-        <Input
-          id="budget"
-          type="number"
-          min="5000"
-          value={budget}
-          onChange={(e) => setBudget(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="w-full sm:w-32"
-          placeholder="e.g. 50000"
-        />
-        <Button onClick={onConfirm} disabled={!budget}>
-          Confirm
-        </Button>
+    <div className="flex justify-start mb-4 animate-fadeIn">
+      <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-5 max-w-[85%] shadow-[0_8px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.1)] transition-all duration-300">
+        <div className="font-medium mb-3 text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">What's your approximate budget?</div>
+        <div className="flex items-center mb-4 border rounded-lg p-2 bg-white/50 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/60">
+          <span className="text-lg font-semibold text-gray-500 px-2">₹</span>
+          <Input
+            type="number"
+            placeholder="e.g. 100000"
+            value={budget}
+            onChange={(e) => setBudget(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="border-0 focus-visible:ring-0 focus-visible:ring-transparent bg-transparent"
+          />
+        </div>
+        <div className="mb-2 text-sm text-gray-500">Common budget ranges:</div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Button variant="outline" size="sm" onClick={() => setBudget("50000")} className="text-sm py-1 h-7">₹50,000</Button>
+          <Button variant="outline" size="sm" onClick={() => setBudget("100000")} className="text-sm py-1 h-7">₹1,00,000</Button>
+          <Button variant="outline" size="sm" onClick={() => setBudget("200000")} className="text-sm py-1 h-7">₹2,00,000</Button>
+          <Button variant="outline" size="sm" onClick={() => setBudget("500000")} className="text-sm py-1 h-7">₹5,00,000</Button>
+        </div>
+        <Button 
+          onClick={onConfirm} 
+          className="bg-accent hover:bg-accent/90 w-full shadow-[0_4px_12px_rgba(249,115,22,0.3)] hover:shadow-[0_8px_16px_rgba(249,115,22,0.4)]"
+          disabled={!budget.trim()}
+        >
+          Confirm Budget
+          </Button>
+        </div>
       </div>
-    </div>
+  
   );
 };
 
@@ -685,26 +718,49 @@ interface LocationInputProps {
 }
 
 const LocationInput: React.FC<LocationInputProps> = ({ location, setLocation, onConfirm }) => {
+  const popularCities = ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune"];
+  
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && location.trim()) {
       onConfirm();
     }
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-      <Label htmlFor="location" className="whitespace-nowrap">Event Location:</Label>
-      <div className="flex items-center gap-2 w-full sm:w-auto">
-        <Input
-          id="location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="w-full"
-          placeholder="e.g. Mumbai"
-        />
-        <Button onClick={onConfirm} disabled={!location}>
-          Confirm
+    <div className="flex justify-start mb-4 animate-fadeIn">
+      <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-5 max-w-[85%] shadow-[0_8px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.1)] transition-all duration-300">
+        <div className="font-medium mb-3 text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Where will your event be held?</div>
+        <div className="flex items-center mb-4 border rounded-lg p-2 bg-white/50 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/60">
+          <MapPin className="text-gray-500 h-5 w-5 mx-2" />
+          <Input
+            type="text"
+            placeholder="Enter city name"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="border-0 focus-visible:ring-0 focus-visible:ring-transparent bg-transparent"
+          />
+            </div>
+        <div className="mb-2 text-sm text-gray-500">Popular cities:</div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {popularCities.map(city => (
+            <Button 
+              key={city} 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setLocation(city)}
+              className={`text-sm py-1 h-7 ${location === city ? "bg-primary/10 border-primary/30 text-primary" : ""}`}
+            >
+              {city}
+            </Button>
+          ))}
+          </div>
+        <Button 
+          onClick={onConfirm} 
+          className="bg-accent hover:bg-accent/90 w-full shadow-[0_4px_12px_rgba(249,115,22,0.3)] hover:shadow-[0_8px_16px_rgba(249,115,22,0.4)]"
+          disabled={!location.trim()}
+        >
+          Confirm Location
         </Button>
       </div>
     </div>
@@ -1045,7 +1101,6 @@ const BudgetAllocation: React.FC<BudgetAllocationProps> = ({ eventType, budget }
 };
 
 const ChatPage: React.FC = () => {
-  const [input, setInput] = useState<string>('');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
@@ -1053,59 +1108,29 @@ const ChatPage: React.FC = () => {
       content: "Hello! I'm your event buddy. I can help you plan your event and find the right vendors. What kind of event are you planning?",
     },
   ]);
+  const [input, setInput] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
-  const [showingVendorsList, setShowingVendorsList] = useState<boolean>(false);
   const [vendorChecklist, setVendorChecklist] = useState<VendorChecklistItem[]>([]);
-  const [showingLocationInput, setShowingLocationInput] = useState<boolean>(false);
-  const [location, setLocation] = useState<string>('');
-  const [showingBudgetInput, setShowingBudgetInput] = useState<boolean>(false);
-  const [budget, setBudget] = useState<string>('');
-  const [showingBudgetAllocation, setShowingBudgetAllocation] = useState<boolean>(false);
+  const [showingVendorsList, setShowingVendorsList] = useState<boolean>(false);
   const [suggestedVendors, setSuggestedVendors] = useState<Vendor[]>([]);
-  const [selectedVendors, setSelectedVendors] = useState<Vendor[]>([]);
+  const [location, setLocation] = useState<string>('');
+  const [showingLocationInput, setShowingLocationInput] = useState<boolean>(false);
+  const [budget, setBudget] = useState<string>('');
+  const [showingBudgetInput, setShowingBudgetInput] = useState<boolean>(false);
   const [bookingVendor, setBookingVendor] = useState<Vendor | null>(null);
-  const [showingUserDetailsForm, setShowingUserDetailsForm] = useState<boolean>(false);
+  const [selectedVendors, setSelectedVendors] = useState<Vendor[]>([]);
   const [submittedInterest, setSubmittedInterest] = useState<boolean>(false);
-  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState<boolean>(true);
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  const [showingUserDetailsForm, setShowingUserDetailsForm] = useState<boolean>(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState<boolean>(false);
+  const [showingBudgetAllocation, setShowingBudgetAllocation] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [lastRequestId, setLastRequestId] = useState<number | undefined>(undefined);
   const [showingFreeOfferForm, setShowingFreeOfferForm] = useState<boolean>(false);
-  const [showEventTypes, setShowEventTypes] = useState<boolean>(false);
-  const [selectedEventType, setSelectedEventType] = useState<string | null>(null);
-  const [eventProgress, setEventProgress] = useState<number>(0);
-  const [isTyping, setIsTyping] = useState<boolean>(false);
-  const [showScrollToBottom, setShowScrollToBottom] = useState<boolean>(false);
-  const [shouldAutoScroll, setShouldAutoScroll] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [showConsultationForm, setShowConsultationForm] = useState<boolean>(false);
-  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
-  
-  // Add function to reset chat
-  const resetChat = () => {
-    setMessages([
-      {
-        id: '1',
-        sender: 'bot',
-        content: "Hello! I'm your event buddy. I can help you plan your event and find the right vendors. What kind of event are you planning?",
-      },
-    ]);
-    setInput('');
-    setSelectedEvent(null);
-    setShowingVendorsList(false);
-    setVendorChecklist([]);
-    setShowingLocationInput(false);
-    setLocation('');
-    setShowingBudgetInput(false);
-    setBudget('');
-    setShowingBudgetAllocation(false);
-    setSuggestedVendors([]);
-    setSelectedVendors([]);
-    setSubmittedInterest(false);
-    setEventProgress(0);
-    setShowEventTypes(false);
-  };
 
   useEffect(() => {
     // Only scroll if auto-scroll is enabled and the user is near the bottom
@@ -1138,11 +1163,9 @@ const ChatPage: React.FC = () => {
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    const isScrolledToBottom = scrollHeight - scrollTop <= clientHeight + 100;
-    
-    setShouldAutoScroll(isScrolledToBottom);
-    setShowScrollToBottom(!isScrolledToBottom);
+    const { scrollHeight, scrollTop, clientHeight } = e.currentTarget;
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+    setShowScrollButton(!isNearBottom);
   };
 
   const handleSendMessage = () => {
@@ -1683,161 +1706,242 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen max-h-screen overflow-hidden">
-      {/* Main chat container */}
-      <div className="flex flex-col md:flex-row h-full overflow-hidden">
-        {/* Sidebar section - hidden on mobile by default, toggleable */}
-        <div className={`${showEventTypes ? 'block' : 'hidden'} md:block md:w-1/4 lg:w-1/5 bg-slate-50 border-r overflow-y-auto p-4`}>
-          <h2 className="text-lg font-semibold mb-4">Event Types</h2>
-          
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
-            {eventTypes.map((type) => (
-              <Button
-                key={type.id}
-                variant={selectedEventType === type.id ? "default" : "outline"}
-                className="justify-start text-left h-auto py-3"
-                onClick={() => handleEventSelect(type.id)}
-              >
-                <span className="mr-2 text-xl">{type.emoji}</span>
-                <span>{type.name}</span>
-              </Button>
-            ))}
-          </div>
-
-          {selectedVendors.length > 0 && (
-            <div className="mt-6">
-              <h3 className="text-md font-semibold mb-2">Selected Vendors</h3>
-              
-              <div className="space-y-2">
-                {selectedVendors.map(vendor => (
-                  <div key={vendor.id} className="flex items-center bg-white rounded-md p-2 border text-sm">
-                    {getVendorIcon(vendor.category)}
-                    <span className="ml-2 truncate">{vendor.name}</span>
-                  </div>
-                ))}
-              </div>
-
-              <Button 
-                className="w-full mt-4" 
-                onClick={handleSubmitAllInterests}
-                disabled={submitting}
-              >
-                {submitting ? 'Submitting...' : 'Submit Interest'}
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Main content area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Chat header - now responsive */}
-          <div className="bg-white border-b p-3 flex items-center justify-between">
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="md:hidden mr-2" 
-                onClick={() => setShowEventTypes(!showEventTypes)}
-              >
-                <Filter size={20} />
-              </Button>
-              <h1 className="text-xl font-semibold">UtsavAI Chat</h1>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                className="text-xs sm:text-sm px-2 py-1 h-auto"
-                onClick={() => setShowConsultationForm(true)}
-              >
-                <Gift className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Get Free Consultation</span>
-                <span className="sm:hidden">Free Consult</span>
-              </Button>
-
-              {eventProgress > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs"
-                  onClick={resetChat}
-                >
-                  <PlusCircle className="h-4 w-4 mr-1" />
-                  <span className="hidden sm:inline">New Chat</span>
-                  <span className="sm:hidden">New</span>
-                </Button>
-              )}
-            </div>
-          </div>
-          
-          {/* Chat messages area */}
-          <ScrollArea 
-            className="flex-1 p-4 overflow-y-auto" 
-            onScroll={handleScroll}
-            ref={scrollAreaRef}
-          >
-            <div className="space-y-4 max-w-3xl mx-auto">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-violet-50 via-white to-violet-50/50">
+      <div className="flex-grow overflow-hidden relative">
+        <ScrollArea 
+          className="h-full px-4 md:px-8 py-6 pb-36" 
+          onWheel={handleScroll}
+          ref={scrollAreaRef}
+        >
+          <div className="flex flex-col min-h-full max-w-4xl mx-auto">
+            <div className="flex-grow space-y-6">
               {messages.map((message, index) => (
-                <div key={message.id || index} className="flex flex-col">
-                  <Message 
-                    sender={message.sender} 
-                    content={message.content} 
+                <div
+                  key={message.id}
+                  className={`animate-in slide-in-from-${message.sender === 'bot' ? 'left' : 'right'} duration-300 delay-${index % 3}00`}
+                >
+                <Message 
+                    sender={message.sender}
+                    content={message.content}
                     isVendorList={message.isVendorList}
                     isVendorSuggestions={message.isVendorSuggestions}
                     vendors={message.vendors || []}
-                    onBookVendor={handleBookVendor}
-                    onConfirm={handleVendorChecklistConfirm}
+                  onBookVendor={handleBookVendor}
+                    onConfirm={
+                      message.isVendorList ? handleVendorChecklistConfirm : undefined
+                    }
                     selectedVendors={selectedVendors}
                   />
+                  {message.isVendorSuggestions && message.vendors && message.vendors.length > 0 && 
+                    <div className="mt-2 mb-8">
+                      {renderVendorSuggestions(message.vendors)}
+                    </div>
+                  }
                 </div>
               ))}
               
-              {isTyping && (
-                <div className="flex items-center space-x-2 text-slate-500 animate-pulse">
-                  <Bot size={20} />
-                  <div>UtsavAI is thinking...</div>
+              {showingLocationInput && (
+                <div className="animate-in slide-in-from-bottom duration-300">
+                <LocationInput 
+                  location={location}
+                  setLocation={setLocation}
+                  onConfirm={handleLocationConfirm}
+                />
+          </div>
+              )}
+              
+              {showingBudgetInput && (
+                <div className="animate-in slide-in-from-bottom duration-300">
+                <BudgetInput 
+                  budget={budget}
+                  setBudget={setBudget}
+                  onConfirm={handleBudgetConfirm}
+                />
+          </div>
+              )}
+              
+              {showingBudgetAllocation && selectedEvent && (
+                <div className="animate-in slide-in-from-bottom duration-300">
+                  <BudgetAllocation 
+                    eventType={selectedEvent}
+                    budget={budget}
+                  />
+          </div>
+              )}
+              
+              {showingUserDetailsForm && (
+                <UserDetailsForm 
+                  onSubmit={handleUserDetailsSubmit}
+                  onCancel={() => setShowingUserDetailsForm(false)}
+                  selectedVendorsCount={selectedVendors.length}
+                />
+              )}
+              
+              {showingFreeOfferForm && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+                  <div className="w-full max-w-md">
+                    <FreeOfferForm 
+                      onClose={() => setShowingFreeOfferForm(false)}
+                      eventType={selectedEvent || undefined}
+                      budget={budget || undefined}
+                      location={location || undefined}
+                    />
+          </div>
                 </div>
               )}
               
-              <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
-          
-          {/* Input area - now responsive */}
-          <div className="border-t p-3 bg-white">
-            <div className="max-w-3xl mx-auto">
-              <div className="flex items-center space-x-2">
-                <Input
-                  placeholder="Type your message here..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-                  className="flex-1"
-                  disabled={isTyping}
-                />
-                <Button onClick={handleSendMessage} disabled={!input.trim() || isTyping}>
-                  <SendHorizontal size={18} />
-                  <span className="sr-only">Send message</span>
-                </Button>
-              </div>
-              
-              {showScrollToBottom && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="absolute bottom-20 right-8 rounded-full opacity-70 hover:opacity-100 md:bottom-24"
-                  onClick={scrollToBottom}
-                >
-                  <ArrowDown size={16} />
-                </Button>
-              )}
-            </div>
+              {!selectedEvent && (
+                <div className="flex justify-start mb-4 animate-in slide-in-from-bottom duration-300">
+                  <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-6 max-w-[90%] shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] transition-all duration-500">
+                    <div className="font-medium mb-4 text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Please select an event type:</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {eventTypes.map((eventType) => {
+                        // Get recommended vendors for this event type
+                        const recommendedVendors = defaultVendorChecklists[eventType.id]
+                          ?.filter(item => item.selected)
+                          .map(item => item.name)
+                          .slice(0, 3) || [];
+                        
+                        return (
+                          <button
+                            key={eventType.id}
+                            className="group flex flex-col items-center justify-center p-4 rounded-xl border-2 border-gray-100 hover:border-primary/60 transition-all hover:bg-gradient-to-br hover:from-primary/5 hover:to-transparent hover:scale-105 transform cursor-pointer hover:shadow-[0_8px_16px_rgba(139,92,246,0.15)]"
+                            onClick={() => handleEventSelect(eventType.id)}
+                          >
+                            <span className="text-4xl mb-3 group-hover:scale-110 transition-all duration-300 transform-gpu">{eventType.emoji}</span>
+                            <span className="font-medium text-base text-gray-700 group-hover:text-primary transition-colors">{eventType.name}</span>
+                            
+                            {/* Show recommended vendors */}
+                            <div className="mt-2 w-full">
+                              <div className="text-xs text-gray-500 mb-1">Recommended vendors:</div>
+                              <div className="flex flex-wrap gap-1">
+                                {recommendedVendors.map((vendor, index) => (
+                                  <span 
+                                    key={index} 
+                                    className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-violet-50 text-violet-600 border border-violet-100"
+                                  >
+                                    {vendor}
+                                  </span>
+                                ))}
           </div>
         </div>
-      </div>
+                          </button>
+                        );
+                      })}
+            </div>
+            </div>
+          </div>
+              )}
+          </div>
+            <div ref={messagesEndRef} className="h-px" />
+          </div>
+        </ScrollArea>
 
-      {/* Dialogs remain unchanged */}
-      {/* ... existing dialogs ... */}
+        {showScrollButton && (
+              <Button 
+            className="fixed bottom-28 right-8 rounded-full p-3 bg-primary/90 hover:bg-primary shadow-lg transition-all duration-200 animate-in fade-in slide-in-from-bottom-4 hover:scale-110 z-10"
+            onClick={scrollToBottom}
+                size="icon"
+              >
+            <ArrowDown className="h-5 w-5 text-white" />
+          </Button>
+        )}
+        
+        <div className="sticky bottom-0 left-0 right-0">
+          <div className="mx-auto max-w-4xl px-4 md:px-8 pb-4">
+            {!showingVendorsList && !showingLocationInput && !showingBudgetInput && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setInput("What vendors do you recommend?")}
+                  className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
+                >
+                  Vendor recommendations
+            </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setInput("How much does it typically cost?")}
+                  className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
+                >
+                  Cost estimates
+            </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setInput("I need help with planning")}
+                  className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
+                >
+                  Planning assistance
+            </Button>
+          </div>
+            )}
+            <div className="relative flex items-end w-full bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
+              <textarea
+                placeholder="Type a message..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (input.trim()) handleSendMessage();
+                  }
+                }}
+                className="w-full resize-none rounded-xl border-0 bg-transparent py-3 pl-4 pr-12 focus:ring-0 focus-visible:ring-0 md:py-3 md:pl-5 text-sm"
+                style={{
+                  minHeight: '20px',
+                  maxHeight: '120px',
+                  height: 'auto',
+                  overflowY: 'hidden'
+                }}
+                rows={1}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                }}
+              />
+              <div className="absolute bottom-1 right-1 flex items-center justify-center gap-2">
+                {suggestedVendors.length > 0 && selectedVendors.length > 0 && !submittedInterest && (
+              <Button 
+                    onClick={handleSubmitAllInterests}
+                    className="h-8 rounded-lg px-3 text-xs bg-accent hover:bg-accent/90 shadow-md transition-all"
+              >
+                    Submit Interest ({selectedVendors.length})
+              </Button>
+                )}
+                <Button 
+                  onClick={handleSendMessage} 
+                  className={`h-8 w-8 rounded-lg p-0 transition-all duration-300 transform hover:scale-110 ${
+                    input.trim() 
+                      ? 'bg-gradient-to-br from-primary to-primary/90 text-white shadow-[0_4px_12px_rgba(139,92,246,0.3)] hover:shadow-[0_8px_16px_rgba(139,92,246,0.4)]' 
+                      : 'text-gray-400 bg-transparent hover:bg-transparent'
+                  }`}
+                  disabled={!input.trim()}
+                >
+                  <SendHorizontal className="h-4 w-4" />
+                </Button>
+              </div>
+          </div>
+            <div className="mt-1.5 text-center text-[10px] text-gray-500">
+              Press Enter to send, Shift + Enter for new line
+      </div>
+          </div>
+          <div className="h-8 bg-gradient-to-t from-white via-white to-transparent" />
+        </div>
+      </div>
+      
+      {bookingVendor && (
+        <BookingForm vendor={bookingVendor} onClose={handleCloseBookingForm} />
+      )}
+      
+      {showSuccessPopup && (
+        <SuccessPopup 
+          onClose={() => setShowSuccessPopup(false)} 
+          requestId={lastRequestId} 
+        />
+      )}
     </div>
   );
 };
