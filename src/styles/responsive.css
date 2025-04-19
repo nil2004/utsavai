@@ -149,6 +149,14 @@
     font-size: 0.9rem !important;
     padding: 0.5rem 1rem !important;
   }
+
+  /* Login page specific styles */
+  .min-h-screen.flex.items-center.justify-center {
+    min-height: 100vh !important;
+    padding: 1rem !important;
+    align-items: flex-start !important;
+    padding-top: 2rem !important;
+  }
 }
 
 /* Medium screens (tablets) */

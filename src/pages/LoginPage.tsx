@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -14,6 +14,22 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Add scroll reset effect for mobile
+  useEffect(() => {
+    // Check if it's a mobile device (max-width: 640px)
+    const isMobile = window.innerWidth <= 640;
+    if (isMobile) {
+      // Reset scroll position
+      window.scrollTo(0, 0);
+      // Prevent scrolling temporarily
+      document.body.style.overflow = 'hidden';
+      // Re-enable scrolling after a short delay
+      setTimeout(() => {
+        document.body.style.overflow = '';
+      }, 100);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
