@@ -3,22 +3,21 @@ import { supabaseProxy } from './supabase-proxy';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './supabase';
 
-// Determine if we should use the proxy based on hostname
+// Force direct connection instead of proxy
 const shouldUseProxy = () => {
   // We're in the browser
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    const useProxy = hostname.includes('utsavai.com') || 
-           hostname.includes('vercel.app') || 
-           !hostname.includes('localhost');
+    // Always use direct connection regardless of environment
+    const useProxy = false;
     
-    console.log(`Hostname is "${hostname}" -> Using ${useProxy ? 'PROXY' : 'DIRECT'} connection`);
+    console.log(`Hostname is "${hostname}" -> Using DIRECT connection (proxy disabled)`);
     return useProxy;
   }
   
-  // Default to proxy in non-browser environments
-  console.log('Non-browser environment detected -> Using PROXY connection');
-  return true;
+  // Default to direct in non-browser environments
+  console.log('Non-browser environment detected -> Using DIRECT connection');
+  return false;
 };
 
 // Debug which client we're using

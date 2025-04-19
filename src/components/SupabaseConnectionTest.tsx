@@ -14,7 +14,6 @@ export function SupabaseConnectionTest() {
 
   useEffect(() => {
     testDirectConnection();
-    testProxyConnection();
   }, []);
 
   const testDirectConnection = async () => {
@@ -58,75 +57,83 @@ export function SupabaseConnectionTest() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">Supabase Connection Test</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Direct Connection */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Direct Connection</CardTitle>
-            <CardDescription>Tests connection directly to Supabase</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-2 mb-2">
-              <span>Status:</span>
-              {directStatus === 'checking' && <Badge variant="outline">Checking...</Badge>}
-              {directStatus === 'success' && <Badge className="bg-green-500">Connected</Badge>}
-              {directStatus === 'error' && <Badge variant="destructive">Error</Badge>}
+    <div className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Direct Connection Test</CardTitle>
+          <CardDescription>
+            Tests connection directly to Supabase
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className={`p-4 rounded-md ${
+            directStatus === 'checking' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
+            directStatus === 'success' ? 'bg-green-50 text-green-700 border-green-100' :
+            'bg-red-50 text-red-700 border-red-100'
+          } border`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className={
+                directStatus === 'checking' ? 'bg-yellow-500' :
+                directStatus === 'success' ? 'bg-green-500' : 
+                'bg-red-500'
+              }>
+                {directStatus === 'checking' ? 'Checking...' : 
+                 directStatus === 'success' ? 'Success' : 'Failed'}
+              </Badge>
             </div>
-            {directError && (
-              <div className="text-red-500 text-sm mt-2 p-2 bg-red-50 rounded">
-                {directError}
-              </div>
+            {directStatus === 'error' && (
+              <p className="text-sm">{directError}</p>
             )}
-          </CardContent>
-          <CardFooter>
-            <Button onClick={testDirectConnection} variant="outline">
-              Test Direct Connection
-            </Button>
-          </CardFooter>
-        </Card>
+            {directStatus === 'success' && (
+              <p className="text-sm">Successfully connected to Supabase directly</p>
+            )}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button onClick={testDirectConnection} variant="default">
+            Test Direct Connection
+          </Button>
+        </CardFooter>
+      </Card>
 
-        {/* Proxy Connection */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Proxy Connection</CardTitle>
-            <CardDescription>Tests connection through API Proxy</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-2 mb-2">
-              <span>Status:</span>
-              {proxyStatus === 'checking' && <Badge variant="outline">Checking...</Badge>}
-              {proxyStatus === 'success' && <Badge className="bg-green-500">Connected</Badge>}
-              {proxyStatus === 'error' && <Badge variant="destructive">Error</Badge>}
+      <Card>
+        <CardHeader>
+          <CardTitle>Proxy Connection Test</CardTitle>
+          <CardDescription>
+            Tests connection through API Proxy
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className={`p-4 rounded-md ${
+            proxyStatus === 'checking' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
+            proxyStatus === 'success' ? 'bg-green-50 text-green-700 border-green-100' :
+            'bg-red-50 text-red-700 border-red-100'
+          } border`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className={
+                proxyStatus === 'checking' ? 'bg-yellow-500' :
+                proxyStatus === 'success' ? 'bg-green-500' : 
+                'bg-red-500'
+              }>
+                {proxyStatus === 'checking' ? 'Not Tested' : 
+                 proxyStatus === 'success' ? 'Success' : 'Failed'}
+              </Badge>
             </div>
-            {proxyError && (
-              <div className="text-red-500 text-sm mt-2 p-2 bg-red-50 rounded">
-                {proxyError}
-              </div>
+            {proxyStatus === 'error' && (
+              <p className="text-sm">{proxyError}</p>
             )}
-          </CardContent>
-          <CardFooter>
-            <Button onClick={testProxyConnection} variant="outline">
-              Test Proxy Connection
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-
-      <Separator className="my-8" />
-      
-      <div className="bg-gray-50 p-4 rounded">
-        <h3 className="text-lg font-medium mb-2">Troubleshooting Tips:</h3>
-        <ul className="list-disc list-inside space-y-1 text-sm">
-          <li>Make sure your Supabase URL and anon key are correctly set in the environment variables.</li>
-          <li>If direct connection works but proxy doesn't, the API proxy configuration may be incorrect.</li>
-          <li>Check browser console for detailed error messages.</li>
-          <li>Verify that the API proxy endpoint is deployed and accessible.</li>
-          <li>If you're experiencing CORS errors, the proxy should help resolve these issues.</li>
-        </ul>
-      </div>
+            {proxyStatus === 'success' && (
+              <p className="text-sm">Successfully connected through proxy</p>
+            )}
+            <p className="text-sm mt-2 text-amber-600">Proxy connection is disabled in favor of direct connection</p>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button onClick={testProxyConnection} variant="outline">
+            Test Proxy Connection
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 } 
