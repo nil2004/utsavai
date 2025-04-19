@@ -8,6 +8,7 @@ import { MapPin, Star, Filter, Search } from 'lucide-react';
 import { RangeSlider } from '@/components/ui/range-slider';
 import { getFrontendVendors, type Vendor } from '@/lib/vendor-service';
 import '@/styles/marketplace.css';
+import SEO from '@/components/SEO';
 
 // Interface for sample vendors (matches hardcoded data structure)
 interface SampleVendor {
@@ -214,195 +215,203 @@ const MarketplacePage: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-violet-50/50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Marketplace</h1>
-            <p className="mt-2 text-gray-600">Find the perfect vendors for your event</p>
-            {!loading && (
-              <p className="text-sm text-gray-500 mt-1">
-                Showing all {filteredVendors.length} vendors 
-                {usingSampleData ? " (sample data)" : " from our database"}
-              </p>
-            )}
-            {error && (
-              <p className="text-sm text-amber-600 mt-1">{error}</p>
-            )}
-        </div>
-          <div className="w-full md:w-auto flex gap-2">
-            <div className="relative flex-grow md:w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search vendors..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
+    <>
+      <SEO 
+        title="Vendor Marketplace | UtsavAI"
+        description="Find the perfect vendors for your event. Browse through our curated list of decorators, photographers, caterers, venues, and more. Filter by price, location, and ratings."
+        keywords="event vendors, wedding vendors, event marketplace, event decorators, photographers, caterers, venue booking"
+        type="website"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-violet-50/50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Marketplace</h1>
+              <p className="mt-2 text-gray-600">Find the perfect vendors for your event</p>
+              {!loading && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Showing all {filteredVendors.length} vendors 
+                  {usingSampleData ? " (sample data)" : " from our database"}
+                </p>
+              )}
+              {error && (
+                <p className="text-sm text-amber-600 mt-1">{error}</p>
+              )}
             </div>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              Filters
+            <div className="w-full md:w-auto flex gap-2">
+              <div className="relative flex-grow md:w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search vendors..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                Filters
               </Button>
             </div>
           </div>
           
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="space-y-6">
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Category</Label>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((category) => (
-                  <Button
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category)}
-                    className="text-sm"
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-sm font-medium mb-2 block">City</Label>
-              <div className="flex flex-wrap gap-2">
-                {cities.map((city) => (
-                  <Button
-                    key={city}
-                    variant={selectedCity === city ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCity(city)}
-                    className="text-sm"
-                  >
-                    {city}
-                  </Button>
-                ))}
-          </div>
-        </div>
-        
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Sort By</Label>
-              <div className="flex flex-col gap-2">
-                {sortOptions.map((option) => (
-                  <Button
-                    key={option}
-                    variant={selectedSort === option ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedSort(option)}
-                    className="text-sm justify-start"
-                  >
-                    {option}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Price Range</Label>
-              <div className="space-y-4">
-                <div className="price-range-display">
-                  <span>{formatPrice(priceRange[0])}</span>
-                  <span>{formatPrice(priceRange[1])}</span>
-                </div>
-                <RangeSlider
-                  defaultValue={[5000, 120000]}
-                  min={5000}
-                  max={120000}
-                  step={5000}
-                  value={priceRange}
-                  onValueChange={setPriceRange}
-                  className="price-slider"
-                  minStepsBetweenThumbs={1}
-                  aria-label="Price Range"
-                  orientation="horizontal"
-                />
-                <div className="price-preset-buttons">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPriceRange([5000, 25000])}
-                    className={`price-preset-button ${priceRange[0] === 5000 && priceRange[1] === 25000 ? 'active' : ''}`}
-                  >
-                    Budget
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPriceRange([25000, 50000])}
-                    className={`price-preset-button ${priceRange[0] === 25000 && priceRange[1] === 50000 ? 'active' : ''}`}
-                  >
-                    Mid-Range
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPriceRange([50000, 120000])}
-                    className={`price-preset-button ${priceRange[0] === 50000 && priceRange[1] === 120000 ? 'active' : ''}`}
-                  >
-                    Premium
-                  </Button>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="space-y-6">
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Category</Label>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((category) => (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedCategory(category)}
+                      className="text-sm"
+                    >
+                      {category}
+                    </Button>
+                  ))}
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="md:col-span-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {loading ? (
-                <p className="col-span-full text-center py-12">Loading vendors...</p>
-              ) : filteredVendors.map((vendor) => (
-                <Card key={vendor.id} className="overflow-hidden group hover:shadow-lg transition-all duration-300">
-                  <div className="aspect-video relative overflow-hidden">
-                    <img
-                      src={getVendorImage(vendor)}
-                      alt={vendor.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-sm font-medium border border-gray-200/50">
-                      {vendor.category}
-                    </div>
+              <div>
+                <Label className="text-sm font-medium mb-2 block">City</Label>
+                <div className="flex flex-wrap gap-2">
+                  {cities.map((city) => (
+                    <Button
+                      key={city}
+                      variant={selectedCity === city ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedCity(city)}
+                      className="text-sm"
+                    >
+                      {city}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Sort By</Label>
+                <div className="flex flex-col gap-2">
+                  {sortOptions.map((option) => (
+                    <Button
+                      key={option}
+                      variant={selectedSort === option ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedSort(option)}
+                      className="text-sm justify-start"
+                    >
+                      {option}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Price Range</Label>
+                <div className="space-y-4">
+                  <div className="price-range-display">
+                    <span>{formatPrice(priceRange[0])}</span>
+                    <span>{formatPrice(priceRange[1])}</span>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg mb-1">{vendor.name}</h3>
-                    <div className="flex items-center gap-1 mb-2">
-                      <MapPin className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{vendor.city}</span>
+                  <RangeSlider
+                    defaultValue={[5000, 120000]}
+                    min={5000}
+                    max={120000}
+                    step={5000}
+                    value={priceRange}
+                    onValueChange={setPriceRange}
+                    className="price-slider"
+                    minStepsBetweenThumbs={1}
+                    aria-label="Price Range"
+                    orientation="horizontal"
+                  />
+                  <div className="price-preset-buttons">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPriceRange([5000, 25000])}
+                      className={`price-preset-button ${priceRange[0] === 5000 && priceRange[1] === 25000 ? 'active' : ''}`}
+                    >
+                      Budget
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPriceRange([25000, 50000])}
+                      className={`price-preset-button ${priceRange[0] === 25000 && priceRange[1] === 50000 ? 'active' : ''}`}
+                    >
+                      Mid-Range
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPriceRange([50000, 120000])}
+                      className={`price-preset-button ${priceRange[0] === 50000 && priceRange[1] === 120000 ? 'active' : ''}`}
+                    >
+                      Premium
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {loading ? (
+                  <p className="col-span-full text-center py-12">Loading vendors...</p>
+                ) : filteredVendors.map((vendor) => (
+                  <Card key={vendor.id} className="overflow-hidden group hover:shadow-lg transition-all duration-300">
+                    <div className="aspect-video relative overflow-hidden">
+                      <img
+                        src={getVendorImage(vendor)}
+                        alt={vendor.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-sm font-medium border border-gray-200/50">
+                        {vendor.category}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 mb-3">
-                      <div className="flex items-center bg-yellow-50 px-2 py-0.5 rounded-full text-sm border border-yellow-100">
-                        <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 mr-0.5" />
-                        <span className="font-bold">{vendor.rating || 0}</span>
-                        <span className="text-gray-500 ml-0.5">
-                          ({getReviewCount(vendor)})
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg mb-1">{vendor.name}</h3>
+                      <div className="flex items-center gap-1 mb-2">
+                        <MapPin className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm text-gray-600">{vendor.city}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mb-3">
+                        <div className="flex items-center bg-yellow-50 px-2 py-0.5 rounded-full text-sm border border-yellow-100">
+                          <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 mr-0.5" />
+                          <span className="font-bold">{vendor.rating || 0}</span>
+                          <span className="text-gray-500 ml-0.5">
+                            ({getReviewCount(vendor)})
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">
+                          {getPriceDisplay(vendor)}
                         </span>
                       </div>
-                      <span className="text-sm font-medium text-gray-700">
-                        {getPriceDisplay(vendor)}
-                      </span>
+                      <div className="flex gap-2">
+                        <Button asChild className="flex-1">
+                          <Link to={`/vendor/${vendor.id}`}>View Details</Link>
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button asChild className="flex-1">
-                        <Link to={`/vendor/${vendor.id}`}>View Details</Link>
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-        
-        {filteredVendors.length === 0 && (
-          <div className="text-center py-12">
-                <p className="text-gray-500">No vendors found matching your criteria.</p>
+                  </Card>
+                ))}
               </div>
-            )}
+          
+          {filteredVendors.length === 0 && (
+            <div className="text-center py-12">
+                  <p className="text-gray-500">No vendors found matching your criteria.</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
