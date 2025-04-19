@@ -10,22 +10,37 @@ export default function AuthCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleCallback = async () => {
+    // Extract hash params and search params
+    const hashParams = new URLSearchParams(location.hash.substring(1));
+    const searchParams = new URLSearchParams(location.search);
+    
+    // Check for errors in URL
+    const errorParam = hashParams.get('error') || searchParams.get('error');
+    const errorDescription = hashParams.get('error_description') || searchParams.get('error_description');
+    
+    if (errorParam || errorDescription) {
+      console.error('Auth error from URL:', { errorParam, errorDescription });
+      setError(errorDescription || errorParam || 'Authentication failed');
+      
+      // Show error toast
+      toast({
+        title: "Authentication Error",
+        description: (errorDescription || 'Authentication failed').replace(/\+/g, ' '),
+        variant: "destructive",
+      });
+      
+      // Redirect to login after delay
+      setTimeout(() => navigate('/login'), 3000);
+      return;
+    }
+
+    // If no error in URL, check session
+    const checkSession = async () => {
       try {
-        // Get the code from URL search params
-        const code = new URLSearchParams(location.search).get('code');
+        const { data, error } = await supabase.auth.getSession();
         
-        if (!code) {
-          throw new Error('No code found in URL');
-        }
-
-        // Exchange the code for a session
-        const { data, error: signInError } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) throw error;
         
-        if (signInError) {
-          throw signInError;
-        }
-
         if (data.session) {
           console.log('User authenticated:', data.session.user);
           toast({
@@ -34,22 +49,23 @@ export default function AuthCallbackPage() {
           });
           navigate('/');
         } else {
-          throw new Error('No session established');
+          // No session found but also no error in URL - strange case
+          console.warn('No session found but no error in callback URL');
+          navigate('/login');
         }
       } catch (err) {
-        console.error('Auth error:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
-        setError(errorMessage);
+        console.error('Error checking session:', err);
+        setError('Error verifying your login. Please try again.');
         toast({
           title: "Authentication Error",
-          description: errorMessage,
+          description: "There was a problem logging you in. Please try again.",
           variant: "destructive",
         });
         setTimeout(() => navigate('/login'), 3000);
       }
     };
 
-    handleCallback();
+    checkSession();
   }, [navigate, location, toast]);
 
   if (error) {
@@ -57,7 +73,7 @@ export default function AuthCallbackPage() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md w-full">
           <h2 className="text-lg font-semibold text-red-800 mb-2">Authentication Error</h2>
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">{error.replace(/\+/g, ' ')}</p>
           <p className="text-sm text-gray-500 mt-2">Redirecting you back to login...</p>
         </div>
       </div>
