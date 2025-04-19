@@ -532,7 +532,7 @@ const Message: React.FC<MessageProps> = ({
                   >
                     {item.name}
                   </label>
-                </div>
+          </div>
               </div>
             ))}
           </div>
@@ -564,7 +564,7 @@ const Message: React.FC<MessageProps> = ({
       <div className="flex justify-start mb-6 animate-fadeIn">
         <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-5 max-w-[95%] w-full shadow-[0_8px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.1)] transition-all duration-300">
           <div className="whitespace-pre-wrap break-words">{typeof content === 'string' ? content : 'No description available'}</div>
-        </div>
+              </div>
         {selectedVendor && (
           <VendorDetailsDialog
             isOpen={!!selectedVendor}
@@ -583,7 +583,7 @@ const Message: React.FC<MessageProps> = ({
         {sender === 'bot' && (
           <div className="bg-gradient-to-br from-primary to-primary/80 text-white p-3 rounded-2xl mr-3 shadow-[0_8px_16px_rgba(139,92,246,0.3)] transform hover:scale-105 transition-all duration-300">
             <Bot className="h-6 w-6" />
-          </div>
+                      </div>
         )}
         <div 
           className={`${
@@ -595,13 +595,13 @@ const Message: React.FC<MessageProps> = ({
           }`}
         >
           {typeof content === 'string' ? content : 'Invalid message content'}
-        </div>
+                          </div>
         {sender === 'user' && (
           <div className="bg-gradient-to-br from-accent to-accent/80 text-white p-3 rounded-2xl ml-3 shadow-[0_8px_16px_rgba(249,115,22,0.3)] transform hover:scale-105 transition-all duration-300">
             <User className="h-6 w-6" />
-          </div>
+                          </div>
         )}
-      </div>
+                        </div>
     </div>
   );
 };
@@ -616,7 +616,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ vendor, onClose }) => {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onClose(true);
+      onClose(true);
   };
 
   return (
@@ -626,40 +626,40 @@ const BookingForm: React.FC<BookingFormProps> = ({ vendor, onClose }) => {
           <h2 className="text-xl font-bold mb-4">Book {vendor.name}</h2>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
-              <div>
+          <div>
                 <Label htmlFor="date">Event Date</Label>
-                <Input 
+            <Input 
                   id="date" 
                   type="date" 
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
+              required
+            />
+          </div>
+          <div>
                 <Label htmlFor="requirements">Special Requirements</Label>
-                <textarea 
+            <textarea 
                   id="requirements"
                   className="min-h-[100px] w-full border rounded-md p-3 resize-none"
                   placeholder="Any specific requirements or preferences..."
-                />
-              </div>
-              
+            />
+          </div>
+          
               <div className="pt-4 flex justify-end space-x-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => onClose(false)}
-                >
-                  Cancel
-                </Button>
+                        <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onClose(false)}
+            >
+              Cancel
+                        </Button>
                 <Button type="submit">Express Interest</Button>
+                      </div>
+          </div>
+        </form>
+                    </div>
+                  </Card>
               </div>
-            </div>
-          </form>
-        </div>
-      </Card>
-    </div>
   );
 };
 
@@ -704,9 +704,10 @@ const BudgetInput: React.FC<BudgetInputProps> = ({ budget, setBudget, onConfirm 
           disabled={!budget.trim()}
         >
           Confirm Budget
-        </Button>
+          </Button>
+        </div>
       </div>
-    </div>
+  
   );
 };
 
@@ -739,7 +740,7 @@ const LocationInput: React.FC<LocationInputProps> = ({ location, setLocation, on
             onKeyDown={handleKeyDown}
             className="border-0 focus-visible:ring-0 focus-visible:ring-transparent bg-transparent"
           />
-        </div>
+            </div>
         <div className="mb-2 text-sm text-gray-500">Popular cities:</div>
         <div className="flex flex-wrap gap-2 mb-4">
           {popularCities.map(city => (
@@ -753,7 +754,7 @@ const LocationInput: React.FC<LocationInputProps> = ({ location, setLocation, on
               {city}
             </Button>
           ))}
-        </div>
+          </div>
         <Button 
           onClick={onConfirm} 
           className="bg-accent hover:bg-accent/90 w-full shadow-[0_4px_12px_rgba(249,115,22,0.3)] hover:shadow-[0_8px_16px_rgba(249,115,22,0.4)]"
@@ -801,66 +802,66 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onSubmit, onCancel, s
           <p className="text-gray-600 mb-4">
             Please provide your contact information for {selectedVendorsCount} selected vendors
           </p>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
               <Label htmlFor="name">Full Name</Label>
-              <Input 
-                id="name" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)}
+            <Input 
+              id="name" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your full name"
-                required
+              required
                 className="bg-white/50"
                 disabled={isSubmitting}
-              />
-            </div>
-            <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input 
-                id="phone" 
-                value={phone} 
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Enter your phone number"
-                required
+            />
+          </div>
+          <div>
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input 
+              id="phone" 
+              value={phone} 
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Enter your phone number"
+              required
                 className="bg-white/50"
                 disabled={isSubmitting}
-              />
-            </div>
-            <div>
+            />
+          </div>
+          <div>
               <Label htmlFor="specialRequests">Special Requests (Optional)</Label>
-              <textarea 
+            <textarea 
                 id="specialRequests"
                 value={specialRequests}
                 onChange={(e) => setSpecialRequests(e.target.value)}
                 placeholder="Any special requirements or preferences..."
                 className="w-full min-h-[80px] rounded-md border border-gray-300 bg-white/50 px-3 py-2 text-sm"
                 disabled={isSubmitting}
-              />
-            </div>
+            />
+          </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button 
-                type="button" 
-                variant="outline" 
+            <Button 
+              type="button" 
+              variant="outline" 
                 onClick={onCancel}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
                 className="bg-accent hover:bg-accent/90"
-                disabled={isSubmitting}
-              >
+              disabled={isSubmitting}
+            >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
                     <span>Submitting...</span>
-                  </div>
-                ) : 'Submit'}
-              </Button>
             </div>
-          </form>
-        </div>
+                ) : 'Submit'}
+            </Button>
+          </div>
+        </form>
+      </div>
       </Card>
     </div>
   );
@@ -891,11 +892,11 @@ const SuccessPopup: React.FC<SuccessPopupProps> = ({ onClose, requestId }) => {
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
               <span className="text-green-600 text-xl">✓</span>
             </div>
-            <div>
+          <div>
               <h3 className="font-semibold text-lg">Thank you!</h3>
               <p className="text-gray-600">Our UtsavAI team will connect with you within 24 hours.</p>
-            </div>
           </div>
+        </div>
           
           {requestId && (
             <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
@@ -1051,7 +1052,7 @@ const BudgetAllocation: React.FC<BudgetAllocationProps> = ({ eventType, budget }
               className={`w-10 h-5 rounded-full p-0.5 cursor-pointer transition-colors ${isEqualSplit ? 'bg-accent' : 'bg-gray-200'}`}
             >
               <div className={`w-4 h-4 rounded-full bg-white transform transition-transform ${isEqualSplit ? 'translate-x-5' : 'translate-x-0'}`} />
-            </div>
+          </div>
           </div>
         </div>
         
@@ -1070,19 +1071,19 @@ const BudgetAllocation: React.FC<BudgetAllocationProps> = ({ eventType, budget }
                   <div className="flex items-center gap-2">
                     {getVendorIcon(vendorType)}
                     <span>{vendorType}</span>
-                  </div>
+            </div>
                   <div className="flex flex-col items-end">
                     <span className="font-semibold">₹{amount.toLocaleString()}</span>
                     <span className="text-xs text-gray-500">{percentage}% of budget</span>
-                  </div>
-                </div>
+            </div>
+          </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div 
                     className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full" 
                     style={{ width: `${percentage}%` }}
                   ></div>
-                </div>
-              </div>
+          </div>
+          </div>
             );
           })}
         </div>
@@ -1130,8 +1131,6 @@ const ChatPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [lastRequestId, setLastRequestId] = useState<number | undefined>(undefined);
   const [showingFreeOfferForm, setShowingFreeOfferForm] = useState<boolean>(false);
-  const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [showNewChatDialog, setShowNewChatDialog] = useState<boolean>(false);
 
   useEffect(() => {
     // Only scroll if auto-scroll is enabled and the user is near the bottom
@@ -1187,7 +1186,7 @@ const ChatPage: React.FC = () => {
     setTimeout(() => {
       const botResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        sender: 'bot', 
+          sender: 'bot', 
         content: "🔜 This feature is coming soon! Currently, we're focused on helping you plan events through our guided flow. Please select an event type to get started.",
       };
       setMessages(prev => [...prev, botResponse]);
@@ -1213,7 +1212,7 @@ const ChatPage: React.FC = () => {
       
       const botResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        sender: 'bot', 
+          sender: 'bot', 
         content: checklist,
         isVendorList: true,
       };
@@ -1240,7 +1239,7 @@ const ChatPage: React.FC = () => {
     setTimeout(() => {
       const botResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        sender: 'bot', 
+          sender: 'bot', 
         content: "Great! Now, where will your event be held?",
       };
       
@@ -1265,7 +1264,7 @@ const ChatPage: React.FC = () => {
     setTimeout(() => {
       const botResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        sender: 'bot', 
+          sender: 'bot', 
         content: "Thank you! What's your approximate budget for this event?",
       };
       
@@ -1300,7 +1299,7 @@ const ChatPage: React.FC = () => {
     // Add bot response acknowledging budget
     const botResponse: ChatMessage = {
       id: (Date.now() + 1).toString(),
-      sender: 'bot', 
+          sender: 'bot', 
       content: `Great! Here's how you might allocate your budget of ${formattedBudget} for your ${eventTypes.find(e => e.id === selectedEvent)?.name || 'event'}:`
     };
     
@@ -1449,7 +1448,7 @@ const ChatPage: React.FC = () => {
       // Add the suggestions message
       const newMessage: ChatMessage = {
         id: Date.now().toString(),
-        sender: 'bot', 
+          sender: 'bot', 
         content: message,
         isVendorSuggestions: true,
         vendors: suggestedVendors
@@ -1477,7 +1476,7 @@ const ChatPage: React.FC = () => {
         
       const fallbackMessage: ChatMessage = {
         id: Date.now().toString(),
-        sender: 'bot', 
+            sender: 'bot', 
         content: "I found these vendors that might work for your event:",
         isVendorSuggestions: true,
         vendors: filteredVendors
@@ -1524,7 +1523,7 @@ const ChatPage: React.FC = () => {
     // Show loading state
     const loadingMessage: ChatMessage = {
       id: Date.now().toString(),
-      sender: 'bot', 
+          sender: 'bot', 
       content: "Submitting your request...",
     };
     setMessages(prev => [...prev, loadingMessage]);
@@ -1603,16 +1602,16 @@ const ChatPage: React.FC = () => {
       .map(([category, vendorsList]) => `${category}: ${vendorsList.length}`)
       .join(', ');
 
-    return (
-      <div>
+  return (
+            <div>
         <div className="font-medium mb-6 text-lg">
           Vendor recommendations for your event
-        </div>
+            </div>
         
         <div className="text-sm text-gray-500 mb-4">
           Found {totalVendorsCount} vendors across {Object.keys(categorizedVendors).length} categories ({categoryCountText})
-        </div>
-        
+          </div>
+          
         {Object.entries(categorizedVendors).map(([category, categoryVendors]) => (
           <div key={category} className="mb-8 last:mb-0">
             <div className="flex items-center gap-3 mb-3 p-3 bg-violet-50/50 rounded-lg border border-violet-100/50">
@@ -1669,12 +1668,12 @@ const ChatPage: React.FC = () => {
                         >
                           View Details
                         </Button>
-                      </div>
                     </div>
+                  </div>
                   </Card>
                 );
               })}
-            </div>
+                </div>
           </div>
         ))}
         
@@ -1707,129 +1706,240 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 md:p-6 bg-white border-b">
-        <div className="flex items-center gap-2">
-          <Bot className="w-6 h-6 text-primary" />
-          <h1 className="text-lg md:text-xl font-semibold">Event Buddy</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden md:flex"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            Filters
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="md:hidden"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => setShowNewChatDialog(true)}
-          >
-            <PlusCircle className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">New Chat</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Chat Messages */}
-        <div className="flex-1 flex flex-col">
-          <ScrollArea 
-            className="flex-1 p-4 md:p-6"
-            onScroll={handleScroll}
-            ref={scrollAreaRef}
-          >
-            <div className="space-y-4 max-w-3xl mx-auto">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-violet-50 via-white to-violet-50/50">
+      <div className="flex-grow overflow-hidden relative">
+        <ScrollArea 
+          className="h-full px-4 md:px-8 py-6 pb-36" 
+          onWheel={handleScroll}
+          ref={scrollAreaRef}
+        >
+          <div className="flex flex-col min-h-full max-w-4xl mx-auto">
+            <div className="flex-grow space-y-6">
               {messages.map((message, index) => (
-                <Message
+                <div
                   key={message.id}
-                  sender={message.sender}
-                  content={message.content}
-                  isVendorList={message.isVendorList}
-                  isVendorSuggestions={message.isVendorSuggestions}
-                  vendors={message.vendors}
+                  className={`animate-in slide-in-from-${message.sender === 'bot' ? 'left' : 'right'} duration-300 delay-${index % 3}00`}
+                >
+                <Message 
+                    sender={message.sender}
+                    content={message.content}
+                    isVendorList={message.isVendorList}
+                    isVendorSuggestions={message.isVendorSuggestions}
+                    vendors={message.vendors || []}
                   onBookVendor={handleBookVendor}
-                  onConfirm={handleVendorChecklistConfirm}
-                  selectedVendors={selectedVendors}
-                />
+                    onConfirm={
+                      message.isVendorList ? handleVendorChecklistConfirm : undefined
+                    }
+                    selectedVendors={selectedVendors}
+                  />
+                  {message.isVendorSuggestions && message.vendors && message.vendors.length > 0 && 
+                    <div className="mt-2 mb-8">
+                      {renderVendorSuggestions(message.vendors)}
+                    </div>
+                  }
+                </div>
               ))}
-              <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
-
-          {/* Show scroll to bottom button when needed */}
-          {showScrollButton && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="absolute bottom-20 right-6 rounded-full p-2"
-              onClick={scrollToBottom}
-            >
-              <ArrowDown className="w-4 h-4" />
-            </Button>
-          )}
-
-          {/* Input Area */}
-          <div className="p-4 border-t bg-white">
-            <div className="max-w-3xl mx-auto flex gap-2">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Type a message..."
-                className="flex-1"
-              />
-              <Button onClick={handleSendMessage}>
-                <SendHorizontal className="w-4 h-4" />
-              </Button>
-            </div>
+              
+              {showingLocationInput && (
+                <div className="animate-in slide-in-from-bottom duration-300">
+                <LocationInput 
+                  location={location}
+                  setLocation={setLocation}
+                  onConfirm={handleLocationConfirm}
+                />
+          </div>
+              )}
+              
+              {showingBudgetInput && (
+                <div className="animate-in slide-in-from-bottom duration-300">
+                <BudgetInput 
+                  budget={budget}
+                  setBudget={setBudget}
+                  onConfirm={handleBudgetConfirm}
+                />
+          </div>
+              )}
+              
+              {showingBudgetAllocation && selectedEvent && (
+                <div className="animate-in slide-in-from-bottom duration-300">
+                  <BudgetAllocation 
+                    eventType={selectedEvent}
+                    budget={budget}
+                  />
+          </div>
+              )}
+              
+              {showingUserDetailsForm && (
+                <UserDetailsForm 
+                  onSubmit={handleUserDetailsSubmit}
+                  onCancel={() => setShowingUserDetailsForm(false)}
+                  selectedVendorsCount={selectedVendors.length}
+                />
+              )}
+              
+              {showingFreeOfferForm && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+                  <div className="w-full max-w-md">
+                    <FreeOfferForm 
+                      onClose={() => setShowingFreeOfferForm(false)}
+                      eventType={selectedEvent || undefined}
+                      budget={budget || undefined}
+                      location={location || undefined}
+                    />
+          </div>
+                </div>
+              )}
+              
+              {!selectedEvent && (
+                <div className="flex justify-start mb-4 animate-in slide-in-from-bottom duration-300">
+                  <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-6 max-w-[90%] shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] transition-all duration-500">
+                    <div className="font-medium mb-4 text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Please select an event type:</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {eventTypes.map((eventType) => {
+                        // Get recommended vendors for this event type
+                        const recommendedVendors = defaultVendorChecklists[eventType.id]
+                          ?.filter(item => item.selected)
+                          .map(item => item.name)
+                          .slice(0, 3) || [];
+                        
+                        return (
+                          <button
+                            key={eventType.id}
+                            className="group flex flex-col items-center justify-center p-4 rounded-xl border-2 border-gray-100 hover:border-primary/60 transition-all hover:bg-gradient-to-br hover:from-primary/5 hover:to-transparent hover:scale-105 transform cursor-pointer hover:shadow-[0_8px_16px_rgba(139,92,246,0.15)]"
+                            onClick={() => handleEventSelect(eventType.id)}
+                          >
+                            <span className="text-4xl mb-3 group-hover:scale-110 transition-all duration-300 transform-gpu">{eventType.emoji}</span>
+                            <span className="font-medium text-base text-gray-700 group-hover:text-primary transition-colors">{eventType.name}</span>
+                            
+                            {/* Show recommended vendors */}
+                            <div className="mt-2 w-full">
+                              <div className="text-xs text-gray-500 mb-1">Recommended vendors:</div>
+                              <div className="flex flex-wrap gap-1">
+                                {recommendedVendors.map((vendor, index) => (
+                                  <span 
+                                    key={index} 
+                                    className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-violet-50 text-violet-600 border border-violet-100"
+                                  >
+                                    {vendor}
+                                  </span>
+                                ))}
           </div>
         </div>
-      </div>
+                          </button>
+                        );
+                      })}
+            </div>
+            </div>
+          </div>
+              )}
+          </div>
+            <div ref={messagesEndRef} className="h-px" />
+          </div>
+        </ScrollArea>
 
-      {/* Vendor Selection Dialog */}
+        {showScrollButton && (
+              <Button 
+            className="fixed bottom-28 right-8 rounded-full p-3 bg-primary/90 hover:bg-primary shadow-lg transition-all duration-200 animate-in fade-in slide-in-from-bottom-4 hover:scale-110 z-10"
+            onClick={scrollToBottom}
+                size="icon"
+              >
+            <ArrowDown className="h-5 w-5 text-white" />
+          </Button>
+        )}
+        
+        <div className="sticky bottom-0 left-0 right-0">
+          <div className="mx-auto max-w-4xl px-4 md:px-8 pb-4">
+            {!showingVendorsList && !showingLocationInput && !showingBudgetInput && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setInput("What vendors do you recommend?")}
+                  className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
+                >
+                  Vendor recommendations
+            </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setInput("How much does it typically cost?")}
+                  className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
+                >
+                  Cost estimates
+            </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setInput("I need help with planning")}
+                  className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
+                >
+                  Planning assistance
+            </Button>
+          </div>
+            )}
+            <div className="relative flex items-end w-full bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
+              <textarea
+                placeholder="Type a message..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (input.trim()) handleSendMessage();
+                  }
+                }}
+                className="w-full resize-none rounded-xl border-0 bg-transparent py-3 pl-4 pr-12 focus:ring-0 focus-visible:ring-0 md:py-3 md:pl-5 text-sm"
+                style={{
+                  minHeight: '20px',
+                  maxHeight: '120px',
+                  height: 'auto',
+                  overflowY: 'hidden'
+                }}
+                rows={1}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                }}
+              />
+              <div className="absolute bottom-1 right-1 flex items-center justify-center gap-2">
+                {suggestedVendors.length > 0 && selectedVendors.length > 0 && !submittedInterest && (
+              <Button 
+                    onClick={handleSubmitAllInterests}
+                    className="h-8 rounded-lg px-3 text-xs bg-accent hover:bg-accent/90 shadow-md transition-all"
+              >
+                    Submit Interest ({selectedVendors.length})
+              </Button>
+                )}
+                <Button 
+                  onClick={handleSendMessage} 
+                  className={`h-8 w-8 rounded-lg p-0 transition-all duration-300 transform hover:scale-110 ${
+                    input.trim() 
+                      ? 'bg-gradient-to-br from-primary to-primary/90 text-white shadow-[0_4px_12px_rgba(139,92,246,0.3)] hover:shadow-[0_8px_16px_rgba(139,92,246,0.4)]' 
+                      : 'text-gray-400 bg-transparent hover:bg-transparent'
+                  }`}
+                  disabled={!input.trim()}
+                >
+                  <SendHorizontal className="h-4 w-4" />
+                </Button>
+              </div>
+          </div>
+            <div className="mt-1.5 text-center text-[10px] text-gray-500">
+              Press Enter to send, Shift + Enter for new line
+      </div>
+          </div>
+          <div className="h-8 bg-gradient-to-t from-white via-white to-transparent" />
+        </div>
+      </div>
+      
       {bookingVendor && (
         <BookingForm vendor={bookingVendor} onClose={handleCloseBookingForm} />
       )}
-
-      {/* Success Popup */}
+      
       {showSuccessPopup && (
         <SuccessPopup 
           onClose={() => setShowSuccessPopup(false)} 
           requestId={lastRequestId} 
-        />
-      )}
-
-      {/* Free Offer Form */}
-      {showingFreeOfferForm && (
-        <FreeOfferForm
-          onClose={() => setShowingFreeOfferForm(false)}
-          onSubmitSuccess={() => {
-            setShowingFreeOfferForm(false);
-            // Add success message to chat
-            const successMessage: ChatMessage = {
-              id: Date.now().toString(),
-              sender: 'bot',
-              content: "✅ Thank you! Our UtsavAI team will connect with you within 24 hours with expert advice for your event.",
-            };
-            setMessages(prev => [...prev, successMessage]);
-          }}
-          eventType={selectedEvent || 'consultation'}
-          budget={budget}
-          location={location}
         />
       )}
     </div>
