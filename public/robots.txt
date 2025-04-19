@@ -1,14 +1,11 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+
+# Sitemap location
+Sitemap: https://utsavai.com/sitemap.xml
+
+# Disallow admin and auth callback pages
+Disallow: /admin/*
+Disallow: /auth/callback
+Disallow: /api/*
