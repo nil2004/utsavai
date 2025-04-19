@@ -1624,15 +1624,15 @@ const ChatPage: React.FC = () => {
                 const isSelected = selectedVendors.some(v => v.id === vendor.id);
                 
                 return (
-                  <Card key={vendor.id} className="overflow-hidden">
-                    <div className="w-full h-40 relative">
+                  <Card key={vendor.id} className="overflow-hidden flex flex-col">
+                    <div className="w-full aspect-[4/3] relative">
                       <img 
                         src={vendor.image} 
                         alt={vendor.name} 
                         className="w-full h-full object-cover" 
                       />
                     </div>
-                    <div className="p-4">
+                    <div className="p-4 flex-1 flex flex-col">
                       <div className="flex justify-between items-start">
                         <h3 className="font-semibold text-lg">{vendor.name}</h3>
                         <div className="flex items-center">
@@ -1669,7 +1669,7 @@ const ChatPage: React.FC = () => {
                           View Details
                         </Button>
                     </div>
-                  </div>
+                    </div>
                   </Card>
                 );
               })}
