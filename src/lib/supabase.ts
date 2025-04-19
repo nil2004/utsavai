@@ -207,29 +207,54 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
   db: {
     schema: 'public'
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'utsavai-web'
+    }
   }
 });
 
-// Test the connection immediately and log detailed results
-void supabase.from('vendors').select('count', { count: 'exact', head: true })
-  .then(({ error, count }) => {
-    if (error) {
-      console.error('Supabase connection test failed:', {
-        error: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
-      });
-    } else {
-      console.log('Supabase connection test successful', {
-        vendorCount: count,
+// Add retry logic for connection testing
+const testConnection = async (retries = 3, delay = 1000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      console.log(`Attempting connection (${i + 1}/${retries})...`);
+      
+      const { data, error } = await supabase
+        .from('vendors')
+        .select('count', { count: 'exact', head: true });
+
+      if (error) {
+        console.error(`Connection attempt ${i + 1} failed:`, {
+          error: error.message,
+          code: error.code,
+          details: error.details
+        });
+        
+        if (i < retries - 1) {
+          console.log(`Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+        return false;
+      }
+
+      console.log('Supabase connection successful!', {
+        attempt: i + 1,
         timestamp: new Date().toISOString()
       });
+      return true;
+    } catch (err) {
+      console.error(`Unexpected error on attempt ${i + 1}:`, err);
+      if (i < retries - 1) {
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
     }
-  })
-  .catch(err => {
-    console.error('Unexpected error during Supabase connection test:', {
-      error: err.message,
-      stack: err.stack
-    });
-  }); 
+  }
+  return false;
+};
+
+// Initialize connection test with retries
+void testConnection(); 
