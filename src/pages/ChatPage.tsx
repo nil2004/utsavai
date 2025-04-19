@@ -517,12 +517,13 @@ const Message: React.FC<MessageProps> = ({
                     : 'hover:bg-black/5 border border-transparent'
                 }`}
                 onClick={() => handleItemToggle(item.id)}
+                data-state={item.selected ? "checked" : "unchecked"}
               >
                 <Checkbox
                   id={`vendor-${item.id}`}
                   checked={item.selected}
                   onCheckedChange={() => handleItemToggle(item.id)}
-                  className="mr-3 data-[state=checked]:bg-accent"
+                  className="mr-3 data-[state=checked]:bg-primary"
                 />
                 <div className="flex items-center flex-1">
                   {getVendorIcon(item.name)}
@@ -1624,38 +1625,38 @@ const ChatPage: React.FC = () => {
                 const isSelected = selectedVendors.some(v => v.id === vendor.id);
                 
                 return (
-                  <Card key={vendor.id} className="overflow-hidden flex flex-col">
-                    <div className="w-full aspect-[4/3] relative">
+                  <Card key={vendor.id} className="vendor-card">
+                    <div className="image-container">
                       <img 
                         src={vendor.image} 
                         alt={vendor.name} 
                         className="w-full h-full object-cover" 
                       />
                     </div>
-                    <div className="p-4 flex-1 flex flex-col">
+                    <div className="card-content">
                       <div className="flex justify-between items-start">
-                        <h3 className="font-semibold text-lg">{vendor.name}</h3>
-                        <div className="flex items-center">
+                        <h3 className="font-semibold text-lg truncate">{vendor.name}</h3>
+                        <div className="flex items-center shrink-0 ml-2">
                           <span className="text-yellow-400 mr-1">★</span>
                           <span className="font-bold">{vendor.rating}</span>
                           <span className="text-gray-500 text-sm ml-1">({vendor.reviewCount})</span>
                         </div>
                       </div>
-                      <div className="flex items-center text-gray-500 text-sm mt-1">
-                        <MapPin className="h-3.5 w-3.5 mr-1" />
-                        {vendor.city}
+                      <div className="flex items-center text-gray-500 text-sm">
+                        <MapPin className="h-3.5 w-3.5 mr-1 shrink-0" />
+                        <span className="truncate">{vendor.city}</span>
                       </div>
-                      <div className="mt-2 font-medium">
+                      <div className="font-medium">
                         ₹{vendor.price.toLocaleString()} - ₹{(vendor.price * 1.5).toLocaleString()}
                       </div>
-                      <div className="flex gap-2 mt-3">
+                      <div className="button-container">
                         <Button
                           onClick={() => handleBookVendor(vendor)}
                           className={`transition-all ${
                             isSelected
                               ? 'bg-green-500 hover:bg-green-600' 
                               : 'bg-violet-500 hover:bg-violet-600'
-                          } text-sm py-1 px-4 rounded-md`}
+                          } text-sm py-1 px-4 rounded-md flex-1`}
                           size="sm"
                         >
                           {isSelected ? 'Selected ✓' : 'Interested'}
@@ -1668,7 +1669,7 @@ const ChatPage: React.FC = () => {
                         >
                           View Details
                         </Button>
-                    </div>
+                      </div>
                     </div>
                   </Card>
                 );

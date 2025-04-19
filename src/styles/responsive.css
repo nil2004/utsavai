@@ -230,6 +230,82 @@
     height: 100% !important;
     object-fit: cover !important;
   }
+
+  /* Vendor selection list fixes */
+  div[class*="grid grid-cols-1 sm:grid-cols-2 gap-3"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Vendor checkbox item styles */
+  div[class*="flex items-center p-3 rounded-lg cursor-pointer"] {
+    background: #f5f3ff !important;
+    border-radius: 0.75rem !important;
+    padding: 0.75rem !important;
+    margin: 0 !important;
+    border: 1px solid #e9e5ff !important;
+    transition: all 0.2s ease-in-out !important;
+  }
+
+  div[class*="flex items-center p-3 rounded-lg cursor-pointer"]:active {
+    transform: scale(0.98) !important;
+  }
+
+  /* Selected state */
+  div[class*="flex items-center p-3 rounded-lg cursor-pointer"][data-state="checked"] {
+    background: #7c3aed !important;
+    border-color: #6d28d9 !important;
+  }
+
+  /* Checkbox styles */
+  [role="checkbox"] {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    border-radius: 0.375rem !important;
+    border: 2px solid #d1d5db !important;
+    margin-right: 0.75rem !important;
+  }
+
+  /* Icon in vendor item */
+  div[class*="flex items-center p-3 rounded-lg cursor-pointer"] svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    margin-right: 0.5rem !important;
+  }
+
+  /* Vendor name text */
+  div[class*="flex items-center p-3 rounded-lg cursor-pointer"] label {
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+  }
+
+  /* Confirm selection button */
+  button[class*="mt-6 bg-accent"] {
+    background: #f97316 !important;
+    color: white !important;
+    padding: 0.75rem !important;
+    border-radius: 0.75rem !important;
+    font-weight: 500 !important;
+    width: 100% !important;
+    margin-top: 1rem !important;
+    box-shadow: 0 1px 2px rgba(249, 115, 22, 0.2) !important;
+  }
+
+  /* Message container adjustments */
+  .message-container {
+    padding: 1rem !important;
+    margin: 0 0.5rem 0.75rem 0.5rem !important;
+    border-radius: 1rem !important;
+  }
+
+  /* Title text */
+  .font-medium.mb-3.text-lg {
+    font-size: 1.125rem !important;
+    margin-bottom: 1rem !important;
+    color: #1f2937 !important;
+  }
 }
 
 /* Medium screens (tablets) */
