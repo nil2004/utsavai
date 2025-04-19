@@ -317,6 +317,8 @@ const MarketplacePage: React.FC = () => {
                   onValueChange={setPriceRange}
                   className="price-slider"
                   minStepsBetweenThumbs={1}
+                  aria-label="Price Range"
+                  orientation="horizontal"
                 />
                 <div className="price-preset-buttons">
                   <Button
