@@ -21,22 +21,38 @@
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease;
   z-index: 50;
   display: block !important;
   opacity: 1 !important;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
 }
 
 .price-slider [role="slider"]:hover {
-  transform: translateY(-50%) scale(1.1);
+  transform: translate(-50%, -50%) scale(1.1);
   background-color: #f5f3ff;
 }
 
 .price-slider [role="slider"]:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+}
+
+/* Track and Range */
+.price-slider [data-orientation="horizontal"] {
+  height: 4px;
+  width: 100%;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  position: relative;
+}
+
+.price-slider [data-orientation="horizontal"] > div {
+  height: 100%;
+  background-color: #7c3aed;
+  border-radius: 9999px;
+  position: absolute;
 }
 
 /* Price Display */
