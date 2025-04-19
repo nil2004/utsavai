@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { MapPin, Star, Filter, Search } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { getFrontendVendors, type Vendor } from '@/lib/vendor-service';
+import '@/styles/marketplace.css';
 
 // Interface for sample vendors (matches hardcoded data structure)
 interface SampleVendor {
@@ -303,7 +304,7 @@ const MarketplacePage: React.FC = () => {
             <div>
               <Label className="text-sm font-medium mb-2 block">Price Range</Label>
               <div className="space-y-4">
-                <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                <div className="price-range-display">
                   <span>{formatPrice(priceRange[0])}</span>
                   <span>{formatPrice(priceRange[1])}</span>
                 </div>
@@ -314,14 +315,15 @@ const MarketplacePage: React.FC = () => {
                   step={5000}
                   value={priceRange}
                   onValueChange={setPriceRange}
-                  className="mt-2"
+                  className="price-slider"
+                  minStepsBetweenThumbs={1}
                 />
-                <div className="grid grid-cols-3 gap-2 mt-4">
+                <div className="price-preset-buttons">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPriceRange([5000, 25000])}
-                    className={`text-xs ${priceRange[0] === 5000 && priceRange[1] === 25000 ? 'bg-primary text-white hover:bg-primary/90' : ''}`}
+                    className={`price-preset-button ${priceRange[0] === 5000 && priceRange[1] === 25000 ? 'active' : ''}`}
                   >
                     Budget
                   </Button>
@@ -329,7 +331,7 @@ const MarketplacePage: React.FC = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => setPriceRange([25000, 50000])}
-                    className={`text-xs ${priceRange[0] === 25000 && priceRange[1] === 50000 ? 'bg-primary text-white hover:bg-primary/90' : ''}`}
+                    className={`price-preset-button ${priceRange[0] === 25000 && priceRange[1] === 50000 ? 'active' : ''}`}
                   >
                     Mid-Range
                   </Button>
@@ -337,7 +339,7 @@ const MarketplacePage: React.FC = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => setPriceRange([50000, 120000])}
-                    className={`text-xs ${priceRange[0] === 50000 && priceRange[1] === 120000 ? 'bg-primary text-white hover:bg-primary/90' : ''}`}
+                    className={`price-preset-button ${priceRange[0] === 50000 && priceRange[1] === 120000 ? 'active' : ''}`}
                   >
                     Premium
                   </Button>
