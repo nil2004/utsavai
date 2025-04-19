@@ -45,6 +45,15 @@
   
   .vendor-card {
     width: 100% !important;
+    margin-bottom: 1rem !important;
+    overflow: hidden !important;
+  }
+  
+  .vendor-card img {
+    width: 100% !important;
+    height: 200px !important;
+    object-fit: cover !important;
+    margin-bottom: 0.5rem !important;
   }
   
   /* Dialog/modal adjustments */
@@ -105,8 +114,9 @@
   
   /* Scale down vendor cards */
   div[class*="grid grid-cols-1 sm:grid-cols-2"] > * {
-    transform: scale(0.95);
-    margin-bottom: 0.5rem !important;
+    transform: none !important;
+    margin-bottom: 1rem !important;
+    width: 100% !important;
   }
   
   /* Reduce padding in scroll area */
@@ -123,7 +133,8 @@
   
   /* Fix vendor recommendations display */
   div[class*="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"] {
-    gap: 0.5rem !important;
+    gap: 1rem !important;
+    margin-bottom: 1rem !important;
   }
   
   /* Make text in the input smaller */
