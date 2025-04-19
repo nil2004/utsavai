@@ -182,81 +182,71 @@ export type Database = {
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Debug logging
-console.log('Initializing Supabase client with:', {
-  url: supabaseUrl,
-  keyExists: !!supabaseAnonKey,
-  environment: import.meta.env.MODE,
-  isDevelopment: import.meta.env.DEV
+console.log('Initializing Supabase with:', {
+  url: supabaseUrl?.substring(0, 20) + '...',
+  hasKey: !!supabaseAnonKey,
+  environment: import.meta.env.MODE
 });
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables!', {
-    hasUrl: !!supabaseUrl,
-    hasKey: !!supabaseAnonKey
-  });
-  throw new Error('Missing required environment variables for Supabase connection');
+  throw new Error('Missing Supabase environment variables');
 }
 
-// Create a single supabase client for interacting with your database
+// Create Supabase client with enhanced config
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    storage: window.localStorage
+    storage: window.localStorage,
+    flowType: 'pkce'
   },
-  db: {
-    schema: 'public'
+  realtime: {
+    params: {
+      eventsPerSecond: 1
+    }
   },
   global: {
-    headers: {
-      'Authorization': `Bearer ${supabaseAnonKey}`,
-      'apikey': supabaseAnonKey
+    fetch: (url, options: RequestInit = {}) => {
+      const headers = new Headers(options.headers || {});
+      headers.set('apikey', supabaseAnonKey);
+      
+      if (!headers.has('Authorization')) {
+        headers.set('Authorization', `Bearer ${supabaseAnonKey}`);
+      }
+
+      return fetch(url, {
+        ...options,
+        headers
+      });
     }
   }
 });
 
-// Add retry logic for connection testing
-const testConnection = async (retries = 3, delay = 1000) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      console.log(`Attempting connection (${i + 1}/${retries})...`);
-      
-      const { data, error } = await supabase
-        .from('vendors')
-        .select('count', { count: 'exact', head: true });
+// Initialize auth state
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Auth state changed:', event, session?.user?.id);
+});
 
-      if (error) {
-        console.error(`Connection attempt ${i + 1} failed:`, {
-          error: error.message,
-          code: error.code,
-          details: error.details
-        });
-        
-        if (i < retries - 1) {
-          console.log(`Retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          continue;
-        }
-        return false;
-      }
+// Test database connection
+const testConnection = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('vendors')
+      .select('count', { count: 'exact', head: true });
 
-      console.log('Supabase connection successful!', {
-        attempt: i + 1,
-        timestamp: new Date().toISOString()
-      });
-      return true;
-    } catch (err) {
-      console.error(`Unexpected error on attempt ${i + 1}:`, err);
-      if (i < retries - 1) {
-        console.log(`Retrying in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
+    if (error) {
+      console.error('Database connection test failed:', error);
+      return false;
     }
+
+    console.log('Database connection successful');
+    return true;
+  } catch (err) {
+    console.error('Unexpected error during connection test:', err);
+    return false;
   }
-  return false;
 };
 
-// Initialize connection test with retries
+// Run initial connection test
 void testConnection(); 
