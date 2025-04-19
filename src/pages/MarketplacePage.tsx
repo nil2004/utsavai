@@ -123,11 +123,15 @@ const MarketplacePage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedCity, setSelectedCity] = useState("All");
   const [selectedSort, setSelectedSort] = useState(sortOptions[0]);
-  const [priceRange, setPriceRange] = useState([5000, 120000]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [usingSampleData, setUsingSampleData] = useState(false);
+
+  // Initialize price range with explicit values
+  const minPrice = 5000;
+  const maxPrice = 120000;
+  const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
 
   useEffect(() => {
     const loadVendors = async () => {
@@ -309,15 +313,19 @@ const MarketplacePage: React.FC = () => {
                   <span>{formatPrice(priceRange[1])}</span>
                 </div>
                 <RangeSlider
-                  min={5000}
-                  max={120000}
+                  defaultValue={[minPrice, maxPrice]}
+                  min={minPrice}
+                  max={maxPrice}
                   step={5000}
                   value={priceRange}
-                  onValueChange={setPriceRange}
+                  onValueChange={(value) => {
+                    setPriceRange([
+                      Math.max(minPrice, value[0]),
+                      Math.min(maxPrice, value[1])
+                    ]);
+                  }}
                   className="price-slider"
                   minStepsBetweenThumbs={5000}
-                  aria-label="Price Range"
-                  orientation="horizontal"
                 />
                 <div className="price-preset-buttons">
                   <Button
