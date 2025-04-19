@@ -185,11 +185,16 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 // Debug logging
 console.log('Initializing Supabase client with:', {
   url: supabaseUrl,
-  keyExists: !!supabaseAnonKey
+  keyExists: !!supabaseAnonKey,
+  environment: import.meta.env.MODE,
+  isDevelopment: import.meta.env.DEV
 });
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables!');
+  console.error('Missing Supabase environment variables!', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey
+  });
   throw new Error('Missing required environment variables for Supabase connection');
 }
 
@@ -205,35 +210,26 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
-// Enhanced connection testing
-async function testSupabaseConnection() {
-  try {
-    console.log('Testing Supabase connection...');
-    console.log('Supabase URL:', supabaseUrl);
-    console.log('Anon Key exists:', !!supabaseAnonKey);
-    
-    const { data, error, count } = await supabase
-      .from('vendors')
-      .select('*', { count: 'exact', head: true });
-    
+// Test the connection immediately and log detailed results
+void supabase.from('vendors').select('count', { count: 'exact', head: true })
+  .then(({ error, count }) => {
     if (error) {
-      console.error('Supabase connection test failed:', error);
-      console.error('Error details:', {
-        message: error.message,
+      console.error('Supabase connection test failed:', {
+        error: error.message,
         code: error.code,
-        details: error.details
+        details: error.details,
+        hint: error.hint
       });
-      throw error;
+    } else {
+      console.log('Supabase connection test successful', {
+        vendorCount: count,
+        timestamp: new Date().toISOString()
+      });
     }
-    
-    console.log('Supabase connection test successful');
-    console.log('Vendors count:', count);
-    return true;
-  } catch (err) {
-    console.error('Unexpected error during Supabase connection test:', err);
-    return false;
-  }
-}
-
-// Run the connection test
-testSupabaseConnection(); 
+  })
+  .catch(err => {
+    console.error('Unexpected error during Supabase connection test:', {
+      error: err.message,
+      stack: err.stack
+    });
+  }); 
