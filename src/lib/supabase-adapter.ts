@@ -8,12 +8,16 @@ const shouldUseProxy = () => {
   // We're in the browser
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    // Use proxy for production domains, but not localhost or development
-    return hostname.includes('utsavai.com') || 
+    const useProxy = hostname.includes('utsavai.com') || 
            hostname.includes('vercel.app') || 
            !hostname.includes('localhost');
+    
+    console.log(`Hostname is "${hostname}" -> Using ${useProxy ? 'PROXY' : 'DIRECT'} connection`);
+    return useProxy;
   }
+  
   // Default to proxy in non-browser environments
+  console.log('Non-browser environment detected -> Using PROXY connection');
   return true;
 };
 
