@@ -298,60 +298,71 @@ const HomePage = () => {
       )}
 
       {/* Features Section */}
-      <section className="py-16 px-6 bg-gray-50">
+      <section className="py-10 sm:py-16 px-4 sm:px-6 bg-gray-50">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-4">How UtsavAI Works</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            Our AI-powered platform simplifies event planning by connecting you with the perfect vendors tailored to your needs.
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Why Choose UtsavAI?</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                <div className="mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </div>
+              <Card key={index} className="transform hover:-translate-y-1 transition-transform duration-300">
+                <CardContent className="p-6">
+                  <div className="mb-4">{feature.icon}</div>
+                  <h3 className="text-lg sm:text-xl font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-gray-600 text-sm sm:text-base">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-10 sm:py-16 px-4 sm:px-6 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">What Our Users Say</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="transform hover:-translate-y-1 transition-transform duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-4">
+                    <User className="h-10 w-10 text-primary mr-3" />
+                    <div>
+                      <h3 className="font-semibold">{testimonial.name}</h3>
+                      <p className="text-sm text-gray-600">{testimonial.event}</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 text-sm sm:text-base mb-4">{testimonial.quote}</p>
+                  <div className="flex">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-6 bg-primary text-white">
+      <section className="py-10 sm:py-16 px-4 sm:px-6 bg-primary text-white">
         <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Start Planning?</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Get personalized vendor recommendations and simplify your event planning journey today.
-          </p>
-          <Button asChild size="lg" className="bg-white text-primary hover:bg-gray-100">
-            <Link to="/chat">Chat with UtsavAI</Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-16 px-6 bg-white">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">What Our Users Say</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                <CardContent className="p-6">
-                  <div className="flex mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-gray-700 mb-4 italic">"{testimonial.quote}"</p>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">{testimonial.name}</p>
-                      <p className="text-sm text-gray-500">{testimonial.event}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Ready to Start Planning Your Event?</h2>
+          <p className="text-lg sm:text-xl mb-8 opacity-90">Join UtsavAI today and experience the future of event planning.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {!user ? (
+              <>
+                <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
+                  <Link to="/signup">Sign Up Now</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/10 w-full sm:w-auto">
+                  <Link to="/login">Login</Link>
+                </Button>
+              </>
+            ) : (
+              <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
+                <Link to="/chat">Start Planning</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>
@@ -378,62 +389,48 @@ const HomePage = () => {
       
       {/* Free Expert Planning Popup */}
       {showExpertPopup && (
-        <FreeExpertPopup 
-          onClose={() => setShowExpertPopup(false)} 
+        <FreeExpertPopup
+          onClose={() => setShowExpertPopup(false)}
           onGetAdvice={handleGetExpertAdvice}
         />
       )}
       
       {/* Free Expert Advice Form Modal */}
       {showExpertForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="w-full max-w-md">
-            <FreeOfferForm 
-              onClose={handleFormCancel}
-              eventType="consultation" 
-              onSubmitSuccess={handleFormSubmitSuccess}
-            />
-          </div>
-        </div>
+        <FreeOfferForm
+          onClose={handleFormCancel}
+          onSubmitSuccess={handleFormSubmitSuccess}
+          eventType="consultation"
+        />
       )}
       
       {/* Login Prompt Dialog */}
       {showLoginPrompt && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="w-full max-w-md bg-white rounded-lg overflow-hidden shadow-xl animate-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-white">
-              <h2 className="text-xl font-bold">Sign in Required</h2>
-              <p className="text-white/90 mt-1">
-                You need to be signed in to access this feature
-              </p>
-            </div>
-            <div className="p-6">
-              <div className="flex items-start mb-4">
-                <LogIn className="h-5 w-5 text-primary mr-3 mt-0.5" />
-                <p className="text-gray-700">
-                  Our Free Expert Event Planning service is exclusively available to registered users.
-                  Sign in or create an account to get personalized advice from our team.
-                </p>
-              </div>
-              <div className="flex items-center justify-end gap-3 mt-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card className="max-w-md w-full">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Login Required</h2>
+              <p className="text-gray-600 mb-6">Please log in to access our free expert planning service.</p>
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
-                  variant="outline" 
-                  onClick={() => setShowLoginPrompt(false)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  className="bg-primary hover:bg-primary/90"
+                  className="w-full sm:w-auto"
                   onClick={() => {
                     sessionStorage.setItem('redirectAfterLogin', 'expertPlanning');
                     navigate('/login');
                   }}
                 >
-                  Sign in / Register
+                  Login Now
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full sm:w-auto"
+                  onClick={() => setShowLoginPrompt(false)}
+                >
+                  Maybe Later
                 </Button>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
