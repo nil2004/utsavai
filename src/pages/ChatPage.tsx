@@ -508,32 +508,25 @@ const Message: React.FC<MessageProps> = ({
         } rounded-2xl p-5 max-w-[85%]`}>
           <div className="font-medium mb-3 text-lg">Please select the vendors you need:</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {Array.isArray(localContent) && localContent.map((item) => (
-              <div 
-                key={item.id} 
-                className={`flex items-center p-3 rounded-lg cursor-pointer transition-all ${
-                  item.selected 
-                    ? 'bg-primary/10 border border-primary/30' 
-                    : 'hover:bg-black/5 border border-transparent'
+            {localContent.map((item) => (
+              <div
+                key={item.id}
+                className={`flex items-center justify-between p-3 rounded-lg cursor-pointer ${
+                  item.selected ? 'bg-primary text-white' : 'bg-primary/5 hover:bg-primary/10'
                 }`}
                 onClick={() => handleItemToggle(item.id)}
-                data-state={item.selected ? "checked" : "unchecked"}
+                data-state={item.selected ? 'checked' : 'unchecked'}
               >
-                <Checkbox
-                  id={`vendor-${item.id}`}
-                  checked={item.selected}
-                  onCheckedChange={() => handleItemToggle(item.id)}
-                  className="mr-3 data-[state=checked]:bg-primary"
-                />
-                <div className="flex items-center flex-1">
+                <div className="flex items-center">
                   {getVendorIcon(item.name)}
                   <label 
-                    htmlFor={`vendor-${item.id}`} 
+                    htmlFor={`vendor-${item.id}`}
                     className="font-medium ml-2 cursor-pointer"
                   >
                     {item.name}
                   </label>
-          </div>
+                </div>
+                {item.selected && <span className="ml-2 text-lg">✓</span>}
               </div>
             ))}
           </div>
