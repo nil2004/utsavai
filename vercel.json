@@ -7,5 +7,11 @@
   "framework": "vite",
   "github": {
     "silent": true
+  },
+  "env": {
+    "VITE_SUPABASE_URL": "https://kjahicdvhulwvutldaan.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqYWhpY2R2aHVsd3Z1dGxkYWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTE0MTcwODAsImV4cCI6MjAyNjk5MzA4MH0.GG5Qle6xtkuzQz3PQ-XUHQqxznRTvQDtS30TDpJ8pD8",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://kjahicdvhulwvutldaan.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqYWhpY2R2aHVsd3Z1dGxkYWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTE0MTcwODAsImV4cCI6MjAyNjk5MzA4MH0.GG5Qle6xtkuzQz3PQ-XUHQqxznRTvQDtS30TDpJ8pD8"
   }
 } 

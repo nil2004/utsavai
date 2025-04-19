@@ -1,14 +1,31 @@
 // This script is used to seed the vendors table with sample data
 // Run with: node scripts/seed-vendors.js
 
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import fs from 'fs';
+
+// Setup for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const rootDir = join(__dirname, '..');
 
 // Load environment variables
-require('dotenv').config();
+dotenv.config({ path: join(rootDir, '.env') });
 
 // Supabase credentials
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://kjahicdvhulwvutldaan.supabase.co';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_KEY;
+
+console.log('Environment:', {
+  hasUrl: !!supabaseUrl,
+  hasKey: !!supabaseKey,
+  urlStart: supabaseUrl ? supabaseUrl.substring(0, 20) + '...' : 'missing',
+  // Don't log the full key
+  keyStart: supabaseKey ? supabaseKey.substring(0, 10) + '...' : 'missing'
+});
 
 if (!supabaseKey) {
   console.error('Error: No Supabase key found. Please set VITE_SUPABASE_ANON_KEY or SUPABASE_SERVICE_KEY in your .env file');
@@ -206,6 +223,23 @@ async function seedVendors() {
   console.log('Starting to seed vendors table...');
   
   try {
+    // Test the connection first
+    console.log('Testing Supabase connection...');
+    try {
+      const { data: testData, error: testError } = await supabase.from('vendors').select('count', { count: 'exact', head: true });
+      
+      if (testError) {
+        console.log('Connection test failed:', testError);
+        throw testError;
+      }
+      
+      console.log('Connection successful!');
+    } catch (testError) {
+      console.error('Connection test failed:', testError);
+      console.error('Please check your Supabase credentials and make sure the vendors table exists.');
+      process.exit(1);
+    }
+    
     // First, let's check if we have vendors already
     const { data: existingVendors, error: checkError } = await supabase
       .from('vendors')
