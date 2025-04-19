@@ -171,6 +171,20 @@ const HomePage = () => {
     },
   ];
 
+  const handleEventTypeClick = (eventType: string) => {
+    if (!user) {
+      // Store the event type for after login
+      sessionStorage.setItem('selectedEventType', eventType);
+      // Set a flag to indicate we need to reset scroll
+      sessionStorage.setItem('needsScrollReset', 'true');
+      // Navigate to login
+      navigate('/login');
+      return;
+    }
+    // If user is logged in, navigate to chat with event type
+    navigate(`/chat?event=${eventType}`);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Special Offer Banner - Only show if not used */}
@@ -231,17 +245,21 @@ const HomePage = () => {
       </section>
 
       {/* Event Types Section */}
-      <section className="py-10 sm:py-16 px-4 sm:px-6 bg-white">
+      <section className="py-12 px-6 bg-gray-50">
         <div className="container mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Plan Any Type of Event</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6">
-            {eventTypes.map((type, index) => (
-              <Link to="/chat" key={index} className="group">
+          <h2 className="text-3xl font-bold text-center mb-8">Choose Your Event Type</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {eventTypes.map((type) => (
+              <Card
+                key={type.name}
+                className="cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-lg"
+                onClick={() => handleEventTypeClick(type.name.toLowerCase())}
+              >
                 <div className={`${type.color} rounded-lg p-4 sm:p-6 text-center transition-all duration-300 group-hover:shadow-md transform group-hover:-translate-y-1`}>
                   <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">{type.icon}</div>
                   <h3 className="font-medium text-sm sm:text-base text-gray-800">{type.name}</h3>
                 </div>
-              </Link>
+              </Card>
             ))}
           </div>
         </div>

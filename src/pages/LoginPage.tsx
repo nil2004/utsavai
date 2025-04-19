@@ -19,7 +19,9 @@ const LoginPage = () => {
   useEffect(() => {
     // Check if it's a mobile device (max-width: 640px)
     const isMobile = window.innerWidth <= 640;
-    if (isMobile) {
+    const needsScrollReset = sessionStorage.getItem('needsScrollReset') === 'true';
+    
+    if (isMobile || needsScrollReset) {
       // Reset scroll position
       window.scrollTo(0, 0);
       // Prevent scrolling temporarily
@@ -27,6 +29,8 @@ const LoginPage = () => {
       // Re-enable scrolling after a short delay
       setTimeout(() => {
         document.body.style.overflow = '';
+        // Clear the flag
+        sessionStorage.removeItem('needsScrollReset');
       }, 100);
     }
   }, []);
@@ -47,7 +51,15 @@ const LoginPage = () => {
         title: "Login successful",
         description: "Welcome back to UtsavAI!",
       });
-      navigate('/'); // or wherever you want to redirect after login
+
+      // Check if we have a stored event type
+      const selectedEventType = sessionStorage.getItem('selectedEventType');
+      if (selectedEventType) {
+        sessionStorage.removeItem('selectedEventType');
+        navigate(`/chat?event=${selectedEventType}`);
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       toast({
         title: "Login failed",
