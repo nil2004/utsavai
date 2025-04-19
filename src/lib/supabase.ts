@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { testDirectSupabaseConnection } from './debug-utils';
 
 // Define the type for your database schema
 export type Database = {
@@ -183,23 +182,11 @@ export type Database = {
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Enhanced debug logging
-console.log('Environment Variables Check:', {
-  VITE_SUPABASE_URL: supabaseUrl,
-  VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? 'exists' : 'missing',
-  NODE_ENV: import.meta.env.NODE_ENV,
-  DEV: import.meta.env.DEV,
-  PROD: import.meta.env.PROD,
+// Debug logging
+console.log('Initializing Supabase client with:', {
+  url: supabaseUrl,
+  keyExists: !!supabaseAnonKey
 });
-
-// Test connection immediately
-testDirectSupabaseConnection(supabaseUrl, supabaseAnonKey)
-  .then(result => {
-    console.log('Initial connection test result:', result);
-  })
-  .catch(err => {
-    console.error('Connection test failed:', err);
-  });
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables!');
@@ -211,26 +198,19 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'utsavai-web'
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+    storage: window.localStorage,
+    storageKey: 'utsavai-auth-token',
+    cookieOptions: {
+      domain: window.location.hostname,
+      secure: window.location.protocol === 'https:',
+      sameSite: 'Lax'
     }
   },
   db: {
     schema: 'public'
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10
-    }
   }
-});
-
-// Add error event listener
-supabase.auth.onAuthStateChange((event, session) => {
-  console.log('Auth state changed:', { event, session: session ? 'exists' : 'none' });
 });
 
 // Test the connection immediately
