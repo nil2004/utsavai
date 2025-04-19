@@ -15,6 +15,52 @@ export const VENDOR_STATUSES = {
   INACTIVE: 'inactive',
 };
 
+// Sample fallback data for when database is unavailable
+export const SAMPLE_VENDORS: Vendor[] = [
+  {
+    id: 1,
+    name: "Elegant Decorations",
+    category: "Decorator",
+    city: "Mumbai",
+    price: 25000,
+    rating: 4.8,
+    description: "We specialize in creating elegant and memorable decorations for all types of events.",
+    contact_email: "contact@elegantdecorations.com",
+    contact_phone: "+91 9876543210",
+    image_url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=2070",
+    status: "active",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    name: "Capture Moments",
+    category: "Photographer",
+    city: "Delhi",
+    price: 40000,
+    rating: 4.9,
+    description: "Professional photography services to capture your special moments.",
+    contact_email: "info@capturemoments.com",
+    contact_phone: "+91 9876543211",
+    image_url: "https://images.unsplash.com/photo-1554941829-202a0b2403b8?q=80&w=2070",
+    status: "active",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 3,
+    name: "Tasty Feasts",
+    category: "Caterer",
+    city: "Bangalore",
+    price: 30000,
+    rating: 4.7,
+    description: "Delicious food options for all types of events and tastes.",
+    contact_email: "orders@tastyfeasts.com",
+    contact_phone: "+91 9876543212",
+    image_url: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
+    status: "active",
+    created_at: new Date().toISOString(),
+  }
+];
+
 // Vendor categories
 export const VENDOR_CATEGORIES = [
   'Caterer',
@@ -198,40 +244,49 @@ export const getFrontendVendors = async (filters?: {
   try {
     console.log('Fetching frontend vendors with filters:', filters);
     
-    let query = supabase
-      .from('vendors')
-      .select('*')
-      // Remove status filter to show all vendors
-      // .eq('status', VENDOR_STATUSES.ACTIVE) 
-      .order('rating', { ascending: false }); // Sort by rating
-    
-    // Apply additional filters if provided
-    if (filters) {
-      if (filters.category) {
-        query = query.eq('category', filters.category);
+    try {
+      let query = supabase
+        .from('vendors')
+        .select('*')
+        // Remove status filter to show all vendors
+        // .eq('status', VENDOR_STATUSES.ACTIVE) 
+        .order('rating', { ascending: false }); // Sort by rating
+      
+      // Apply additional filters if provided
+      if (filters) {
+        if (filters.category) {
+          query = query.eq('category', filters.category);
+        }
+        if (filters.city) {
+          query = query.eq('city', filters.city);
+        }
+        if (filters.maxPrice) {
+          query = query.lte('price', filters.maxPrice);
+        }
+        if (filters.search) {
+          query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+        }
       }
-      if (filters.city) {
-        query = query.eq('city', filters.city);
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        console.error('Error fetching frontend vendors:', error);
+        throw error;
       }
-      if (filters.maxPrice) {
-        query = query.lte('price', filters.maxPrice);
-      }
-      if (filters.search) {
-        query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
-      }
+      
+      console.log(`Found ${data?.length || 0} vendors for frontend`);
+      return data || [];
+      
+    } catch (dbError) {
+      console.error('Database query failed, falling back to sample data:', dbError);
+      console.log('Using sample vendor data as fallback');
+      
+      // Return sample data as fallback when database errors occur
+      return SAMPLE_VENDORS;
     }
-    
-    const { data, error } = await query;
-    
-    if (error) {
-      console.error('Error fetching frontend vendors:', error);
-      return [];
-    }
-    
-    console.log(`Found ${data?.length || 0} vendors for frontend`);
-    return data || [];
   } catch (error) {
-    console.error('Unexpected error fetching frontend vendors:', error);
-    return [];
+    console.error('Unexpected error in getFrontendVendors:', error);
+    return SAMPLE_VENDORS;
   }
 }; 

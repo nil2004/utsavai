@@ -52,6 +52,13 @@ export default async function handler(req, res) {
     // Remove host-specific headers that can cause issues
     delete headers.host;
     delete headers.connection;
+    delete headers['content-length'];
+    
+    console.log('Request headers:', JSON.stringify(headers, (key, value) => {
+      // Don't log sensitive values
+      if (key === 'authorization' || key === 'apikey') return '[REDACTED]';
+      return value;
+    }, 2));
     
     let body = undefined;
     if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -75,17 +82,34 @@ export default async function handler(req, res) {
       console.error(`Supabase returned error status: ${response.status}`);
     }
     
+    // Get response content type to handle different responses appropriately
+    const contentType = response.headers.get('content-type');
+    console.log(`Response content type: ${contentType}, status: ${response.status}`);
+    
     // Mirror Supabase's response headers
     Object.entries(response.headers.raw()).forEach(([key, value]) => {
-      res.setHeader(key, value);
+      if (key !== 'content-length' && key !== 'connection') {
+        res.setHeader(key, value);
+      }
     });
     
-    // Get the response data
-    const contentType = response.headers.get('content-type');
+    // Handle different content types
     if (contentType && contentType.includes('application/json')) {
-      const data = await response.json();
-      return res.status(response.status).json(data);
+      try {
+        const data = await response.json();
+        return res.status(response.status).json(data);
+      } catch (parseError) {
+        console.error('Error parsing JSON response:', parseError);
+        // If JSON parsing fails, fall back to text
+        const text = await response.text();
+        console.error('Response text starts with:', text.substring(0, 200));
+        return res.status(500).json({ 
+          error: 'Failed to parse JSON response',
+          message: parseError.message
+        });
+      }
     } else {
+      // For non-JSON responses, just return the text
       const text = await response.text();
       return res.status(response.status).send(text);
     }

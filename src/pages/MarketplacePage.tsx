@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MapPin, Star, Filter, Search } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
-import { getFrontendVendors, type Vendor } from '@/lib/vendor-service';
+import { getFrontendVendors, SAMPLE_VENDORS, type Vendor } from '@/lib/vendor-service';
 import { supabase } from '../lib/supabase-adapter';
 
 // Interface for sample vendors (matches hardcoded data structure)
@@ -142,7 +142,7 @@ const MarketplacePage: React.FC = () => {
         console.error('Error loading vendors:', err);
         setError('Failed to load vendors. Using sample data instead.');
         setUsingSampleData(true);
-        // Don't set vendors here, we'll handle sample vendors in the filtering
+        setVendors(SAMPLE_VENDORS);
       } finally {
         setLoading(false);
       }
@@ -161,7 +161,7 @@ const MarketplacePage: React.FC = () => {
   };
 
   // Use sample vendors if we have an error, otherwise use real vendors
-  const sourceData = usingSampleData ? sampleVendors : vendors;
+  const sourceData = usingSampleData ? SAMPLE_VENDORS : vendors;
 
   const filteredVendors = sourceData
     .filter(vendor => {
