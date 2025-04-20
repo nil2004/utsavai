@@ -122,6 +122,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border: 1px solid rgba(124, 58, 237, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
+    padding: 1rem;
   }
 
   .vendor-card:hover {
@@ -134,6 +135,8 @@
     height: 160px;
     position: relative;
     overflow: hidden;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
   }
 
   .vendor-card img {
@@ -141,6 +144,7 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s;
+    border-radius: 0.5rem;
   }
 
   .vendor-card:hover img {
@@ -148,57 +152,63 @@
   }
 
   .vendor-card .card-content {
-    padding: 1.25rem;
+    padding: 1.5rem;
   }
 
   .vendor-card h3 {
     font-size: 1.125rem;
     font-weight: 600;
     color: #1a1a1a;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
     line-height: 1.3;
+    padding: 0.25rem 0;
   }
 
   .vendor-card .rating {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
     color: #1a1a1a;
+    padding: 0.25rem 0;
   }
 
   .vendor-card .location {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: 0.5rem;
     color: #666;
     font-size: 0.875rem;
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.25rem 0;
   }
 
   .vendor-card .price {
     font-weight: 600;
     color: #1a1a1a;
-    margin-top: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.25rem 0;
   }
 
   .vendor-card .button-container {
     display: flex;
-    gap: 0.75rem;
-    margin-top: 1rem;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding: 0.5rem 0;
   }
 
   /* Grid layout for desktop */
   div[class*="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"] {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 2rem;
     margin-bottom: 2rem;
+    padding: 1rem;
   }
 
   /* Category header styles */
   div[class*="flex items-center gap-3 mb-3"] {
     background: #f8f7ff;
-    padding: 0.875rem 1.25rem;
+    padding: 1rem 1.5rem;
     border-radius: 0.75rem;
     margin-bottom: 1.5rem;
     border: 1px solid rgba(124, 58, 237, 0.1);
