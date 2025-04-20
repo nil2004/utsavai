@@ -1618,31 +1618,31 @@ const ChatPage: React.FC = () => {
                 const isSelected = selectedVendors.some(v => v.id === vendor.id);
                 
                 return (
-                  <Card key={vendor.id} className="vendor-card flex flex-col h-full">
-                    <div className="image-container h-48 relative overflow-hidden">
+                  <Card key={vendor.id} className="vendor-card">
+                    <div className="image-container relative overflow-hidden rounded-t-xl md:p-4">
                       <img 
                         src={vendor.image} 
                         alt={vendor.name} 
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" 
+                        className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105 md:rounded-lg" 
                       />
                     </div>
-                    <div className="card-content flex-1 p-4 flex flex-col">
-                      <div className="flex justify-between items-start gap-2">
+                    <div className="card-content p-4 flex flex-col md:p-6">
+                      <div className="flex justify-between items-start gap-2 md:p-2">
                         <h3 className="font-semibold text-lg truncate flex-1">{vendor.name}</h3>
-                        <div className="flex items-center shrink-0">
+                        <div className="flex items-center shrink-0 md:p-2">
                           <span className="text-yellow-400 mr-1">★</span>
                           <span className="font-bold">{vendor.rating}</span>
                           <span className="text-gray-500 text-sm ml-1">({vendor.reviewCount})</span>
                         </div>
                       </div>
-                      <div className="flex items-center text-gray-500 text-sm mt-2">
+                      <div className="flex items-center text-gray-500 text-sm mt-2 md:p-2">
                         <MapPin className="h-3.5 w-3.5 mr-1 shrink-0" />
                         <span className="truncate">{vendor.city}</span>
                       </div>
-                      <div className="font-medium mt-2">
+                      <div className="font-medium mt-2 md:p-2">
                         ₹{vendor.price.toLocaleString()} - ₹{(vendor.price * 1.5).toLocaleString()}
                       </div>
-                      <div className="button-container mt-4 flex gap-2">
+                      <div className="button-container mt-4 flex gap-2 md:p-2">
                         <Button
                           onClick={() => handleBookVendor(vendor)}
                           className={`transition-all ${
