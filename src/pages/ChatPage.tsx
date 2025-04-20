@@ -35,7 +35,6 @@ import { supabase } from '@/lib/supabase';
 import { saveFormDataToEmail } from '@/lib/email-service';
 import FreeOfferForm from '@/components/FreeOfferForm';
 import { useAdminAuth } from '@/lib/admin-auth-context';
-import SEO from '@/components/SEO';
 
 // Define TypeScript interfaces
 interface Vendor {
@@ -1096,252 +1095,848 @@ const BudgetAllocation: React.FC<BudgetAllocationProps> = ({ eventType, budget }
 };
 
 const ChatPage: React.FC = () => {
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: '1',
+      sender: 'bot',
+      content: "Hello! I'm your event buddy. I can help you plan your event and find the right vendors. What kind of event are you planning?",
+    },
+  ]);
+  const [input, setInput] = useState<string>('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [vendorChecklist, setVendorChecklist] = useState<VendorChecklistItem[]>([]);
+  const [showingVendorsList, setShowingVendorsList] = useState<boolean>(false);
+  const [suggestedVendors, setSuggestedVendors] = useState<Vendor[]>([]);
+  const [location, setLocation] = useState<string>('');
+  const [showingLocationInput, setShowingLocationInput] = useState<boolean>(false);
+  const [budget, setBudget] = useState<string>('');
+  const [showingBudgetInput, setShowingBudgetInput] = useState<boolean>(false);
+  const [bookingVendor, setBookingVendor] = useState<Vendor | null>(null);
+  const [selectedVendors, setSelectedVendors] = useState<Vendor[]>([]);
+  const [submittedInterest, setSubmittedInterest] = useState<boolean>(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState<boolean>(true);
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  const [showingUserDetailsForm, setShowingUserDetailsForm] = useState<boolean>(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState<boolean>(false);
+  const [showingBudgetAllocation, setShowingBudgetAllocation] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [lastRequestId, setLastRequestId] = useState<number | undefined>(undefined);
+  const [showingFreeOfferForm, setShowingFreeOfferForm] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Only scroll if auto-scroll is enabled and the user is near the bottom
+    if (!shouldAutoScroll) {
+      setShouldAutoScroll(true); // Re-enable auto-scroll for next message
+      return;
+    }
+
+    const scrollArea = scrollAreaRef.current;
+    if (scrollArea) {
+      const { scrollHeight, scrollTop, clientHeight } = scrollArea;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      
+      if (isNearBottom || messages.length <= 1) {
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'end'
+          });
+        }, 100);
+      }
+    }
+  }, [messages, shouldAutoScroll]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'end'
+    });
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollHeight, scrollTop, clientHeight } = e.currentTarget;
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+    setShowScrollButton(!isNearBottom);
+  };
+
+  const handleSendMessage = () => {
+    if (!input.trim()) return;
+    
+    setShouldAutoScroll(true); // Enable auto-scroll for new messages
+    
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      sender: 'user',
+      content: input,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    
+    // Show "Coming Soon" message
+    setTimeout(() => {
+      const botResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+          sender: 'bot', 
+        content: "🔜 This feature is coming soon! Currently, we're focused on helping you plan events through our guided flow. Please select an event type to get started.",
+      };
+      setMessages(prev => [...prev, botResponse]);
+    }, 1000);
+  };
+
+  const handleEventSelect = (eventType: string) => {
+    setSelectedEvent(eventType);
+    
+    // Add user message
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      sender: 'user',
+      content: `I'm planning a ${eventTypes.find(e => e.id === eventType)?.name}`,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Add bot response and show vendor checklist
+    setTimeout(() => {
+      const checklist = defaultVendorChecklists[eventType] || defaultVendorChecklists.default;
+      setVendorChecklist(checklist);
+      
+      const botResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+          sender: 'bot', 
+        content: checklist,
+        isVendorList: true,
+      };
+      
+      setMessages(prev => [...prev, botResponse]);
+      setShowingVendorsList(true);
+    }, 1000);
+  };
+
+  const handleVendorChecklistConfirm = () => {
+    setShouldAutoScroll(true); // Enable auto-scroll for vendor checklist confirmation
+    setShowingVendorsList(false);
+    
+    // Add user message
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      sender: 'user',
+      content: `I've selected the vendors I need.`,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Simulate bot response
+    setTimeout(() => {
+      const botResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+          sender: 'bot', 
+        content: "Great! Now, where will your event be held?",
+      };
+      
+      setMessages(prev => [...prev, botResponse]);
+      setShowingLocationInput(true);
+    }, 1000);
+  };
+
+  const handleLocationConfirm = () => {
+    setShowingLocationInput(false);
+    
+    // Add user message with location
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      sender: 'user',
+      content: location,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Add bot response asking for budget
+    setTimeout(() => {
+      const botResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+          sender: 'bot', 
+        content: "Thank you! What's your approximate budget for this event?",
+      };
+      
+      setMessages(prev => [...prev, botResponse]);
+      setShowingBudgetInput(true);
+    }, 1000);
+  };
+
+  // Handle budget confirmation
+  const handleBudgetConfirm = () => {
+    setShowingBudgetInput(false);
+    
+    // Format the budget for display
+    const formattedBudget = parseInt(budget).toLocaleString('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    });
+    
+    // Add user message about budget
+    const userBudgetMessage: ChatMessage = {
+      id: Date.now().toString(),
+      sender: 'user',
+      content: `My budget is ${formattedBudget}`
+    };
+    
+    setMessages(prev => [...prev, userBudgetMessage]);
+    
+    // Show "thinking" while loading budget allocation
+    setShowingBudgetAllocation(true);
+    
+    // Add bot response acknowledging budget
+    const botResponse: ChatMessage = {
+      id: (Date.now() + 1).toString(),
+          sender: 'bot', 
+      content: `Great! Here's how you might allocate your budget of ${formattedBudget} for your ${eventTypes.find(e => e.id === selectedEvent)?.name || 'event'}:`
+    };
+    
+    setMessages(prev => [...prev, botResponse]);
+    
+    // Wait to show budget allocation before proceeding to vendor suggestions
+    setTimeout(() => {
+      // Show vendor suggestions after budget allocation has been shown
+      showVendorSuggestions().catch(error => {
+        console.error('Error showing vendor suggestions:', error);
+      });
+    }, 2000); // 2 seconds to view the budget allocation
+  };
+
+  const showVendorSuggestions = async () => {
+    try {
+      setLoading(true);
+      
+      // Filter criteria for getting relevant vendors
+      const filterCriteria = {
+        city: location,
+        maxPrice: parseInt(budget) || undefined
+        // No status filter to ensure we show all vendors
+      };
+      
+      // Get vendors from Supabase
+      const supabaseVendors = await getFrontendVendors(filterCriteria);
+      
+      console.log(`Loaded ${supabaseVendors.length} vendors from database`);
+      
+      // If no vendors found, use sample data as fallback (for development)
+      let availableVendors = supabaseVendors.length > 0 ? supabaseVendors : sampleVendors;
+      
+      // Map Supabase vendors to the interface expected by the UI
+      availableVendors = availableVendors.map(vendor => ({
+        id: vendor.id,
+        name: vendor.name,
+        category: vendor.category,
+        rating: vendor.rating,
+        reviewCount: Math.floor(Math.random() * 100) + 50, // Not stored in DB, generate for UI
+        priceRange: `₹${(vendor.price * 0.7).toLocaleString()} - ₹${(vendor.price * 1.3).toLocaleString()}`,
+        price: vendor.price,
+        image: vendor.image_url || "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=2070",
+        city: vendor.city
+      }));
+      
+      // Filter only vendors in requested location (if any)
+      if (location && location !== '') {
+        availableVendors = availableVendors.filter(vendor => 
+          vendor.city.toLowerCase() === location.toLowerCase()
+        );
+      }
+      
+      // Budget filter (if specified)
+      if (budget && budget !== '') {
+        const maxBudget = parseInt(budget);
+        availableVendors = availableVendors.filter(vendor => vendor.price <= maxBudget);
+      }
+
+      // IMPORTANT: Filter vendors to only show categories that the user selected
+      const selectedVendorCategories = messages
+        .filter(msg => msg.isVendorList && Array.isArray(msg.content))
+        .flatMap(msg => Array.isArray(msg.content) 
+          ? msg.content.filter(item => item.selected).map(item => item.name) 
+          : []
+        );
+
+      console.log("Selected vendor categories:", selectedVendorCategories);
+      
+      if (selectedVendorCategories.length > 0) {
+        availableVendors = availableVendors.filter(vendor => 
+          selectedVendorCategories.includes(vendor.category)
+        );
+      }
+      
+      // Get prioritized vendor types based on event type
+      let priorityVendorTypes: string[] = [];
+      
+      // Customize priorities based on event type
+      switch (selectedEvent) {
+        case 'wedding':
+          priorityVendorTypes = ['Venue', 'Caterer', 'Photographer', 'Decorator'];
+          break;
+        case 'birthday':
+          priorityVendorTypes = ['Caterer', 'Decorator', 'Photographer'];
+          break;
+        case 'corporate':
+          priorityVendorTypes = ['Venue', 'Caterer', 'Sound & Lighting'];
+          break;
+        case 'collegeFest':
+          priorityVendorTypes = ['Sound & Lighting', 'Caterer', 'Entertainment'];
+          break;
+        case 'schoolEvent':
+          priorityVendorTypes = ['Decorator', 'Caterer', 'Photographer'];
+          break;
+        default:
+          priorityVendorTypes = ['Venue', 'Caterer', 'Photographer', 'Decorator'];
+      }
+      
+      // Sort vendors based on priority for this event type
+      availableVendors.sort((a, b) => {
+        const aIndex = priorityVendorTypes.indexOf(a.category);
+        const bIndex = priorityVendorTypes.indexOf(b.category);
+        
+        // If both have priority, sort by priority
+        if (aIndex >= 0 && bIndex >= 0) {
+          return aIndex - bIndex;
+        }
+        // If only one has priority, it comes first
+        else if (aIndex >= 0) return -1;
+        else if (bIndex >= 0) return 1;
+        // If neither has priority, sort by rating
+        return b.rating - a.rating;
+      });
+      
+      // Use all available vendors instead of limiting to 10
+      const suggestedVendors = availableVendors;
+      
+      // Update the state variable
+      setSuggestedVendors(suggestedVendors);
+      
+      console.log(`Displaying ${suggestedVendors.length} vendors to user`);
+      
+      // Prepare the message based on event type
+      let message = '';
+      switch(selectedEvent) {
+        case 'wedding':
+          message = "Based on your wedding plans, these vendors would be perfect. I've prioritized venue, catering, and decoration services that match your budget.";
+          break;
+        case 'birthday':
+          message = "For your birthday celebration, I recommend these vendors. I've highlighted catering and decoration services within your budget range.";
+          break;
+        case 'corporate':
+          message = "For your corporate event, these professional vendors would be ideal. I've prioritized venues and services that will make your business event successful.";
+          break;
+        case 'collegeFest':
+          message = "These vendors would be perfect for your college fest! I've focused on sound systems, catering, and entertainment options that students will love.";
+          break;
+        case 'schoolEvent':
+          message = "For your school event, these vendors would work well. I've selected professional services that are appropriate for educational settings.";
+          break;
+        default:
+          message = "Based on your requirements, here are some vendor suggestions that fit your budget and location preferences.";
+      }
+      
+      // Add the suggestions message
+      const newMessage: ChatMessage = {
+        id: Date.now().toString(),
+          sender: 'bot', 
+        content: message,
+        isVendorSuggestions: true,
+        vendors: suggestedVendors
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+      setShowingBudgetAllocation(false);
+    } catch (error) {
+      console.error('Error showing vendor suggestions:', error);
+      
+      // Fallback to sample data in case of error - use all vendors, but filter by selected categories
+      const selectedVendorCategories = messages
+        .filter(msg => msg.isVendorList && Array.isArray(msg.content))
+        .flatMap(msg => Array.isArray(msg.content) 
+          ? msg.content.filter(item => item.selected).map(item => item.name) 
+          : []
+        );
+      
+      const filteredVendors = selectedVendorCategories.length > 0 
+        ? sampleVendors.filter(vendor => selectedVendorCategories.includes(vendor.category))
+        : sampleVendors;
+        
+      // Update the state with the fallback vendors
+      setSuggestedVendors(filteredVendors);
+        
+      const fallbackMessage: ChatMessage = {
+        id: Date.now().toString(),
+            sender: 'bot', 
+        content: "I found these vendors that might work for your event:",
+        isVendorSuggestions: true,
+        vendors: filteredVendors
+      };
+      
+      setMessages(prev => [...prev, fallbackMessage]);
+      setShowingBudgetAllocation(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBookVendor = (vendor: Vendor) => {
+    setSelectedVendors(prev => {
+      const isAlreadySelected = prev.some(v => v.id === vendor.id);
+      if (isAlreadySelected) {
+        return prev.filter(v => v.id !== vendor.id);
+      } else {
+        return [...prev, vendor];
+      }
+    });
+  };
+
+  const handleCloseBookingForm = (success: boolean) => {
+    if (success && bookingVendor) {
+      // If not already in selected vendors, add it
+      if (!selectedVendors.some(v => v.id === bookingVendor.id)) {
+        setSelectedVendors([...selectedVendors, bookingVendor]);
+      }
+      
+      setBookingVendor(null);
+    } else {
+      setBookingVendor(null);
+    }
+  };
+
+  const handleSubmitAllInterests = () => {
+    setShowingUserDetailsForm(true);
+  };
+
+  const handleUserDetailsSubmit = async (name: string, phone: string, specialRequests: string) => {
+    setShowingUserDetailsForm(false);
+    
+    // Show loading state
+    const loadingMessage: ChatMessage = {
+      id: Date.now().toString(),
+          sender: 'bot', 
+      content: "Submitting your request...",
+    };
+    setMessages(prev => [...prev, loadingMessage]);
+    
+    try {
+      // Save data to Supabase
+      const result = await saveCompleteEventRequest(
+        selectedEvent || 'custom',
+        location,
+        budget,
+        name,
+        phone,
+        specialRequests,
+        selectedVendors
+      );
+      
+      if (result.success) {
+        // Store the request ID
+        setLastRequestId(result.request_id);
+        
+        // Show success message
+        setSubmittedInterest(true);
+        setShowSuccessPopup(true);
+        
+        // Update the loading message with success and request ID
+        const botResponse: ChatMessage = {
+          id: Date.now().toString(),
+          sender: 'bot',
+          content: `✅ Thank you! Your event request #${result.request_id} has been submitted. Our UtsavAI team will connect with you within 24 hours.`,
+        };
+        
+        setMessages(prev => prev.map(msg => 
+          msg.id === loadingMessage.id ? botResponse : msg
+        ));
+      } else {
+        // Show error message
+        const errorMessage: ChatMessage = {
+          id: Date.now().toString(),
+          sender: 'bot',
+          content: "❌ There was an error saving your request. Please try again or contact support.",
+        };
+        
+        setMessages(prev => prev.map(msg => 
+          msg.id === loadingMessage.id ? errorMessage : msg
+        ));
+      }
+    } catch (error) {
+      console.error("Error saving to database:", error);
+      
+      // Show error message
+      const errorMessage: ChatMessage = {
+        id: Date.now().toString(),
+        sender: 'bot',
+        content: "❌ There was an error saving your request. Please try again or contact support.",
+      };
+      
+      setMessages(prev => prev.map(msg => 
+        msg.id === loadingMessage.id ? errorMessage : msg
+      ));
+    }
+  };
+
+  const renderVendorSuggestions = (vendors: Vendor[]) => {
+    // Group vendors by category
+    const categorizedVendors = vendors.reduce((acc, vendor) => {
+      if (!acc[vendor.category]) {
+        acc[vendor.category] = [];
+      }
+      acc[vendor.category].push(vendor);
+      return acc;
+    }, {} as Record<string, Vendor[]>);
+
+    // Count vendors by category and prepare text summary
+    const totalVendorsCount = vendors.length;
+    const categoryCountText = Object.entries(categorizedVendors)
+      .map(([category, vendorsList]) => `${category}: ${vendorsList.length}`)
+      .join(', ');
+
   return (
-    <>
-      <SEO 
-        title="Chat with UtsavAI - Your Personal Event Planning Assistant"
-        description="Get real-time event planning assistance, vendor recommendations, and budget planning through our AI-powered chat interface. Plan your perfect event with UtsavAI."
-        type="website"
-      />
-      <div className="h-screen flex flex-col bg-gradient-to-br from-violet-50 via-white to-violet-50/50">
-        <div className="flex-grow overflow-hidden relative">
-          <ScrollArea 
-            className="h-full px-4 md:px-8 py-6 pb-36" 
-            onWheel={handleScroll}
-            ref={scrollAreaRef}
-          >
-            <div className="flex flex-col min-h-full max-w-4xl mx-auto">
-              <div className="flex-grow space-y-6">
-                {messages.map((message, index) => (
-                  <div
-                    key={message.id}
-                    className={`animate-in slide-in-from-${message.sender === 'bot' ? 'left' : 'right'} duration-300 delay-${index % 3}00`}
-                  >
-                  <Message 
-                      sender={message.sender}
-                      content={message.content}
-                      isVendorList={message.isVendorList}
-                      isVendorSuggestions={message.isVendorSuggestions}
-                      vendors={message.vendors || []}
-                    onBookVendor={handleBookVendor}
-                      onConfirm={
-                        message.isVendorList ? handleVendorChecklistConfirm : undefined
-                      }
-                      selectedVendors={selectedVendors}
-                    />
-                    {message.isVendorSuggestions && message.vendors && message.vendors.length > 0 && 
-                      <div className="mt-2 mb-8">
-                        {renderVendorSuggestions(message.vendors)}
-                      </div>
-                    }
-                  </div>
-                ))}
-                
-                {showingLocationInput && (
-                  <div className="animate-in slide-in-from-bottom duration-300">
-                  <LocationInput 
-                    location={location}
-                    setLocation={setLocation}
-                    onConfirm={handleLocationConfirm}
-                  />
+            <div>
+        <div className="font-medium mb-6 text-lg">
+          Vendor recommendations for your event
             </div>
-                )}
-                
-                {showingBudgetInput && (
-                  <div className="animate-in slide-in-from-bottom duration-300">
-                  <BudgetInput 
-                    budget={budget}
-                    setBudget={setBudget}
-                    onConfirm={handleBudgetConfirm}
-                  />
+        
+        <div className="text-sm text-gray-500 mb-4">
+          Found {totalVendorsCount} vendors across {Object.keys(categorizedVendors).length} categories ({categoryCountText})
+          </div>
+          
+        {Object.entries(categorizedVendors).map(([category, categoryVendors]) => (
+          <div key={category} className="mb-8 last:mb-0">
+            <div className="flex items-center gap-3 mb-3 p-3 bg-violet-50/50 rounded-lg border border-violet-100/50">
+              {getVendorIcon(category)}
+              <h3 className="text-lg font-semibold">{category}s ({categoryVendors.length})</h3>
             </div>
-                )}
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              {categoryVendors.map((vendor) => {
+                const isSelected = selectedVendors.some(v => v.id === vendor.id);
                 
-                {showingBudgetAllocation && selectedEvent && (
-                  <div className="animate-in slide-in-from-bottom duration-300">
-                    <BudgetAllocation 
-                      eventType={selectedEvent}
-                      budget={budget}
-                    />
-            </div>
-                )}
-                
-                {showingUserDetailsForm && (
-                  <UserDetailsForm 
-                    onSubmit={handleUserDetailsSubmit}
-                    onCancel={() => setShowingUserDetailsForm(false)}
-                    selectedVendorsCount={selectedVendors.length}
-                  />
-                )}
-                
-                {showingFreeOfferForm && (
-                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-                    <div className="w-full max-w-md">
-                      <FreeOfferForm 
-                        onClose={() => setShowingFreeOfferForm(false)}
-                        eventType={selectedEvent || undefined}
-                        budget={budget || undefined}
-                        location={location || undefined}
+                return (
+                  <Card key={vendor.id} className="vendor-card">
+                    <div className="image-container relative overflow-hidden rounded-t-xl md:p-4">
+                      <img 
+                        src={vendor.image} 
+                        alt={vendor.name} 
+                        className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105 md:rounded-lg" 
                       />
-            </div>
+                    </div>
+                    <div className="card-content p-4 flex flex-col md:p-6">
+                      <div className="flex justify-between items-start gap-2 md:p-2">
+                        <h3 className="font-semibold text-lg truncate flex-1">{vendor.name}</h3>
+                        <div className="flex items-center shrink-0 md:p-2">
+                          <span className="text-yellow-400 mr-1">★</span>
+                          <span className="font-bold">{vendor.rating}</span>
+                          <span className="text-gray-500 text-sm ml-1">({vendor.reviewCount})</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center text-gray-500 text-sm mt-2 md:p-2">
+                        <MapPin className="h-3.5 w-3.5 mr-1 shrink-0" />
+                        <span className="truncate">{vendor.city}</span>
+                      </div>
+                      <div className="font-medium mt-2 md:p-2">
+                        ₹{vendor.price.toLocaleString()} - ₹{(vendor.price * 1.5).toLocaleString()}
+                      </div>
+                      <div className="button-container mt-4 flex gap-2 md:p-2">
+                        <Button
+                          onClick={() => handleBookVendor(vendor)}
+                          className={`transition-all ${
+                            isSelected
+                              ? 'bg-green-500 hover:bg-green-600' 
+                              : 'bg-violet-500 hover:bg-violet-600'
+                          } text-sm py-1 px-4 rounded-md flex-1`}
+                          size="sm"
+                        >
+                          {isSelected ? 'Selected ✓' : 'Interested'}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-sm py-1 px-4 rounded-md border-gray-300"
+                          onClick={() => setSelectedVendor(vendor)}
+                        >
+                          View Details
+                        </Button>
+                    </div>
                   </div>
-                )}
-                
-                {!selectedEvent && (
-                  <div className="flex justify-start mb-4 animate-in slide-in-from-bottom duration-300">
-                    <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-6 max-w-[90%] shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] transition-all duration-500">
-                      <div className="font-medium mb-4 text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Please select an event type:</div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {eventTypes.map((eventType) => {
-                          // Get recommended vendors for this event type
-                          const recommendedVendors = defaultVendorChecklists[eventType.id]
-                            ?.filter(item => item.selected)
-                            .map(item => item.name)
-                            .slice(0, 3) || [];
-                          
-                          return (
-                            <button
-                              key={eventType.id}
-                              className="group flex flex-col items-center justify-center p-4 rounded-xl border-2 border-gray-100 hover:border-primary/60 transition-all hover:bg-gradient-to-br hover:from-primary/5 hover:to-transparent hover:scale-105 transform cursor-pointer hover:shadow-[0_8px_16px_rgba(139,92,246,0.15)]"
-                              onClick={() => handleEventSelect(eventType.id)}
-                            >
-                              <span className="text-4xl mb-3 group-hover:scale-110 transition-all duration-300 transform-gpu">{eventType.emoji}</span>
-                              <span className="font-medium text-base text-gray-700 group-hover:text-primary transition-colors">{eventType.name}</span>
-                              
-                              {/* Show recommended vendors */}
-                              <div className="mt-2 w-full">
-                                <div className="text-xs text-gray-500 mb-1">Recommended vendors:</div>
-                                <div className="flex flex-wrap gap-1">
-                                  {recommendedVendors.map((vendor, index) => (
-                                    <span 
-                                      key={index} 
-                                      className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-violet-50 text-violet-600 border border-violet-100"
-                                    >
-                                      {vendor}
-                                    </span>
-                                  ))}
+                  </Card>
+                );
+              })}
+                </div>
+          </div>
+        ))}
+        
+        {/* Add Free Event Planning Offer */}
+        <div className="mt-8 mb-4 p-6 rounded-lg border border-violet-200 bg-gradient-to-br from-violet-50 to-white">
+          <h3 className="text-xl font-semibold mb-4 text-violet-800">🎁 Free Expert Event Planning</h3>
+          <p className="mb-4 text-gray-700">
+            Want expert help planning your perfect event? Our team with 7+ years of experience provides insider knowledge and ideas to plan your event.
+          </p>
+          <Button
+            className="bg-accent hover:bg-accent/90 text-white"
+            onClick={() => {
+              // Show consultation form directly without adding message to chat
+              setShowingFreeOfferForm(true);
+            }}
+          >
+            Get Free Expert Advice
+          </Button>
+        </div>
+        
+        {selectedVendor && (
+          <VendorDetailsDialog
+            isOpen={!!selectedVendor}
+            onClose={() => setSelectedVendor(null)}
+            vendor={selectedVendor}
+          />
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="h-screen flex flex-col bg-gradient-to-br from-violet-50 via-white to-violet-50/50">
+      <div className="flex-grow overflow-hidden relative">
+        <ScrollArea 
+          className="h-full px-4 md:px-8 py-6 pb-36" 
+          onWheel={handleScroll}
+          ref={scrollAreaRef}
+        >
+          <div className="flex flex-col min-h-full max-w-4xl mx-auto">
+            <div className="flex-grow space-y-6">
+              {messages.map((message, index) => (
+                <div
+                  key={message.id}
+                  className={`animate-in slide-in-from-${message.sender === 'bot' ? 'left' : 'right'} duration-300 delay-${index % 3}00`}
+                >
+                <Message 
+                    sender={message.sender}
+                    content={message.content}
+                    isVendorList={message.isVendorList}
+                    isVendorSuggestions={message.isVendorSuggestions}
+                    vendors={message.vendors || []}
+                  onBookVendor={handleBookVendor}
+                    onConfirm={
+                      message.isVendorList ? handleVendorChecklistConfirm : undefined
+                    }
+                    selectedVendors={selectedVendors}
+                  />
+                  {message.isVendorSuggestions && message.vendors && message.vendors.length > 0 && 
+                    <div className="mt-2 mb-8">
+                      {renderVendorSuggestions(message.vendors)}
+                    </div>
+                  }
+                </div>
+              ))}
+              
+              {showingLocationInput && (
+                <div className="animate-in slide-in-from-bottom duration-300">
+                <LocationInput 
+                  location={location}
+                  setLocation={setLocation}
+                  onConfirm={handleLocationConfirm}
+                />
+          </div>
+              )}
+              
+              {showingBudgetInput && (
+                <div className="animate-in slide-in-from-bottom duration-300">
+                <BudgetInput 
+                  budget={budget}
+                  setBudget={setBudget}
+                  onConfirm={handleBudgetConfirm}
+                />
+          </div>
+              )}
+              
+              {showingBudgetAllocation && selectedEvent && (
+                <div className="animate-in slide-in-from-bottom duration-300">
+                  <BudgetAllocation 
+                    eventType={selectedEvent}
+                    budget={budget}
+                  />
+          </div>
+              )}
+              
+              {showingUserDetailsForm && (
+                <UserDetailsForm 
+                  onSubmit={handleUserDetailsSubmit}
+                  onCancel={() => setShowingUserDetailsForm(false)}
+                  selectedVendorsCount={selectedVendors.length}
+                />
+              )}
+              
+              {showingFreeOfferForm && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+                  <div className="w-full max-w-md">
+                    <FreeOfferForm 
+                      onClose={() => setShowingFreeOfferForm(false)}
+                      eventType={selectedEvent || undefined}
+                      budget={budget || undefined}
+                      location={location || undefined}
+                    />
+          </div>
+                </div>
+              )}
+              
+              {!selectedEvent && (
+                <div className="flex justify-start mb-4 animate-in slide-in-from-bottom duration-300">
+                  <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-6 max-w-[90%] shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] transition-all duration-500">
+                    <div className="font-medium mb-4 text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Please select an event type:</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {eventTypes.map((eventType) => {
+                        // Get recommended vendors for this event type
+                        const recommendedVendors = defaultVendorChecklists[eventType.id]
+                          ?.filter(item => item.selected)
+                          .map(item => item.name)
+                          .slice(0, 3) || [];
+                        
+                        return (
+                          <button
+                            key={eventType.id}
+                            className="group flex flex-col items-center justify-center p-4 rounded-xl border-2 border-gray-100 hover:border-primary/60 transition-all hover:bg-gradient-to-br hover:from-primary/5 hover:to-transparent hover:scale-105 transform cursor-pointer hover:shadow-[0_8px_16px_rgba(139,92,246,0.15)]"
+                            onClick={() => handleEventSelect(eventType.id)}
+                          >
+                            <span className="text-4xl mb-3 group-hover:scale-110 transition-all duration-300 transform-gpu">{eventType.emoji}</span>
+                            <span className="font-medium text-base text-gray-700 group-hover:text-primary transition-colors">{eventType.name}</span>
+                            
+                            {/* Show recommended vendors */}
+                            <div className="mt-2 w-full">
+                              <div className="text-xs text-gray-500 mb-1">Recommended vendors:</div>
+                              <div className="flex flex-wrap gap-1">
+                                {recommendedVendors.map((vendor, index) => (
+                                  <span 
+                                    key={index} 
+                                    className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-violet-50 text-violet-600 border border-violet-100"
+                                  >
+                                    {vendor}
+                                  </span>
+                                ))}
+          </div>
+        </div>
+                          </button>
+                        );
+                      })}
+            </div>
             </div>
           </div>
-                            </button>
-                          );
-                        })}
-              </div>
-              </div>
-            </div>
-                )}
-            </div>
-              <div ref={messagesEndRef} className="h-px" />
-            </div>
-          </ScrollArea>
+              )}
+          </div>
+            <div ref={messagesEndRef} className="h-px" />
+          </div>
+        </ScrollArea>
 
-          {showScrollButton && (
+        {showScrollButton && (
+              <Button 
+            className="fixed bottom-28 right-8 rounded-full p-3 bg-primary/90 hover:bg-primary shadow-lg transition-all duration-200 animate-in fade-in slide-in-from-bottom-4 hover:scale-110 z-10"
+            onClick={scrollToBottom}
+                size="icon"
+              >
+            <ArrowDown className="h-5 w-5 text-white" />
+          </Button>
+        )}
+        
+        <div className="sticky bottom-0 left-0 right-0">
+          <div className="mx-auto max-w-4xl px-4 md:px-8 pb-4">
+            {!showingVendorsList && !showingLocationInput && !showingBudgetInput && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
                 <Button 
-              className="fixed bottom-28 right-8 rounded-full p-3 bg-primary/90 hover:bg-primary shadow-lg transition-all duration-200 animate-in fade-in slide-in-from-bottom-4 hover:scale-110 z-10"
-              onClick={scrollToBottom}
-                  size="icon"
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setInput("What vendors do you recommend?")}
+                  className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
                 >
-              <ArrowDown className="h-5 w-5 text-white" />
+                  Vendor recommendations
             </Button>
-          )}
-          
-          <div className="sticky bottom-0 left-0 right-0">
-            <div className="mx-auto max-w-4xl px-4 md:px-8 pb-4">
-              {!showingVendorsList && !showingLocationInput && !showingBudgetInput && (
-                <div className="mb-3 flex flex-wrap gap-1.5">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setInput("What vendors do you recommend?")}
-                    className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
-                  >
-                    Vendor recommendations
-              </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setInput("How much does it typically cost?")}
-                    className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
-                  >
-                    Cost estimates
-              </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setInput("I need help with planning")}
-                    className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
-                  >
-                    Planning assistance
-              </Button>
-                </div>
-                  )}
-                <div className="relative flex items-end w-full bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
-                  <textarea
-                    placeholder="Type a message..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        if (input.trim()) handleSendMessage();
-                      }
-                    }}
-                    className="w-full resize-none rounded-xl border-0 bg-transparent py-3 pl-4 pr-12 focus:ring-0 focus-visible:ring-0 md:py-3 md:pl-5 text-sm"
-                    style={{
-                      minHeight: '20px',
-                      maxHeight: '120px',
-                      height: 'auto',
-                      overflowY: 'hidden'
-                    }}
-                    rows={1}
-                    onInput={(e) => {
-                      const target = e.target as HTMLTextAreaElement;
-                      target.style.height = 'auto';
-                      target.style.height = Math.min(target.scrollHeight, 120) + 'px';
-                    }}
-                  />
-                  <div className="absolute bottom-1 right-1 flex items-center justify-center gap-2">
-                    {suggestedVendors.length > 0 && selectedVendors.length > 0 && !submittedInterest && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setInput("How much does it typically cost?")}
+                  className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
+                >
+                  Cost estimates
+            </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setInput("I need help with planning")}
+                  className="text-xs py-1 h-7 hover:bg-primary/5 hover:text-primary transition-all duration-300 hover:scale-105 transform-gpu shadow-sm hover:shadow-md"
+                >
+                  Planning assistance
+            </Button>
+          </div>
+            )}
+            <div className="relative flex items-end w-full bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
+              <textarea
+                placeholder="Type a message..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (input.trim()) handleSendMessage();
+                  }
+                }}
+                className="w-full resize-none rounded-xl border-0 bg-transparent py-3 pl-4 pr-12 focus:ring-0 focus-visible:ring-0 md:py-3 md:pl-5 text-sm"
+                style={{
+                  minHeight: '20px',
+                  maxHeight: '120px',
+                  height: 'auto',
+                  overflowY: 'hidden'
+                }}
+                rows={1}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                }}
+              />
+              <div className="absolute bottom-1 right-1 flex items-center justify-center gap-2">
+                {suggestedVendors.length > 0 && selectedVendors.length > 0 && !submittedInterest && (
               <Button 
                     onClick={handleSubmitAllInterests}
                     className="h-8 rounded-lg px-3 text-xs bg-accent hover:bg-accent/90 shadow-md transition-all"
               >
                     Submit Interest ({selectedVendors.length})
               </Button>
-                    )}
-                    <Button 
-                      onClick={handleSendMessage} 
-                      className={`h-8 w-8 rounded-lg p-0 transition-all duration-300 transform hover:scale-110 ${
-                        input.trim() 
-                          ? 'bg-gradient-to-br from-primary to-primary/90 text-white shadow-[0_4px_12px_rgba(139,92,246,0.3)] hover:shadow-[0_8px_16px_rgba(139,92,246,0.4)]' 
-                          : 'text-gray-400 bg-transparent hover:bg-transparent'
-                      }`}
-                      disabled={!input.trim()}
-                    >
-                      <SendHorizontal className="h-4 w-4" />
-                    </Button>
-                  </div>
+                )}
+                <Button 
+                  onClick={handleSendMessage} 
+                  className={`h-8 w-8 rounded-lg p-0 transition-all duration-300 transform hover:scale-110 ${
+                    input.trim() 
+                      ? 'bg-gradient-to-br from-primary to-primary/90 text-white shadow-[0_4px_12px_rgba(139,92,246,0.3)] hover:shadow-[0_8px_16px_rgba(139,92,246,0.4)]' 
+                      : 'text-gray-400 bg-transparent hover:bg-transparent'
+                  }`}
+                  disabled={!input.trim()}
+                >
+                  <SendHorizontal className="h-4 w-4" />
+                </Button>
               </div>
-                <div className="mt-1.5 text-center text-[10px] text-gray-500">
-                  Press Enter to send, Shift + Enter for new line
           </div>
-              </div>
-              <div className="h-8 bg-gradient-to-t from-white via-white to-transparent" />
-            </div>
+            <div className="mt-1.5 text-center text-[10px] text-gray-500">
+              Press Enter to send, Shift + Enter for new line
+      </div>
           </div>
-          
-          {bookingVendor && (
-            <BookingForm vendor={bookingVendor} onClose={handleCloseBookingForm} />
-          )}
-          
-          {showSuccessPopup && (
-            <SuccessPopup 
-              onClose={() => setShowSuccessPopup(false)} 
-              requestId={lastRequestId} 
-            />
-          )}
+          <div className="h-8 bg-gradient-to-t from-white via-white to-transparent" />
         </div>
       </div>
-    </>
+      
+      {bookingVendor && (
+        <BookingForm vendor={bookingVendor} onClose={handleCloseBookingForm} />
+      )}
+      
+      {showSuccessPopup && (
+        <SuccessPopup 
+          onClose={() => setShowSuccessPopup(false)} 
+          requestId={lastRequestId} 
+        />
+      )}
+    </div>
   );
 };
 
