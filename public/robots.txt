@@ -5,7 +5,11 @@ Allow: /
 # Sitemap location
 Sitemap: https://utsavai.com/sitemap.xml
 
-# Disallow admin and auth callback pages
+# Disallow admin and private routes
 Disallow: /admin/*
-Disallow: /auth/callback
+Disallow: /dashboard/*
 Disallow: /api/*
+Disallow: /private/*
+
+# Crawl-delay
+Crawl-delay: 10
