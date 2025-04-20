@@ -84,3 +84,60 @@
     padding: 0.5rem !important;
   }
 }
+
+/* Desktop styles for vendor cards in chat */
+@media (min-width: 641px) {
+  .vendor-card {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    height: auto;
+    margin-bottom: 1rem;
+  }
+
+  .vendor-card .image-container {
+    width: 100%;
+    height: 200px;
+    position: relative;
+  }
+
+  .vendor-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+
+  .vendor-card .card-content {
+    padding: 1rem;
+  }
+
+  .vendor-card h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .vendor-card .button-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  /* Category header styles */
+  div[class*="flex items-center gap-3 mb-3"] {
+    background: #f8f7ff;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Grid layout for desktop */
+  div[class*="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"] {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+}
