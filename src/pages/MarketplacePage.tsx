@@ -131,7 +131,16 @@ const MarketplacePage: React.FC = () => {
   // Initialize price range with explicit values
   const minPrice = 5000;
   const maxPrice = 120000;
+  const step = 1000;
   const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
+
+  // Handle price range change with debounce
+  const handlePriceRangeChange = (value: number[]) => {
+    setPriceRange([
+      Math.max(minPrice, Math.round(value[0] / step) * step),
+      Math.min(maxPrice, Math.round(value[1] / step) * step)
+    ]);
+  };
 
   useEffect(() => {
     const loadVendors = async () => {
@@ -313,19 +322,12 @@ const MarketplacePage: React.FC = () => {
                   <span>{formatPrice(priceRange[1])}</span>
                 </div>
                 <RangeSlider
-                  defaultValue={[minPrice, maxPrice]}
                   min={minPrice}
                   max={maxPrice}
-                  step={5000}
+                  step={step}
                   value={priceRange}
-                  onValueChange={(value) => {
-                    setPriceRange([
-                      Math.max(minPrice, value[0]),
-                      Math.min(maxPrice, value[1])
-                    ]);
-                  }}
+                  onValueChange={handlePriceRangeChange}
                   className="price-slider"
-                  minStepsBetweenThumbs={5000}
                 />
                 <div className="price-preset-buttons">
                   <Button
