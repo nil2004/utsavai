@@ -333,24 +333,27 @@ const VendorDetailsPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Instagram Reels */}
+              {/* Video Reels */}
               {vendor.instagram_reels && vendor.instagram_reels.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-medium mb-4">Instagram Reels</h3>
+                  <h3 className="text-lg font-medium mb-4">Video Reels</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {vendor.instagram_reels.map((reelUrl, index) => (
-                      <div key={index} className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100">
+                      <div key={index} className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative">
                         <video
                           src={reelUrl}
                           className="w-full h-full object-cover"
                           controls
                           playsInline
                           preload="metadata"
-                          poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Reel"}
+                          poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
                           onError={(e) => {
                             const target = e.target as HTMLVideoElement;
                             target.onerror = null;
-                            target.poster = 'https://via.placeholder.com/300x533?text=Video+Not+Available';
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
+                            errorDiv.textContent = 'Video could not be loaded. Please check the URL or try again later.';
+                            target.parentElement?.appendChild(errorDiv);
                           }}
                         >
                           <source src={reelUrl} type="video/mp4" />
