@@ -94,77 +94,59 @@ const VendorDetailsPage: React.FC = () => {
     loadVendorDetails();
   }, [id]);
 
-  // Function to pause all videos except the active one
-  const pauseInactiveVideos = (currentIndex: number) => {
-    videoRefs.current.forEach((videoRef, idx) => {
-      if (videoRef && idx !== currentIndex) {
-        try {
-          videoRef.pause();
-          videoRef.currentTime = 0;
-        } catch (error) {
-          console.error('Error pausing video:', error);
-        }
+  const pauseAllVideos = () => {
+    const videos = document.querySelectorAll('video');
+    videos.forEach(video => {
+      try {
+        video.pause();
+        video.currentTime = 0;
+      } catch (error) {
+        console.error('Error pausing video:', error);
       }
     });
   };
 
-  // Handle slide change
   useEffect(() => {
-    if (!carouselApi) {
-      return;
-    }
+    if (!carouselApi) return undefined;
 
     const handleSlideChange = () => {
-      const currentIndex = carouselApi.selectedScrollSnap();
-      setActiveIndex(currentIndex);
-      pauseInactiveVideos(currentIndex);
+      pauseAllVideos();
+      setActiveIndex(carouselApi.selectedScrollSnap());
     };
 
     carouselApi.on("select", handleSlideChange);
-    
-    // Initial setup
-    pauseInactiveVideos(carouselApi.selectedScrollSnap());
-
     return () => {
       carouselApi.off("select", handleSlideChange);
     };
   }, [carouselApi]);
 
-  // Handle video element mounting
-  const handleVideoRef = (el: HTMLVideoElement | null, index: number) => {
-    videoRefs.current[index] = el;
-    if (el && index !== activeIndex) {
-      el.pause();
-      el.currentTime = 0;
-    }
-  };
-
-  // Handle manual navigation
   const handlePrevSlide = () => {
     if (carouselApi) {
-      const currentVideo = videoRefs.current[activeIndex];
-      if (currentVideo) {
-        currentVideo.pause();
-        currentVideo.currentTime = 0;
-      }
+      pauseAllVideos();
       carouselApi.scrollPrev();
     }
   };
 
   const handleNextSlide = () => {
     if (carouselApi) {
-      const currentVideo = videoRefs.current[activeIndex];
-      if (currentVideo) {
-        currentVideo.pause();
-        currentVideo.currentTime = 0;
-      }
+      pauseAllVideos();
       carouselApi.scrollNext();
     }
   };
 
-  // Handle video play
-  const handleVideoPlay = (index: number) => {
-    pauseInactiveVideos(index);
+  const handleVideoPlay = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    const currentVideo = event.currentTarget;
+    const videos = document.querySelectorAll('video');
+    videos.forEach(video => {
+      if (video !== currentVideo) {
+        try {
+          video.pause();
+          video.currentTime = 0;
+        } catch (error) {
+          console.error('Error handling video play:', error);
+        }
+      }
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -468,13 +450,13 @@ const VendorDetailsPage: React.FC = () => {
                                 />
                               ) : (
                                 <video
-                                  ref={el => handleVideoRef(el, index)}
+                                  key={`video-${index}`}
                                   src={reelUrl}
                                   className="w-full h-full object-cover"
                                   controls
                                   playsInline
                                   preload="metadata"
-                                  onPlay={() => handleVideoPlay(index)}
+                                  onPlay={handleVideoPlay}
                                   poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
                                   onError={(e) => {
                                     const target = e.target as HTMLVideoElement;
