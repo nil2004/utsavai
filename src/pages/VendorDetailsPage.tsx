@@ -152,29 +152,22 @@ const VendorDetailsPage: React.FC = () => {
   const handleVideoPlay = (event: React.SyntheticEvent<HTMLVideoElement>) => {
     const videoElement = event.currentTarget;
     
-    // If a different video is already playing, pause it
-    if (currentlyPlaying && currentlyPlaying !== videoElement) {
-      currentlyPlaying.pause();
-      currentlyPlaying.currentTime = 0;
-    }
-    
-    setCurrentlyPlaying(videoElement);
-    pauseAllVideosExcept(videoElement);
-  };
-
-  const handleVideoPause = (event: React.SyntheticEvent<HTMLVideoElement>) => {
-    const videoElement = event.currentTarget;
-    if (currentlyPlaying === videoElement) {
-      setCurrentlyPlaying(null);
+    if (currentlyPlaying !== videoElement) {
+      if (currentlyPlaying) {
+        currentlyPlaying.pause();
+        currentlyPlaying.currentTime = 0;
+      }
+      setCurrentlyPlaying(videoElement);
+      pauseAllVideosExcept(videoElement);
     }
   };
 
   const handleVideoEnded = (event: React.SyntheticEvent<HTMLVideoElement>) => {
     const videoElement = event.currentTarget;
-    videoElement.currentTime = 0;
     if (currentlyPlaying === videoElement) {
       setCurrentlyPlaying(null);
     }
+    videoElement.currentTime = 0;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -486,8 +479,13 @@ const VendorDetailsPage: React.FC = () => {
                                     preload="auto"
                                     controlsList="nodownload"
                                     onPlay={handleVideoPlay}
-                                    onPause={handleVideoPause}
                                     onEnded={handleVideoEnded}
+                                    onPause={() => {
+                                      const videoElement = event?.currentTarget as HTMLVideoElement;
+                                      if (currentlyPlaying === videoElement) {
+                                        setCurrentlyPlaying(null);
+                                      }
+                                    }}
                                     poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
                                     onError={(e) => {
                                       const target = e.target as HTMLVideoElement;
