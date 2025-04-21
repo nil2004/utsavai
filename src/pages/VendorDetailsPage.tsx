@@ -10,6 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 // Import the sample vendors data as fallback
 import { sampleVendors } from './MarketplacePage';
@@ -354,45 +361,55 @@ const VendorDetailsPage: React.FC = () => {
 
               {/* Video Reels */}
               {vendor.instagram_reels && vendor.instagram_reels.length > 0 && (
-                <div className="mb-6 -mx-4">
-                  <h3 className="text-lg font-medium mb-4 px-4">Video Reels</h3>
-                  <div className="overflow-x-auto touch-pan-x pb-4 px-4">
-                    <div className="inline-flex gap-4">
-                      {vendor.instagram_reels.map((reelUrl, index) => (
-                        <div key={index} className="w-[240px] shrink-0">
-                          <div className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative shadow-md hover:shadow-lg transition-shadow duration-300">
-                            {reelUrl.includes('drive.google.com') ? (
-                              <iframe
-                                src={getVideoUrl(reelUrl)}
-                                className="w-full h-full"
-                                allow="autoplay; encrypted-media"
-                                allowFullScreen
-                              />
-                            ) : (
-                              <video
-                                src={reelUrl}
-                                className="w-full h-full object-cover"
-                                controls
-                                playsInline
-                                preload="metadata"
-                                poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
-                                onError={(e) => {
-                                  const target = e.target as HTMLVideoElement;
-                                  target.onerror = null;
-                                  const errorDiv = document.createElement('div');
-                                  errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
-                                  errorDiv.textContent = 'Video could not be loaded. Please make sure the video URL is publicly accessible.';
-                                  target.parentElement?.appendChild(errorDiv);
-                                }}
-                              >
-                                <source src={reelUrl} type="video/mp4" />
-                                Your browser does not support the video tag.
-                              </video>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium mb-4">Video Reels</h3>
+                  <div className="relative px-4 md:px-12">
+                    <Carousel
+                      opts={{
+                        align: "start",
+                        loop: true,
+                      }}
+                      className="w-full"
+                    >
+                      <CarouselContent>
+                        {vendor.instagram_reels.map((reelUrl, index) => (
+                          <CarouselItem key={index} className="basis-full md:basis-1/2 lg:basis-1/3">
+                            <div className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative shadow-md hover:shadow-lg transition-shadow duration-300">
+                              {reelUrl.includes('drive.google.com') ? (
+                                <iframe
+                                  src={getVideoUrl(reelUrl)}
+                                  className="w-full h-full"
+                                  allow="autoplay; encrypted-media"
+                                  allowFullScreen
+                                />
+                              ) : (
+                                <video
+                                  src={reelUrl}
+                                  className="w-full h-full object-cover"
+                                  controls
+                                  playsInline
+                                  preload="metadata"
+                                  poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLVideoElement;
+                                    target.onerror = null;
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
+                                    errorDiv.textContent = 'Video could not be loaded. Please make sure the video URL is publicly accessible.';
+                                    target.parentElement?.appendChild(errorDiv);
+                                  }}
+                                >
+                                  <source src={reelUrl} type="video/mp4" />
+                                  Your browser does not support the video tag.
+                                </video>
+                              )}
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="absolute -left-2 md:-left-8" />
+                      <CarouselNext className="absolute -right-2 md:-right-8" />
+                    </Carousel>
                   </div>
                 </div>
               )}
