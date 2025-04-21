@@ -366,17 +366,22 @@ const VendorDetailsPage: React.FC = () => {
                   <div className="relative">
                     <Carousel
                       opts={{
-                        align: "start",
+                        align: "center",
                         loop: true,
-                        skipSnaps: false,
-                        dragFree: false
+                        dragFree: true,
+                        containScroll: "trimSnaps",
+                        slidesToScroll: 1,
+                        duration: 30
                       }}
-                      className="w-full"
+                      className="w-full touch-pan-y"
                     >
                       <CarouselContent className="-ml-2 md:-ml-4">
                         {vendor.instagram_reels.map((reelUrl, index) => (
-                          <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
-                            <div className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative shadow-md hover:shadow-lg transition-shadow duration-300">
+                          <CarouselItem 
+                            key={index} 
+                            className="pl-2 md:pl-4 basis-[85%] md:basis-1/2 lg:basis-1/3 transition-opacity duration-300 data-[active=false]:opacity-50"
+                          >
+                            <div className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
                               {reelUrl.includes('drive.google.com') ? (
                                 <iframe
                                   src={getVideoUrl(reelUrl)}
@@ -409,9 +414,9 @@ const VendorDetailsPage: React.FC = () => {
                           </CarouselItem>
                         ))}
                       </CarouselContent>
-                      <div className="hidden sm:block">
-                        <CarouselPrevious className="absolute -left-4 md:-left-8 hover:bg-primary hover:text-white" />
-                        <CarouselNext className="absolute -right-4 md:-right-8 hover:bg-primary hover:text-white" />
+                      <div className="sm:block">
+                        <CarouselPrevious className="absolute -left-3 md:-left-8 hover:bg-primary hover:text-white transition-colors duration-200 bg-white/80 backdrop-blur border-primary" />
+                        <CarouselNext className="absolute -right-3 md:-right-8 hover:bg-primary hover:text-white transition-colors duration-200 bg-white/80 backdrop-blur border-primary" />
                       </div>
                     </Carousel>
                   </div>
