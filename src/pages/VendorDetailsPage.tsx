@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -22,6 +22,66 @@ import {
 // Import the sample vendors data as fallback
 import { sampleVendors } from './MarketplacePage';
 
+// Custom Video Player Component
+const VideoPlayer: React.FC<{
+  src: string;
+  poster: string;
+  onPlayStateChange: (isPlaying: boolean) => void;
+  isOtherVideoPlaying: boolean;
+}> = ({ src, poster, onPlayStateChange, isOtherVideoPlaying }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (isOtherVideoPlaying && videoRef.current && !videoRef.current.paused) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, [isOtherVideoPlaying]);
+
+  const handlePlay = () => {
+    onPlayStateChange(true);
+  };
+
+  const handlePause = () => {
+    onPlayStateChange(false);
+  };
+
+  const handleEnded = () => {
+    onPlayStateChange(false);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  return (
+    <video
+      ref={videoRef}
+      className="w-full h-full object-cover"
+      controls
+      playsInline
+      preload="auto"
+      controlsList="nodownload"
+      poster={poster}
+      onPlay={handlePlay}
+      onPause={handlePause}
+      onEnded={handleEnded}
+      onError={(e) => {
+        const target = e.target as HTMLVideoElement;
+        target.onerror = null;
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
+        errorDiv.textContent = 'Video could not be loaded. Please make sure the video URL is publicly accessible.';
+        target.parentElement?.parentElement?.appendChild(errorDiv);
+      }}
+    >
+      <source src={src} type="video/mp4" />
+      <source src={src} type="video/webm" />
+      <source src={src} type="video/ogg" />
+      Your browser does not support the video tag.
+    </video>
+  );
+};
+
 const VendorDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [vendor, setVendor] = useState<Vendor | null>(null);
@@ -40,8 +100,11 @@ const VendorDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const [currentlyPlaying, setCurrentlyPlaying] = useState<HTMLVideoElement | null>(null);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [playingVideoIndex, setPlayingVideoIndex] = useState<number | null>(null);
+
+  const handleVideoPlayStateChange = useCallback((index: number, isPlaying: boolean) => {
+    setPlayingVideoIndex(isPlaying ? index : null);
+  }, []);
 
   useEffect(() => {
     const loadVendorDetails = async () => {
@@ -125,14 +188,7 @@ const VendorDetailsPage: React.FC = () => {
     if (!carouselApi) return undefined;
 
     const handleSlideChange = () => {
-      // Pause all videos when changing slides
-      const allVideos = document.querySelectorAll('video');
-      allVideos.forEach(video => {
-        if (!video.paused) {
-          video.pause();
-          video.currentTime = 0;
-        }
-      });
+      setPlayingVideoIndex(null);
       setActiveIndex(carouselApi.selectedScrollSnap());
     };
 
@@ -144,50 +200,16 @@ const VendorDetailsPage: React.FC = () => {
 
   const handlePrevSlide = () => {
     if (carouselApi) {
-      // Pause all videos
-      const allVideos = document.querySelectorAll('video');
-      allVideos.forEach(video => {
-        if (!video.paused) {
-          video.pause();
-          video.currentTime = 0;
-        }
-      });
+      setPlayingVideoIndex(null);
       carouselApi.scrollPrev();
     }
   };
 
   const handleNextSlide = () => {
     if (carouselApi) {
-      // Pause all videos
-      const allVideos = document.querySelectorAll('video');
-      allVideos.forEach(video => {
-        if (!video.paused) {
-          video.pause();
-          video.currentTime = 0;
-        }
-      });
+      setPlayingVideoIndex(null);
       carouselApi.scrollNext();
     }
-  };
-
-  const handleVideoPlay = (event: React.SyntheticEvent<HTMLVideoElement>) => {
-    const videoElement = event.currentTarget;
-    
-    if (currentlyPlaying !== videoElement) {
-      if (currentlyPlaying) {
-        currentlyPlaying.pause();
-        currentlyPlaying.currentTime = 0;
-      }
-      setCurrentlyPlaying(videoElement);
-    }
-  };
-
-  const handleVideoEnded = (event: React.SyntheticEvent<HTMLVideoElement>) => {
-    const videoElement = event.currentTarget;
-    if (currentlyPlaying === videoElement) {
-      setCurrentlyPlaying(null);
-    }
-    videoElement.currentTime = 0;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -491,28 +513,13 @@ const VendorDetailsPage: React.FC = () => {
                                 />
                               ) : (
                                 <div className="relative w-full h-full">
-                                  <video
+                                  <VideoPlayer
                                     key={`video-${index}`}
-                                    className="w-full h-full object-cover"
-                                    controls
-                                    playsInline
-                                    preload="auto"
-                                    controlsList="nodownload"
+                                    src={reelUrl}
                                     poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
-                                    onError={(e) => {
-                                      const target = e.target as HTMLVideoElement;
-                                      target.onerror = null;
-                                      const errorDiv = document.createElement('div');
-                                      errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
-                                      errorDiv.textContent = 'Video could not be loaded. Please make sure the video URL is publicly accessible.';
-                                      target.parentElement?.parentElement?.appendChild(errorDiv);
-                                    }}
-                                  >
-                                    <source src={reelUrl} type="video/mp4" />
-                                    <source src={reelUrl} type="video/webm" />
-                                    <source src={reelUrl} type="video/ogg" />
-                                    Your browser does not support the video tag.
-                                  </video>
+                                    onPlayStateChange={(isPlaying) => handleVideoPlayStateChange(index, isPlaying)}
+                                    isOtherVideoPlaying={playingVideoIndex !== null && playingVideoIndex !== index}
+                                  />
                                   <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/10 to-transparent"></div>
                                 </div>
                               )}
