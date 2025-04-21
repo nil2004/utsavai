@@ -40,6 +40,7 @@ const VendorDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<HTMLVideoElement | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
@@ -94,14 +95,16 @@ const VendorDetailsPage: React.FC = () => {
     loadVendorDetails();
   }, [id]);
 
-  const pauseAllVideos = () => {
+  const pauseAllVideosExcept = (currentVideo: HTMLVideoElement | null) => {
     const videos = document.querySelectorAll('video');
     videos.forEach(video => {
-      try {
-        video.pause();
-        video.currentTime = 0;
-      } catch (error) {
-        console.error('Error pausing video:', error);
+      if (video !== currentVideo) {
+        try {
+          video.pause();
+          video.currentTime = 0;
+        } catch (error) {
+          console.error('Error pausing video:', error);
+        }
       }
     });
   };
@@ -110,7 +113,11 @@ const VendorDetailsPage: React.FC = () => {
     if (!carouselApi) return undefined;
 
     const handleSlideChange = () => {
-      pauseAllVideos();
+      if (currentlyPlaying) {
+        currentlyPlaying.pause();
+        currentlyPlaying.currentTime = 0;
+        setCurrentlyPlaying(null);
+      }
       setActiveIndex(carouselApi.selectedScrollSnap());
     };
 
@@ -118,35 +125,56 @@ const VendorDetailsPage: React.FC = () => {
     return () => {
       carouselApi.off("select", handleSlideChange);
     };
-  }, [carouselApi]);
+  }, [carouselApi, currentlyPlaying]);
 
   const handlePrevSlide = () => {
     if (carouselApi) {
-      pauseAllVideos();
+      if (currentlyPlaying) {
+        currentlyPlaying.pause();
+        currentlyPlaying.currentTime = 0;
+        setCurrentlyPlaying(null);
+      }
       carouselApi.scrollPrev();
     }
   };
 
   const handleNextSlide = () => {
     if (carouselApi) {
-      pauseAllVideos();
+      if (currentlyPlaying) {
+        currentlyPlaying.pause();
+        currentlyPlaying.currentTime = 0;
+        setCurrentlyPlaying(null);
+      }
       carouselApi.scrollNext();
     }
   };
 
   const handleVideoPlay = (event: React.SyntheticEvent<HTMLVideoElement>) => {
-    const currentVideo = event.currentTarget;
-    const videos = document.querySelectorAll('video');
-    videos.forEach(video => {
-      if (video !== currentVideo) {
-        try {
-          video.pause();
-          video.currentTime = 0;
-        } catch (error) {
-          console.error('Error handling video play:', error);
-        }
-      }
-    });
+    const videoElement = event.currentTarget;
+    
+    // If a different video is already playing, pause it
+    if (currentlyPlaying && currentlyPlaying !== videoElement) {
+      currentlyPlaying.pause();
+      currentlyPlaying.currentTime = 0;
+    }
+    
+    setCurrentlyPlaying(videoElement);
+    pauseAllVideosExcept(videoElement);
+  };
+
+  const handleVideoPause = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    const videoElement = event.currentTarget;
+    if (currentlyPlaying === videoElement) {
+      setCurrentlyPlaying(null);
+    }
+  };
+
+  const handleVideoEnded = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    const videoElement = event.currentTarget;
+    videoElement.currentTime = 0;
+    if (currentlyPlaying === videoElement) {
+      setCurrentlyPlaying(null);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -458,6 +486,8 @@ const VendorDetailsPage: React.FC = () => {
                                     preload="auto"
                                     controlsList="nodownload"
                                     onPlay={handleVideoPlay}
+                                    onPause={handleVideoPause}
+                                    onEnded={handleVideoEnded}
                                     poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
                                     onError={(e) => {
                                       const target = e.target as HTMLVideoElement;
