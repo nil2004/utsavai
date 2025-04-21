@@ -390,14 +390,18 @@ const VendorDetailsPage: React.FC = () => {
                         align: "center",
                         loop: true,
                         skipSnaps: false,
-                        containScroll: "trimSnaps"
+                        containScroll: "trimSnaps",
+                        startIndex: 0
                       }}
                       className="w-full"
                       setApi={setCarouselApi}
                     >
                       <CarouselContent className="-ml-6 md:-ml-8">
                         {vendor.instagram_reels.map((reelUrl, index) => (
-                          <CarouselItem key={index} className="pl-6 md:pl-8 basis-[85%] sm:basis-[400px]">
+                          <CarouselItem 
+                            key={index} 
+                            className="pl-6 md:pl-8 basis-[85%] sm:basis-[400px]"
+                          >
                             <div className="mx-2 aspect-[9/16] rounded-xl overflow-hidden bg-gray-100 relative shadow-lg">
                               {reelUrl.includes('drive.google.com') ? (
                                 <iframe
@@ -432,8 +436,22 @@ const VendorDetailsPage: React.FC = () => {
                           </CarouselItem>
                         ))}
                       </CarouselContent>
-                      <CarouselPrevious className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1" />
-                      <CarouselNext className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1" />
+                      <CarouselPrevious 
+                        className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1"
+                        onClick={() => {
+                          if (carouselApi) {
+                            carouselApi.scrollPrev();
+                          }
+                        }}
+                      />
+                      <CarouselNext 
+                        className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1"
+                        onClick={() => {
+                          if (carouselApi) {
+                            carouselApi.scrollNext();
+                          }
+                        }}
+                      />
                     </Carousel>
                   </div>
                 </div>
