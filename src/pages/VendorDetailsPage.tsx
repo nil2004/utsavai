@@ -16,8 +16,8 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
-import type { CarouselApi } from "@/components/ui/carousel";
 
 // Import the sample vendors data as fallback
 import { sampleVendors } from './MarketplacePage';
@@ -39,8 +39,8 @@ const VendorDetailsPage: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
     const loadVendorDetails = async () => {
@@ -95,11 +95,19 @@ const VendorDetailsPage: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    if (!carouselApi) return;
+    if (!carouselApi) {
+      return;
+    }
 
     carouselApi.on("select", () => {
       const selectedIndex = carouselApi.selectedScrollSnap();
-      handleSlideChange(selectedIndex);
+      // Pause all videos except the current one
+      videoRefs.current.forEach((videoRef, idx) => {
+        if (videoRef && idx !== selectedIndex) {
+          videoRef.pause();
+        }
+      });
+      setActiveIndex(selectedIndex);
     });
   }, [carouselApi]);
 
@@ -205,16 +213,6 @@ const VendorDetailsPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleSlideChange = (index: number) => {
-    // Pause all videos except the current one
-    videoRefs.current.forEach((videoRef, idx) => {
-      if (videoRef && idx !== index) {
-        videoRef.pause();
-      }
-    });
-    setActiveIndex(index);
   };
 
   // Sample additional vendor details
@@ -417,14 +415,6 @@ const VendorDetailsPage: React.FC = () => {
                                   playsInline
                                   preload="metadata"
                                   poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
-                                  onPlay={() => {
-                                    // Pause other videos when this one starts playing
-                                    videoRefs.current.forEach((videoRef, idx) => {
-                                      if (videoRef && idx !== index) {
-                                        videoRef.pause();
-                                      }
-                                    });
-                                  }}
                                   onError={(e) => {
                                     const target = e.target as HTMLVideoElement;
                                     target.onerror = null;
@@ -442,20 +432,8 @@ const VendorDetailsPage: React.FC = () => {
                           </CarouselItem>
                         ))}
                       </CarouselContent>
-                      <CarouselPrevious 
-                        className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1"
-                        onClick={() => {
-                          const newIndex = activeIndex === 0 ? vendor.instagram_reels.length - 1 : activeIndex - 1;
-                          handleSlideChange(newIndex);
-                        }}
-                      />
-                      <CarouselNext 
-                        className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1"
-                        onClick={() => {
-                          const newIndex = activeIndex === vendor.instagram_reels.length - 1 ? 0 : activeIndex + 1;
-                          handleSlideChange(newIndex);
-                        }}
-                      />
+                      <CarouselPrevious className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1" />
+                      <CarouselNext className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1" />
                     </Carousel>
                   </div>
                 </div>
