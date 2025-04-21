@@ -21,6 +21,7 @@ import VendorDetailsPage from "./pages/VendorDetailsPage";
 import BookingConfirmationPage from "./pages/BookingConfirmationPage";
 import { AuthProvider } from "./lib/auth-context";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Admin imports
 import { AdminAuthProvider } from "./lib/admin-auth-context";
@@ -41,6 +42,7 @@ const App = () => (
     <AuthProvider>
       <AdminAuthProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <TooltipProvider>
             <Toaster />
             <Sonner />
