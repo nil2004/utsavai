@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -17,6 +17,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import type { CarouselApi } from "@/components/ui/carousel";
 
 // Import the sample vendors data as fallback
 import { sampleVendors } from './MarketplacePage';
@@ -37,6 +38,9 @@ const VendorDetailsPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 
   useEffect(() => {
     const loadVendorDetails = async () => {
@@ -89,6 +93,15 @@ const VendorDetailsPage: React.FC = () => {
 
     loadVendorDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    carouselApi.on("select", () => {
+      const selectedIndex = carouselApi.selectedScrollSnap();
+      handleSlideChange(selectedIndex);
+    });
+  }, [carouselApi]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -192,6 +205,16 @@ const VendorDetailsPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSlideChange = (index: number) => {
+    // Pause all videos except the current one
+    videoRefs.current.forEach((videoRef, idx) => {
+      if (videoRef && idx !== index) {
+        videoRef.pause();
+      }
+    });
+    setActiveIndex(index);
   };
 
   // Sample additional vendor details
@@ -372,6 +395,7 @@ const VendorDetailsPage: React.FC = () => {
                         containScroll: "trimSnaps"
                       }}
                       className="w-full"
+                      setApi={setCarouselApi}
                     >
                       <CarouselContent className="-ml-6 md:-ml-8">
                         {vendor.instagram_reels.map((reelUrl, index) => (
@@ -386,12 +410,21 @@ const VendorDetailsPage: React.FC = () => {
                                 />
                               ) : (
                                 <video
+                                  ref={el => videoRefs.current[index] = el}
                                   src={reelUrl}
                                   className="w-full h-full object-cover"
                                   controls
                                   playsInline
                                   preload="metadata"
                                   poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
+                                  onPlay={() => {
+                                    // Pause other videos when this one starts playing
+                                    videoRefs.current.forEach((videoRef, idx) => {
+                                      if (videoRef && idx !== index) {
+                                        videoRef.pause();
+                                      }
+                                    });
+                                  }}
                                   onError={(e) => {
                                     const target = e.target as HTMLVideoElement;
                                     target.onerror = null;
@@ -409,8 +442,20 @@ const VendorDetailsPage: React.FC = () => {
                           </CarouselItem>
                         ))}
                       </CarouselContent>
-                      <CarouselPrevious className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1" />
-                      <CarouselNext className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1" />
+                      <CarouselPrevious 
+                        className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1"
+                        onClick={() => {
+                          const newIndex = activeIndex === 0 ? vendor.instagram_reels.length - 1 : activeIndex - 1;
+                          handleSlideChange(newIndex);
+                        }}
+                      />
+                      <CarouselNext 
+                        className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1"
+                        onClick={() => {
+                          const newIndex = activeIndex === vendor.instagram_reels.length - 1 ? 0 : activeIndex + 1;
+                          handleSlideChange(newIndex);
+                        }}
+                      />
                     </Carousel>
                   </div>
                 </div>
