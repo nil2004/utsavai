@@ -409,8 +409,8 @@ const VendorDetailsPage: React.FC = () => {
                           </CarouselItem>
                         ))}
                       </CarouselContent>
-                      <CarouselPrevious className="h-10 w-10 absolute -left-5 bg-white/80 hover:bg-white" />
-                      <CarouselNext className="h-10 w-10 absolute -right-5 bg-white/80 hover:bg-white" />
+                      <CarouselPrevious className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1" />
+                      <CarouselNext className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1" />
                     </Carousel>
                   </div>
                 </div>
