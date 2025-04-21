@@ -356,39 +356,45 @@ const VendorDetailsPage: React.FC = () => {
               {vendor.instagram_reels && vendor.instagram_reels.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-4">Video Reels</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {vendor.instagram_reels.map((reelUrl, index) => (
-                      <div key={index} className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative max-w-[240px] mx-auto w-full">
-                        {reelUrl.includes('drive.google.com') ? (
-                          <iframe
-                            src={getVideoUrl(reelUrl)}
-                            className="w-full h-full"
-                            allow="autoplay; encrypted-media"
-                            allowFullScreen
-                          />
-                        ) : (
-                          <video
-                            src={reelUrl}
-                            className="w-full h-full object-cover"
-                            controls
-                            playsInline
-                            preload="metadata"
-                            poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
-                            onError={(e) => {
-                              const target = e.target as HTMLVideoElement;
-                              target.onerror = null;
-                              const errorDiv = document.createElement('div');
-                              errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
-                              errorDiv.textContent = 'Video could not be loaded. Please make sure the video URL is publicly accessible.';
-                              target.parentElement?.appendChild(errorDiv);
-                            }}
-                          >
-                            <source src={reelUrl} type="video/mp4" />
-                            Your browser does not support the video tag.
-                          </video>
-                        )}
+                  <div className="relative">
+                    <div className="overflow-x-auto scrollbar-hide">
+                      <div className="flex space-x-4 pb-4">
+                        {vendor.instagram_reels.map((reelUrl, index) => (
+                          <div key={index} className="flex-none w-[240px] aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative">
+                            {reelUrl.includes('drive.google.com') ? (
+                              <iframe
+                                src={getVideoUrl(reelUrl)}
+                                className="w-full h-full"
+                                allow="autoplay; encrypted-media"
+                                allowFullScreen
+                              />
+                            ) : (
+                              <video
+                                src={reelUrl}
+                                className="w-full h-full object-cover"
+                                controls
+                                playsInline
+                                preload="metadata"
+                                poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
+                                onError={(e) => {
+                                  const target = e.target as HTMLVideoElement;
+                                  target.onerror = null;
+                                  const errorDiv = document.createElement('div');
+                                  errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
+                                  errorDiv.textContent = 'Video could not be loaded. Please make sure the video URL is publicly accessible.';
+                                  target.parentElement?.appendChild(errorDiv);
+                                }}
+                              >
+                                <source src={reelUrl} type="video/mp4" />
+                                Your browser does not support the video tag.
+                              </video>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+                    <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+                    <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
                   </div>
                 </div>
               )}
