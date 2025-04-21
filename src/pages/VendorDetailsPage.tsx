@@ -363,25 +363,20 @@ const VendorDetailsPage: React.FC = () => {
               {vendor.instagram_reels && vendor.instagram_reels.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-4">Video Reels</h3>
-                  <div className="relative">
+                  <div className="relative px-1">
                     <Carousel
                       opts={{
-                        align: "center",
+                        align: "start",
                         loop: true,
-                        dragFree: true,
-                        containScroll: "trimSnaps",
-                        slidesToScroll: 1,
-                        duration: 30
+                        skipSnaps: false,
+                        containScroll: "trimSnaps"
                       }}
-                      className="w-full touch-pan-y"
+                      className="w-full"
                     >
-                      <CarouselContent className="-ml-2 md:-ml-4">
+                      <CarouselContent className="-ml-1">
                         {vendor.instagram_reels.map((reelUrl, index) => (
-                          <CarouselItem 
-                            key={index} 
-                            className="pl-2 md:pl-4 basis-[85%] md:basis-1/2 lg:basis-1/3 transition-opacity duration-300 data-[active=false]:opacity-50"
-                          >
-                            <div className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
+                          <CarouselItem key={index} className="pl-1 basis-[300px]">
+                            <div className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative shadow-md">
                               {reelUrl.includes('drive.google.com') ? (
                                 <iframe
                                   src={getVideoUrl(reelUrl)}
@@ -414,10 +409,8 @@ const VendorDetailsPage: React.FC = () => {
                           </CarouselItem>
                         ))}
                       </CarouselContent>
-                      <div className="sm:block">
-                        <CarouselPrevious className="absolute -left-3 md:-left-8 hover:bg-primary hover:text-white transition-colors duration-200 bg-white/80 backdrop-blur border-primary" />
-                        <CarouselNext className="absolute -right-3 md:-right-8 hover:bg-primary hover:text-white transition-colors duration-200 bg-white/80 backdrop-blur border-primary" />
-                      </div>
+                      <CarouselPrevious className="h-8 w-8 absolute -left-4" />
+                      <CarouselNext className="h-8 w-8 absolute -right-4" />
                     </Carousel>
                   </div>
                 </div>
