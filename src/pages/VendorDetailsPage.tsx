@@ -356,9 +356,9 @@ const VendorDetailsPage: React.FC = () => {
               {vendor.instagram_reels && vendor.instagram_reels.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-4">Video Reels</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {vendor.instagram_reels.map((reelUrl, index) => (
-                      <div key={index} className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative">
+                      <div key={index} className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative max-w-[240px] mx-auto w-full">
                         {reelUrl.includes('drive.google.com') ? (
                           <iframe
                             src={getVideoUrl(reelUrl)}
