@@ -212,6 +212,18 @@ const VendorDetailsPage: React.FC = () => {
     ],
   };
 
+  // Function to convert Google Drive URL to direct download URL
+  const getVideoUrl = (url: string): string => {
+    if (url.includes('drive.google.com')) {
+      // Extract file ID from Google Drive URL
+      const fileId = url.match(/[-\w]{25,}/);
+      if (fileId) {
+        return `https://drive.google.com/uc?export=download&id=${fileId[0]}`;
+      }
+    }
+    return url;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -341,7 +353,7 @@ const VendorDetailsPage: React.FC = () => {
                     {vendor.instagram_reels.map((reelUrl, index) => (
                       <div key={index} className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative">
                         <video
-                          src={reelUrl}
+                          src={getVideoUrl(reelUrl)}
                           className="w-full h-full object-cover"
                           controls
                           playsInline
@@ -352,11 +364,11 @@ const VendorDetailsPage: React.FC = () => {
                             target.onerror = null;
                             const errorDiv = document.createElement('div');
                             errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
-                            errorDiv.textContent = 'Video could not be loaded. Please check the URL or try again later.';
+                            errorDiv.textContent = 'Video could not be loaded. Please make sure the video URL is publicly accessible.';
                             target.parentElement?.appendChild(errorDiv);
                           }}
                         >
-                          <source src={reelUrl} type="video/mp4" />
+                          <source src={getVideoUrl(reelUrl)} type="video/mp4" />
                           Your browser does not support the video tag.
                         </video>
                       </div>
