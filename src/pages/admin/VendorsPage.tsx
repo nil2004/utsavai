@@ -92,7 +92,7 @@ const vendorFormSchema = z.object({
   portfolio_images: z.array(z.string().url("Please enter valid URLs")).default([]),
   portfolio_description: z.string().optional().default(""),
   portfolio_events: z.array(z.string()).default([]),
-  instagram_reels: z.array(z.string().url("Please enter valid Instagram Reel URLs")).default([])
+  instagram_reels: z.array(z.string().url("Please enter valid video URLs")).default([]),
 });
 
 // Add this new component before the VendorsPage component
@@ -718,7 +718,7 @@ const VendorsPage = () => {
               name="instagram_reels"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Instagram Reels</FormLabel>
+                  <FormLabel>Video Reels</FormLabel>
                   <FormControl>
                     <div className="space-y-2">
                       {field.value.map((url, index) => (
@@ -730,7 +730,7 @@ const VendorsPage = () => {
                               newUrls[index] = e.target.value;
                               field.onChange(newUrls);
                             }}
-                            placeholder="https://www.instagram.com/reel/xyz"
+                            placeholder="https://example.com/video.mp4"
                           />
                           <Button
                             type="button"
@@ -753,11 +753,11 @@ const VendorsPage = () => {
                         }}
                       >
                         <PlusCircle className="h-4 w-4 mr-2" />
-                        Add Instagram Reel
+                        Add Video Reel
                       </Button>
                     </div>
                   </FormControl>
-                  <FormDescription>Add URLs of your Instagram Reels</FormDescription>
+                  <FormDescription>Add direct URLs to your video reels (MP4 format recommended)</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

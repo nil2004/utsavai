@@ -340,14 +340,22 @@ const VendorDetailsPage: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {vendor.instagram_reels.map((reelUrl, index) => (
                       <div key={index} className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100">
-                        <iframe
+                        <video
                           src={reelUrl}
-                          className="w-full h-full"
-                          frameBorder="0"
-                          allowFullScreen
-                          loading="lazy"
-                          title={`Instagram Reel ${index + 1}`}
-                        />
+                          className="w-full h-full object-cover"
+                          controls
+                          playsInline
+                          preload="metadata"
+                          poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Reel"}
+                          onError={(e) => {
+                            const target = e.target as HTMLVideoElement;
+                            target.onerror = null;
+                            target.poster = 'https://via.placeholder.com/300x533?text=Video+Not+Available';
+                          }}
+                        >
+                          <source src={reelUrl} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
                       </div>
                     ))}
                   </div>
