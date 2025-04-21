@@ -95,29 +95,44 @@ const VendorDetailsPage: React.FC = () => {
     loadVendorDetails();
   }, [id]);
 
-  const pauseAllVideosExcept = (currentVideo: HTMLVideoElement | null) => {
-    const videos = document.querySelectorAll('video');
-    videos.forEach(video => {
-      if (video !== currentVideo) {
-        try {
+  // Add global event listener for video play events
+  useEffect(() => {
+    const handleGlobalPlay = (event: Event) => {
+      const videoElement = event.target as HTMLVideoElement;
+      
+      // Get all videos in the carousel
+      const allVideos = document.querySelectorAll('video');
+      
+      // Pause all other videos
+      allVideos.forEach(video => {
+        if (video !== videoElement && !video.paused) {
           video.pause();
           video.currentTime = 0;
-        } catch (error) {
-          console.error('Error pausing video:', error);
         }
-      }
-    });
-  };
+      });
+    };
 
+    // Add event listener to document
+    document.addEventListener('play', handleGlobalPlay, true);
+
+    return () => {
+      document.removeEventListener('play', handleGlobalPlay, true);
+    };
+  }, []);
+
+  // Handle slide change
   useEffect(() => {
     if (!carouselApi) return undefined;
 
     const handleSlideChange = () => {
-      if (currentlyPlaying) {
-        currentlyPlaying.pause();
-        currentlyPlaying.currentTime = 0;
-        setCurrentlyPlaying(null);
-      }
+      // Pause all videos when changing slides
+      const allVideos = document.querySelectorAll('video');
+      allVideos.forEach(video => {
+        if (!video.paused) {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
       setActiveIndex(carouselApi.selectedScrollSnap());
     };
 
@@ -125,26 +140,32 @@ const VendorDetailsPage: React.FC = () => {
     return () => {
       carouselApi.off("select", handleSlideChange);
     };
-  }, [carouselApi, currentlyPlaying]);
+  }, [carouselApi]);
 
   const handlePrevSlide = () => {
     if (carouselApi) {
-      if (currentlyPlaying) {
-        currentlyPlaying.pause();
-        currentlyPlaying.currentTime = 0;
-        setCurrentlyPlaying(null);
-      }
+      // Pause all videos
+      const allVideos = document.querySelectorAll('video');
+      allVideos.forEach(video => {
+        if (!video.paused) {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
       carouselApi.scrollPrev();
     }
   };
 
   const handleNextSlide = () => {
     if (carouselApi) {
-      if (currentlyPlaying) {
-        currentlyPlaying.pause();
-        currentlyPlaying.currentTime = 0;
-        setCurrentlyPlaying(null);
-      }
+      // Pause all videos
+      const allVideos = document.querySelectorAll('video');
+      allVideos.forEach(video => {
+        if (!video.paused) {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
       carouselApi.scrollNext();
     }
   };
@@ -158,7 +179,6 @@ const VendorDetailsPage: React.FC = () => {
         currentlyPlaying.currentTime = 0;
       }
       setCurrentlyPlaying(videoElement);
-      pauseAllVideosExcept(videoElement);
     }
   };
 
@@ -478,14 +498,6 @@ const VendorDetailsPage: React.FC = () => {
                                     playsInline
                                     preload="auto"
                                     controlsList="nodownload"
-                                    onPlay={handleVideoPlay}
-                                    onEnded={handleVideoEnded}
-                                    onPause={() => {
-                                      const videoElement = event?.currentTarget as HTMLVideoElement;
-                                      if (currentlyPlaying === videoElement) {
-                                        setCurrentlyPlaying(null);
-                                      }
-                                    }}
                                     poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
                                     onError={(e) => {
                                       const target = e.target as HTMLVideoElement;
