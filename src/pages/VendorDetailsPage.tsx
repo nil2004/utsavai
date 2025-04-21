@@ -360,7 +360,10 @@ const VendorDetailsPage: React.FC = () => {
                     <div className="overflow-x-auto scrollbar-hide">
                       <div className="flex space-x-4 pb-4">
                         {vendor.instagram_reels.map((reelUrl, index) => (
-                          <div key={index} className="flex-none w-[240px] aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative">
+                          <div 
+                            key={index} 
+                            className="flex-none aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative w-[240px]"
+                          >
                             {reelUrl.includes('drive.google.com') ? (
                               <iframe
                                 src={getVideoUrl(reelUrl)}
@@ -393,8 +396,11 @@ const VendorDetailsPage: React.FC = () => {
                         ))}
                       </div>
                     </div>
-                    <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-                    <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+                    {vendor.instagram_reels.length > 4 && (
+                      <div className="absolute -bottom-6 left-0 right-0 flex justify-center text-sm text-gray-500">
+                        Scroll horizontally to see more videos →
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
