@@ -363,17 +363,19 @@ const VendorDetailsPage: React.FC = () => {
               {vendor.instagram_reels && vendor.instagram_reels.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-4">Video Reels</h3>
-                  <div className="relative px-4 md:px-12">
+                  <div className="relative">
                     <Carousel
                       opts={{
                         align: "start",
                         loop: true,
+                        skipSnaps: false,
+                        dragFree: false
                       }}
                       className="w-full"
                     >
-                      <CarouselContent>
+                      <CarouselContent className="-ml-2 md:-ml-4">
                         {vendor.instagram_reels.map((reelUrl, index) => (
-                          <CarouselItem key={index} className="basis-full md:basis-1/2 lg:basis-1/3">
+                          <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                             <div className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative shadow-md hover:shadow-lg transition-shadow duration-300">
                               {reelUrl.includes('drive.google.com') ? (
                                 <iframe
@@ -407,8 +409,10 @@ const VendorDetailsPage: React.FC = () => {
                           </CarouselItem>
                         ))}
                       </CarouselContent>
-                      <CarouselPrevious className="absolute -left-2 md:-left-8" />
-                      <CarouselNext className="absolute -right-2 md:-right-8" />
+                      <div className="hidden sm:block">
+                        <CarouselPrevious className="absolute -left-4 md:-left-8 hover:bg-primary hover:text-white" />
+                        <CarouselNext className="absolute -right-4 md:-right-8 hover:bg-primary hover:text-white" />
+                      </div>
                     </Carousel>
                   </div>
                 </div>
