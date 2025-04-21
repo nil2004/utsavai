@@ -143,6 +143,7 @@ export type Database = {
           portfolio_images?: string[];
           portfolio_description?: string;
           portfolio_events?: string[];
+          instagram_reels?: string[];
         };
         Insert: {
           name: string;
@@ -158,6 +159,7 @@ export type Database = {
           portfolio_images?: string[];
           portfolio_description?: string;
           portfolio_events?: string[];
+          instagram_reels?: string[];
         };
         Update: {
           name?: string;
@@ -173,6 +175,7 @@ export type Database = {
           portfolio_images?: string[];
           portfolio_description?: string;
           portfolio_events?: string[];
+          instagram_reels?: string[];
         };
       };
     };

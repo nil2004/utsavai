@@ -91,7 +91,8 @@ const vendorFormSchema = z.object({
   status: z.string().min(1, "Please select a status").default(VENDOR_STATUSES.PENDING),
   portfolio_images: z.array(z.string().url("Please enter valid URLs")).default([]),
   portfolio_description: z.string().optional().default(""),
-  portfolio_events: z.array(z.string()).default([])
+  portfolio_events: z.array(z.string()).default([]),
+  instagram_reels: z.array(z.string().url("Please enter valid Instagram Reel URLs")).default([])
 });
 
 // Add this new component before the VendorsPage component
@@ -192,7 +193,8 @@ const VendorsPage = () => {
       status: VENDOR_STATUSES.PENDING,
       portfolio_images: [],
       portfolio_description: "",
-      portfolio_events: []
+      portfolio_events: [],
+      instagram_reels: []
     }
   });
 
@@ -290,7 +292,8 @@ const VendorsPage = () => {
           status: data.status || VENDOR_STATUSES.PENDING,
           portfolio_images: data.portfolio_images || [],
           portfolio_description: data.portfolio_description || "",
-          portfolio_events: data.portfolio_events || []
+          portfolio_events: data.portfolio_events || [],
+          instagram_reels: data.instagram_reels || []
         };
 
         const newVendor = await createVendor(vendorData);
@@ -362,7 +365,8 @@ const VendorsPage = () => {
       status: vendor.status,
       portfolio_images: vendor.portfolio_images || [],
       portfolio_description: vendor.portfolio_description || "",
-      portfolio_events: vendor.portfolio_events || []
+      portfolio_events: vendor.portfolio_events || [],
+      instagram_reels: vendor.instagram_reels || []
     });
     
     // Set dialog state after form reset
@@ -384,7 +388,11 @@ const VendorsPage = () => {
       contact_email: "contact@utsavai.com",
       contact_phone: "0000000000",
       image_url: "",
-      status: VENDOR_STATUSES.PENDING
+      status: VENDOR_STATUSES.PENDING,
+      portfolio_images: [],
+      portfolio_description: "",
+      portfolio_events: [],
+      instagram_reels: []
     });
     setIsDialogOpen(true);
   };
@@ -704,6 +712,56 @@ const VendorsPage = () => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="instagram_reels"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Instagram Reels</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      {field.value.map((url, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Input 
+                            value={url}
+                            onChange={(e) => {
+                              const newUrls = [...field.value];
+                              newUrls[index] = e.target.value;
+                              field.onChange(newUrls);
+                            }}
+                            placeholder="https://www.instagram.com/reel/xyz"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => {
+                              const newUrls = field.value.filter((_, i) => i !== index);
+                              field.onChange(newUrls);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          field.onChange([...field.value, ""]);
+                        }}
+                      >
+                        <PlusCircle className="h-4 w-4 mr-2" />
+                        Add Instagram Reel
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormDescription>Add URLs of your Instagram Reels</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
           
           <DialogFooter>
@@ -834,7 +892,8 @@ const VendorsPage = () => {
                   status: VENDOR_STATUSES.PENDING,
                   portfolio_images: [],
                   portfolio_description: "",
-                  portfolio_events: []
+                  portfolio_events: [],
+                  instagram_reels: []
                 });
               }
               setIsDialogOpen(open);

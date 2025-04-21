@@ -309,7 +309,9 @@ const VendorDetailsPage: React.FC = () => {
             {/* Portfolio */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Portfolio</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              
+              {/* Images */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 {vendor.portfolio_images && vendor.portfolio_images.length > 0 ? (
                   vendor.portfolio_images.map((image, index) => (
                     <div key={index} className="aspect-square rounded-lg overflow-hidden">
@@ -330,12 +332,37 @@ const VendorDetailsPage: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* Instagram Reels */}
+              {vendor.instagram_reels && vendor.instagram_reels.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium mb-4">Instagram Reels</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {vendor.instagram_reels.map((reelUrl, index) => (
+                      <div key={index} className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100">
+                        <iframe
+                          src={reelUrl}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allowFullScreen
+                          loading="lazy"
+                          title={`Instagram Reel ${index + 1}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Portfolio Description */}
               {vendor.portfolio_description && (
                 <div className="mt-6">
                   <h3 className="text-lg font-medium mb-2">Portfolio Description</h3>
                   <p className="text-gray-600">{vendor.portfolio_description}</p>
                 </div>
               )}
+
+              {/* Past Events */}
               {vendor.portfolio_events && vendor.portfolio_events.length > 0 && (
                 <div className="mt-6">
                   <h3 className="text-lg font-medium mb-2">Past Events</h3>
