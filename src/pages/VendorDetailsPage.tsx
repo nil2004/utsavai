@@ -449,27 +449,32 @@ const VendorDetailsPage: React.FC = () => {
                                   allowFullScreen
                                 />
                               ) : (
-                                <video
-                                  key={`video-${index}`}
-                                  src={reelUrl}
-                                  className="w-full h-full object-cover"
-                                  controls
-                                  playsInline
-                                  preload="metadata"
-                                  onPlay={handleVideoPlay}
-                                  poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
-                                  onError={(e) => {
-                                    const target = e.target as HTMLVideoElement;
-                                    target.onerror = null;
-                                    const errorDiv = document.createElement('div');
-                                    errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
-                                    errorDiv.textContent = 'Video could not be loaded. Please make sure the video URL is publicly accessible.';
-                                    target.parentElement?.appendChild(errorDiv);
-                                  }}
-                                >
-                                  <source src={reelUrl} type="video/mp4" />
-                                  Your browser does not support the video tag.
-                                </video>
+                                <div className="relative w-full h-full">
+                                  <video
+                                    key={`video-${index}`}
+                                    className="w-full h-full object-cover"
+                                    controls
+                                    playsInline
+                                    preload="auto"
+                                    controlsList="nodownload"
+                                    onPlay={handleVideoPlay}
+                                    poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
+                                    onError={(e) => {
+                                      const target = e.target as HTMLVideoElement;
+                                      target.onerror = null;
+                                      const errorDiv = document.createElement('div');
+                                      errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm p-4 text-center';
+                                      errorDiv.textContent = 'Video could not be loaded. Please make sure the video URL is publicly accessible.';
+                                      target.parentElement?.parentElement?.appendChild(errorDiv);
+                                    }}
+                                  >
+                                    <source src={reelUrl} type="video/mp4" />
+                                    <source src={reelUrl} type="video/webm" />
+                                    <source src={reelUrl} type="video/ogg" />
+                                    Your browser does not support the video tag.
+                                  </video>
+                                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/10 to-transparent"></div>
+                                </div>
                               )}
                             </div>
                           </CarouselItem>
