@@ -99,17 +99,52 @@ const VendorDetailsPage: React.FC = () => {
       return;
     }
 
-    carouselApi.on("select", () => {
-      const selectedIndex = carouselApi.selectedScrollSnap();
-      // Pause all videos except the current one
+    const handleSlideChange = () => {
+      const currentIndex = carouselApi.selectedScrollSnap();
+      // Pause all videos
       videoRefs.current.forEach((videoRef, idx) => {
-        if (videoRef && idx !== selectedIndex) {
+        if (videoRef) {
           videoRef.pause();
+          // Reset video to start
+          videoRef.currentTime = 0;
         }
       });
-      setActiveIndex(selectedIndex);
-    });
+      setActiveIndex(currentIndex);
+    };
+
+    // Add event listener for slide changes
+    carouselApi.on("select", handleSlideChange);
+    
+    // Cleanup event listener
+    return () => {
+      carouselApi.off("select", handleSlideChange);
+    };
   }, [carouselApi]);
+
+  // Add manual slide change handlers
+  const handlePrevSlide = () => {
+    if (carouselApi) {
+      // Pause current video before sliding
+      const currentVideo = videoRefs.current[activeIndex];
+      if (currentVideo) {
+        currentVideo.pause();
+        currentVideo.currentTime = 0;
+      }
+      carouselApi.scrollPrev();
+    }
+  };
+
+  const handleNextSlide = () => {
+    if (carouselApi) {
+      // Pause current video before sliding
+      const currentVideo = videoRefs.current[activeIndex];
+      if (currentVideo) {
+        currentVideo.pause();
+        currentVideo.currentTime = 0;
+      }
+      carouselApi.scrollNext();
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -438,19 +473,11 @@ const VendorDetailsPage: React.FC = () => {
                       </CarouselContent>
                       <CarouselPrevious 
                         className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1"
-                        onClick={() => {
-                          if (carouselApi) {
-                            carouselApi.scrollPrev();
-                          }
-                        }}
+                        onClick={handlePrevSlide}
                       />
                       <CarouselNext 
                         className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1"
-                        onClick={() => {
-                          if (carouselApi) {
-                            carouselApi.scrollNext();
-                          }
-                        }}
+                        onClick={handleNextSlide}
                       />
                     </Carousel>
                   </div>
