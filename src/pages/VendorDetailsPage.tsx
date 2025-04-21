@@ -373,10 +373,10 @@ const VendorDetailsPage: React.FC = () => {
                       }}
                       className="w-full"
                     >
-                      <CarouselContent className="-ml-1">
+                      <CarouselContent className="-ml-6 md:-ml-8">
                         {vendor.instagram_reels.map((reelUrl, index) => (
-                          <CarouselItem key={index} className="pl-1 basis-[300px]">
-                            <div className="aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative shadow-md">
+                          <CarouselItem key={index} className="pl-6 md:pl-8 basis-[300px]">
+                            <div className="mx-2 aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 relative shadow-md">
                               {reelUrl.includes('drive.google.com') ? (
                                 <iframe
                                   src={getVideoUrl(reelUrl)}
