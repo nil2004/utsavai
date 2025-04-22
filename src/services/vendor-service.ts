@@ -13,6 +13,10 @@ export interface Vendor {
   image_url: string;
   status: string;
   services: string[];
+  portfolio_images?: string[];
+  portfolio_description?: string;
+  portfolio_events?: string[];
+  instagram_reels?: string[];
 }
 
 export interface CreateVendorInput {
@@ -27,6 +31,10 @@ export interface CreateVendorInput {
   image_url: string;
   status: string;
   services: string[];
+  portfolio_images?: string[];
+  portfolio_description?: string;
+  portfolio_events?: string[];
+  instagram_reels?: string[];
 }
 
 export async function createVendor(vendor: CreateVendorInput): Promise<Vendor> {

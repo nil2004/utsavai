@@ -93,6 +93,7 @@ const vendorFormSchema = z.object({
   portfolio_description: z.string().optional().default(""),
   portfolio_events: z.array(z.string()).default([]),
   instagram_reels: z.array(z.string().url("Please enter valid video URLs")).default([]),
+  services: z.array(z.string()).min(1, "Please add at least one service").default([]),
 });
 
 // Add this new component before the VendorsPage component
@@ -194,7 +195,8 @@ const VendorsPage = () => {
       portfolio_images: [],
       portfolio_description: "",
       portfolio_events: [],
-      instagram_reels: []
+      instagram_reels: [],
+      services: [],
     }
   });
 
@@ -293,7 +295,8 @@ const VendorsPage = () => {
           portfolio_images: data.portfolio_images || [],
           portfolio_description: data.portfolio_description || "",
           portfolio_events: data.portfolio_events || [],
-          instagram_reels: data.instagram_reels || []
+          instagram_reels: data.instagram_reels || [],
+          services: data.services || [],
         };
 
         const newVendor = await createVendor(vendorData);
@@ -366,7 +369,8 @@ const VendorsPage = () => {
       portfolio_images: vendor.portfolio_images || [],
       portfolio_description: vendor.portfolio_description || "",
       portfolio_events: vendor.portfolio_events || [],
-      instagram_reels: vendor.instagram_reels || []
+      instagram_reels: vendor.instagram_reels || [],
+      services: vendor.services || [],
     });
     
     // Set dialog state after form reset
@@ -392,7 +396,8 @@ const VendorsPage = () => {
       portfolio_images: [],
       portfolio_description: "",
       portfolio_events: [],
-      instagram_reels: []
+      instagram_reels: [],
+      services: [],
     });
     setIsDialogOpen(true);
   };
@@ -764,6 +769,56 @@ const VendorsPage = () => {
             />
           </div>
           
+          <FormField
+            control={form.control}
+            name="services"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Services Offered</FormLabel>
+                <FormControl>
+                  <div className="space-y-2">
+                    {field.value.map((service, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <Input 
+                          value={service}
+                          onChange={(e) => {
+                            const newServices = [...field.value];
+                            newServices[index] = e.target.value;
+                            field.onChange(newServices);
+                          }}
+                          placeholder="Enter a service you offer"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            const newServices = field.value.filter((_, i) => i !== index);
+                            field.onChange(newServices);
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        field.onChange([...field.value, ""]);
+                      }}
+                    >
+                      <PlusCircle className="h-4 w-4 mr-2" />
+                      Add Service
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormDescription>List the services you provide (e.g., "Full Venue Decoration", "Theme Setup")</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="mr-2">
               Cancel
@@ -893,7 +948,8 @@ const VendorsPage = () => {
                   portfolio_images: [],
                   portfolio_description: "",
                   portfolio_events: [],
-                  instagram_reels: []
+                  instagram_reels: [],
+                  services: [],
                 });
               }
               setIsDialogOpen(open);
