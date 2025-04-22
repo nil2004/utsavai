@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, createContext, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -22,32 +22,48 @@ import {
 // Import the sample vendors data as fallback
 import { sampleVendors } from './MarketplacePage';
 
+// Create a context for video control
+const VideoContext = createContext<{
+  playingId: string | null;
+  setPlayingId: (id: string | null) => void;
+}>({
+  playingId: null,
+  setPlayingId: () => {},
+});
+
 // Custom Video Player Component
 const VideoPlayer: React.FC<{
   src: string;
   poster: string;
-  onPlayStateChange: (isPlaying: boolean) => void;
-  isOtherVideoPlaying: boolean;
-}> = ({ src, poster, onPlayStateChange, isOtherVideoPlaying }) => {
+  id: string;
+}> = ({ src, poster, id }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { playingId, setPlayingId } = useContext(VideoContext);
 
   useEffect(() => {
-    if (isOtherVideoPlaying && videoRef.current && !videoRef.current.paused) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    if (playingId !== id && !videoElement.paused) {
+      videoElement.pause();
+      videoElement.currentTime = 0;
     }
-  }, [isOtherVideoPlaying]);
+  }, [playingId, id]);
 
   const handlePlay = () => {
-    onPlayStateChange(true);
+    setPlayingId(id);
   };
 
   const handlePause = () => {
-    onPlayStateChange(false);
+    if (playingId === id) {
+      setPlayingId(null);
+    }
   };
 
   const handleEnded = () => {
-    onPlayStateChange(false);
+    if (playingId === id) {
+      setPlayingId(null);
+    }
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
     }
@@ -100,95 +116,14 @@ const VendorDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const [playingVideoIndex, setPlayingVideoIndex] = useState<number | null>(null);
-
-  const handleVideoPlayStateChange = useCallback((index: number, isPlaying: boolean) => {
-    setPlayingVideoIndex(isPlaying ? index : null);
-  }, []);
-
-  useEffect(() => {
-    const loadVendorDetails = async () => {
-      try {
-        setLoading(true);
-        const vendorData = await getVendorById(Number(id));
-        
-        if (vendorData) {
-          setVendor(vendorData);
-          setError(null);
-        } else {
-          // Try to find in sample data as fallback
-          const sampleVendor = sampleVendors.find(v => v.id === Number(id));
-          if (sampleVendor) {
-            // Convert sample vendor to match Vendor type
-            setVendor({
-              id: sampleVendor.id,
-              name: sampleVendor.name,
-              category: sampleVendor.category,
-              city: sampleVendor.city,
-              price: sampleVendor.price,
-              rating: sampleVendor.rating,
-              description: "Sample vendor description",
-              contact_email: "contact@example.com",
-              contact_phone: "+91 98765 43210",
-              image_url: sampleVendor.image,
-              created_at: new Date().toISOString(),
-              status: "active",
-              portfolio_images: [
-                "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6",
-                "https://images.unsplash.com/photo-1519167758481-83f550bb49b3",
-                "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec",
-                "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3"
-              ],
-              portfolio_description: "Sample portfolio showcasing our best work",
-              portfolio_events: ["Wedding at Grand Hotel", "Corporate Event at Tech Park", "Birthday Celebration"]
-            });
-            setError("Using sample data as fallback");
-          } else {
-            setError("Vendor not found");
-          }
-        }
-      } catch (err) {
-        console.error('Error loading vendor details:', err);
-        setError("Failed to load vendor details");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadVendorDetails();
-  }, [id]);
-
-  // Add global event listener for video play events
-  useEffect(() => {
-    const handleGlobalPlay = (event: Event) => {
-      const videoElement = event.target as HTMLVideoElement;
-      
-      // Get all videos in the carousel
-      const allVideos = document.querySelectorAll('video');
-      
-      // Pause all other videos
-      allVideos.forEach(video => {
-        if (video !== videoElement && !video.paused) {
-          video.pause();
-          video.currentTime = 0;
-        }
-      });
-    };
-
-    // Add event listener to document
-    document.addEventListener('play', handleGlobalPlay, true);
-
-    return () => {
-      document.removeEventListener('play', handleGlobalPlay, true);
-    };
-  }, []);
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
   // Handle slide change
   useEffect(() => {
     if (!carouselApi) return undefined;
 
     const handleSlideChange = () => {
-      setPlayingVideoIndex(null);
+      setPlayingVideoId(null);
       setActiveIndex(carouselApi.selectedScrollSnap());
     };
 
@@ -200,14 +135,14 @@ const VendorDetailsPage: React.FC = () => {
 
   const handlePrevSlide = () => {
     if (carouselApi) {
-      setPlayingVideoIndex(null);
+      setPlayingVideoId(null);
       carouselApi.scrollPrev();
     }
   };
 
   const handleNextSlide = () => {
     if (carouselApi) {
-      setPlayingVideoIndex(null);
+      setPlayingVideoId(null);
       carouselApi.scrollNext();
     }
   };
@@ -360,6 +295,58 @@ const VendorDetailsPage: React.FC = () => {
     return url;
   };
 
+  useEffect(() => {
+    const loadVendorDetails = async () => {
+      try {
+        setLoading(true);
+        const vendorData = await getVendorById(Number(id));
+        
+        if (vendorData) {
+          setVendor(vendorData);
+          setError(null);
+        } else {
+          // Try to find in sample data as fallback
+          const sampleVendor = sampleVendors.find(v => v.id === Number(id));
+          if (sampleVendor) {
+            // Convert sample vendor to match Vendor type
+            setVendor({
+              id: sampleVendor.id,
+              name: sampleVendor.name,
+              category: sampleVendor.category,
+              city: sampleVendor.city,
+              price: sampleVendor.price,
+              rating: sampleVendor.rating,
+              description: "Sample vendor description",
+              contact_email: "contact@example.com",
+              contact_phone: "+91 98765 43210",
+              image_url: sampleVendor.image,
+              created_at: new Date().toISOString(),
+              status: "active",
+              portfolio_images: [
+                "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6",
+                "https://images.unsplash.com/photo-1519167758481-83f550bb49b3",
+                "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec",
+                "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3"
+              ],
+              portfolio_description: "Sample portfolio showcasing our best work",
+              portfolio_events: ["Wedding at Grand Hotel", "Corporate Event at Tech Park", "Birthday Celebration"]
+            });
+            setError("Using sample data as fallback");
+          } else {
+            setError("Vendor not found");
+          }
+        }
+      } catch (err) {
+        console.error('Error loading vendor details:', err);
+        setError("Failed to load vendor details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVendorDetails();
+  }, [id]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -486,56 +473,56 @@ const VendorDetailsPage: React.FC = () => {
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-4">Video Reels</h3>
                   <div className="relative px-4">
-                    <Carousel
-                      opts={{
-                        align: "center",
-                        loop: true,
-                        skipSnaps: false,
-                        containScroll: "trimSnaps",
-                        startIndex: 0
-                      }}
-                      className="w-full"
-                      setApi={setCarouselApi}
-                    >
-                      <CarouselContent className="-ml-6 md:-ml-8">
-                        {vendor.instagram_reels.map((reelUrl, index) => (
-                          <CarouselItem 
-                            key={index} 
-                            className="pl-6 md:pl-8 basis-[85%] sm:basis-[400px]"
-                          >
-                            <div className="mx-2 aspect-[9/16] rounded-xl overflow-hidden bg-gray-100 relative shadow-lg">
-                              {reelUrl.includes('drive.google.com') ? (
-                                <iframe
-                                  src={getVideoUrl(reelUrl)}
-                                  className="w-full h-full"
-                                  allow="autoplay; encrypted-media"
-                                  allowFullScreen
-                                />
-                              ) : (
-                                <div className="relative w-full h-full">
-                                  <VideoPlayer
-                                    key={`video-${index}`}
-                                    src={reelUrl}
-                                    poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
-                                    onPlayStateChange={(isPlaying) => handleVideoPlayStateChange(index, isPlaying)}
-                                    isOtherVideoPlaying={playingVideoIndex !== null && playingVideoIndex !== index}
+                    <VideoContext.Provider value={{ playingId: playingVideoId, setPlayingId: setPlayingVideoId }}>
+                      <Carousel
+                        opts={{
+                          align: "center",
+                          loop: true,
+                          skipSnaps: false,
+                          containScroll: "trimSnaps"
+                        }}
+                        className="w-full"
+                        setApi={setCarouselApi}
+                      >
+                        <CarouselContent className="-ml-6 md:-ml-8">
+                          {vendor.instagram_reels.map((reelUrl, index) => (
+                            <CarouselItem 
+                              key={index} 
+                              className="pl-6 md:pl-8 basis-[85%] sm:basis-[400px]"
+                            >
+                              <div className="mx-2 aspect-[9/16] rounded-xl overflow-hidden bg-gray-100 relative shadow-lg">
+                                {reelUrl.includes('drive.google.com') ? (
+                                  <iframe
+                                    src={getVideoUrl(reelUrl)}
+                                    className="w-full h-full"
+                                    allow="autoplay; encrypted-media"
+                                    allowFullScreen
                                   />
-                                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/10 to-transparent"></div>
-                                </div>
-                              )}
-                            </div>
-                          </CarouselItem>
-                        ))}
-                      </CarouselContent>
-                      <CarouselPrevious 
-                        className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1"
-                        onClick={handlePrevSlide}
-                      />
-                      <CarouselNext 
-                        className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1"
-                        onClick={handleNextSlide}
-                      />
-                    </Carousel>
+                                ) : (
+                                  <div className="relative w-full h-full">
+                                    <VideoPlayer
+                                      key={`video-${index}`}
+                                      id={`video-${index}`}
+                                      src={reelUrl}
+                                      poster={vendor.image_url || "https://via.placeholder.com/300x533?text=Loading+Video"}
+                                    />
+                                    <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/10 to-transparent"></div>
+                                  </div>
+                                )}
+                              </div>
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+                        <CarouselPrevious 
+                          className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1"
+                          onClick={handlePrevSlide}
+                        />
+                        <CarouselNext 
+                          className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1"
+                          onClick={handleNextSlide}
+                        />
+                      </Carousel>
+                    </VideoContext.Provider>
                   </div>
                 </div>
               )}
