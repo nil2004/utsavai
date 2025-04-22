@@ -503,23 +503,24 @@ const VendorDetailsPage: React.FC = () => {
               {vendor.instagram_reels && vendor.instagram_reels.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-4">Video Reels</h3>
-                  <div className="relative px-4">
+                  <div className="relative px-4 md:px-12">
                     <VideoContext.Provider value={{ playingId: playingVideoId, setPlayingId: setPlayingVideoId }}>
                       <Carousel
                         opts={{
-                          align: "center",
+                          align: "start",
                           loop: true,
                           skipSnaps: false,
-                          containScroll: "trimSnaps"
+                          containScroll: "trimSnaps",
+                          dragFree: true
                         }}
-                        className="w-full"
+                        className="w-full embla"
                         setApi={setCarouselApi}
                       >
                         <CarouselContent className="-ml-6 md:-ml-8">
                           {vendor.instagram_reels.map((reelUrl, index) => (
                             <CarouselItem 
                               key={index} 
-                              className="pl-6 md:pl-8 basis-[85%] sm:basis-[400px]"
+                              className="pl-6 md:pl-8 basis-[85%] sm:basis-[45%] md:basis-[35%] lg:basis-[25%]"
                             >
                               <div className="mx-2 aspect-[9/16] rounded-xl overflow-hidden bg-gray-100 relative shadow-lg">
                                 {reelUrl.includes('drive.google.com') ? (
