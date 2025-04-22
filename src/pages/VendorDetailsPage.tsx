@@ -523,8 +523,12 @@ const VendorDetailsPage: React.FC = () => {
                           </CarouselItem>
                         ))}
                       </CarouselContent>
-                      <CarouselPrevious className="h-8 w-8 absolute -left-4 bg-white/80 hover:bg-white" />
-                      <CarouselNext className="h-8 w-8 absolute -right-4 bg-white/80 hover:bg-white" />
+                      <CarouselPrevious 
+                        className="h-6 w-6 absolute -left-3 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1 animate-in fade-in" 
+                      />
+                      <CarouselNext 
+                        className="h-6 w-6 absolute -right-3 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1 animate-in fade-in" 
+                      />
                       <div className="absolute -bottom-6 left-0 right-0 flex items-center justify-center gap-2 py-2">
                         {vendor.portfolio_images.map((_, index) => (
                           <button
@@ -593,12 +597,10 @@ const VendorDetailsPage: React.FC = () => {
                           ))}
                         </CarouselContent>
                         <CarouselPrevious 
-                          className="h-10 w-10 absolute -left-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1"
-                          onClick={handlePrevSlide}
+                          className="h-6 w-6 absolute -left-3 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1 animate-in fade-in" 
                         />
                         <CarouselNext 
-                          className="h-10 w-10 absolute -right-5 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1"
-                          onClick={handleNextSlide}
+                          className="h-6 w-6 absolute -right-3 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:translate-x-1 animate-in fade-in" 
                         />
                       </Carousel>
                     </VideoContext.Provider>

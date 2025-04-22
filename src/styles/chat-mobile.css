@@ -268,6 +268,29 @@
     position: relative;
     padding: 0 1rem;
     margin-bottom: 2rem;
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
 
   .portfolio-carousel .embla__viewport {
@@ -278,38 +301,66 @@
   .portfolio-carousel button[class*="CarouselPrevious"],
   .portfolio-carousel button[class*="CarouselNext"] {
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: scale(0.9);
     border-color: transparent;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
   }
 
-  .portfolio-carousel:hover button[class*="CarouselPrevious"],
+  .portfolio-carousel:hover button[class*="CarouselPrevious"] {
+    opacity: 1;
+    transform: scale(1);
+    animation: slideIn 0.3s ease-out;
+  }
+
   .portfolio-carousel:hover button[class*="CarouselNext"] {
     opacity: 1;
     transform: scale(1);
+    animation: slideIn 0.3s ease-out reverse;
   }
 
   .portfolio-carousel button[class*="CarouselPrevious"]:hover,
   .portfolio-carousel button[class*="CarouselNext"]:hover {
-    background-color: white;
+    background-color: rgb(124, 58, 237);
+    color: white;
     transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
   }
 
   /* Portfolio image styles */
   .portfolio-carousel img {
-    transition: transform 0.3s ease;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: brightness(0.97);
   }
 
   .portfolio-carousel img:hover {
-    transform: scale(1.05);
+    transform: scale(1.05) translateY(-5px);
+    filter: brightness(1.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   }
 
   /* Carousel indicators */
   .portfolio-carousel button[class*="rounded-full"] {
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
   }
 
   .portfolio-carousel button[class*="rounded-full"]:hover {
     transform: scale(1.2);
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.3);
+  }
+
+  .portfolio-carousel button[class*="rounded-full"]::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .portfolio-carousel button[class*="rounded-full"]:hover::after {
+    opacity: 1;
   }
 }
