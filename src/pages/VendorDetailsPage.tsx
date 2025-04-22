@@ -38,32 +38,46 @@ const VideoPlayer: React.FC<{
   id: string;
 }> = ({ src, poster, id }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { playingId, setPlayingId } = useContext(VideoContext);
 
   useEffect(() => {
-    const videoElement = videoRef.current;
-    if (!videoElement) return;
+    const currentVideo = videoRef.current;
+    if (!currentVideo) return;
 
-    if (playingId !== id && !videoElement.paused) {
-      videoElement.pause();
-      videoElement.currentTime = 0;
-    }
-  }, [playingId, id]);
+    const handleOtherVideoPlay = (event: Event) => {
+      const playingVideo = event.target as HTMLVideoElement;
+      if (playingVideo !== currentVideo && !currentVideo.paused) {
+        currentVideo.pause();
+        currentVideo.currentTime = 0;
+      }
+    };
 
+    // Listen for play events on all videos
+    document.addEventListener('play', handleOtherVideoPlay, true);
+
+    return () => {
+      document.removeEventListener('play', handleOtherVideoPlay, true);
+    };
+  }, []);
+
+  // Force pause other videos when this one plays
   const handlePlay = () => {
-    setPlayingId(id);
+    const currentVideo = videoRef.current;
+    if (!currentVideo) return;
+
+    document.querySelectorAll('video').forEach(video => {
+      if (video !== currentVideo && !video.paused) {
+        try {
+          video.pause();
+          video.currentTime = 0;
+        } catch (error) {
+          console.error('Error pausing video:', error);
+        }
+      }
+    });
   };
 
-  const handlePause = () => {
-    if (playingId === id) {
-      setPlayingId(null);
-    }
-  };
-
+  // Reset video position when it ends
   const handleEnded = () => {
-    if (playingId === id) {
-      setPlayingId(null);
-    }
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
     }
@@ -79,7 +93,6 @@ const VideoPlayer: React.FC<{
       controlsList="nodownload"
       poster={poster}
       onPlay={handlePlay}
-      onPause={handlePause}
       onEnded={handleEnded}
       onError={(e) => {
         const target = e.target as HTMLVideoElement;
@@ -118,12 +131,18 @@ const VendorDetailsPage: React.FC = () => {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
-  // Handle slide change
+  // Handle slide change - pause all videos
   useEffect(() => {
     if (!carouselApi) return undefined;
 
     const handleSlideChange = () => {
-      setPlayingVideoId(null);
+      // Pause all videos when changing slides
+      document.querySelectorAll('video').forEach(video => {
+        if (!video.paused) {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
       setActiveIndex(carouselApi.selectedScrollSnap());
     };
 
@@ -135,14 +154,26 @@ const VendorDetailsPage: React.FC = () => {
 
   const handlePrevSlide = () => {
     if (carouselApi) {
-      setPlayingVideoId(null);
+      // Pause all videos
+      document.querySelectorAll('video').forEach(video => {
+        if (!video.paused) {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
       carouselApi.scrollPrev();
     }
   };
 
   const handleNextSlide = () => {
     if (carouselApi) {
-      setPlayingVideoId(null);
+      // Pause all videos
+      document.querySelectorAll('video').forEach(video => {
+        if (!video.paused) {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
       carouselApi.scrollNext();
     }
   };
