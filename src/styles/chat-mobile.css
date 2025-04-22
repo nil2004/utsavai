@@ -262,4 +262,54 @@
   video::-webkit-media-controls-panel {
     padding: 0.5rem;
   }
+
+  /* Portfolio carousel styles */
+  .portfolio-carousel {
+    position: relative;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .portfolio-carousel .embla__viewport {
+    overflow: hidden;
+    border-radius: 0.75rem;
+  }
+
+  .portfolio-carousel button[class*="CarouselPrevious"],
+  .portfolio-carousel button[class*="CarouselNext"] {
+    opacity: 0;
+    transition: all 0.3s ease;
+    transform: scale(0.9);
+    border-color: transparent;
+  }
+
+  .portfolio-carousel:hover button[class*="CarouselPrevious"],
+  .portfolio-carousel:hover button[class*="CarouselNext"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .portfolio-carousel button[class*="CarouselPrevious"]:hover,
+  .portfolio-carousel button[class*="CarouselNext"]:hover {
+    background-color: white;
+    transform: scale(1.1);
+  }
+
+  /* Portfolio image styles */
+  .portfolio-carousel img {
+    transition: transform 0.3s ease;
+  }
+
+  .portfolio-carousel img:hover {
+    transform: scale(1.05);
+  }
+
+  /* Carousel indicators */
+  .portfolio-carousel button[class*="rounded-full"] {
+    transition: all 0.3s ease;
+  }
+
+  .portfolio-carousel button[class*="rounded-full"]:hover {
+    transform: scale(1.2);
+  }
 }

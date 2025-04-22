@@ -130,6 +130,8 @@ const VendorDetailsPage: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [portfolioActiveIndex, setPortfolioActiveIndex] = useState(0);
+  const [portfolioCarouselApi, setPortfolioCarouselApi] = useState<CarouselApi>();
 
   // Handle slide change - pause all videos
   useEffect(() => {
@@ -151,6 +153,20 @@ const VendorDetailsPage: React.FC = () => {
       carouselApi.off("select", handleSlideChange);
     };
   }, [carouselApi]);
+
+  // Handle portfolio carousel slide change
+  useEffect(() => {
+    if (!portfolioCarouselApi) return undefined;
+
+    const handlePortfolioSlideChange = () => {
+      setPortfolioActiveIndex(portfolioCarouselApi.selectedScrollSnap());
+    };
+
+    portfolioCarouselApi.on("select", handlePortfolioSlideChange);
+    return () => {
+      portfolioCarouselApi.off("select", handlePortfolioSlideChange);
+    };
+  }, [portfolioCarouselApi]);
 
   const handlePrevSlide = () => {
     if (carouselApi) {
@@ -477,23 +493,54 @@ const VendorDetailsPage: React.FC = () => {
               <h2 className="text-xl font-semibold mb-4">Portfolio</h2>
               
               {/* Images */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              <div className="mb-8">
                 {vendor.portfolio_images && vendor.portfolio_images.length > 0 ? (
-                  vendor.portfolio_images.map((image, index) => (
-                    <div key={index} className="aspect-square rounded-lg overflow-hidden">
-                      <img
-                        src={image}
-                        alt={`Portfolio ${index + 1}`}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://via.placeholder.com/300x300?text=Image+Not+Found';
-                        }}
-                      />
-                    </div>
-                  ))
+                  <div className="relative">
+                    <Carousel
+                      opts={{
+                        align: "start",
+                        loop: true,
+                        skipSnaps: false,
+                        containScroll: "trimSnaps"
+                      }}
+                      className="w-full portfolio-carousel"
+                      setApi={setPortfolioCarouselApi}
+                    >
+                      <CarouselContent>
+                        {vendor.portfolio_images.map((image, index) => (
+                          <CarouselItem key={index} className="basis-full md:basis-1/2 lg:basis-1/3">
+                            <div className="aspect-square rounded-lg overflow-hidden mx-2">
+                              <img
+                                src={image}
+                                alt={`Portfolio ${index + 1}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = 'https://via.placeholder.com/300x300?text=Image+Not+Found';
+                                }}
+                              />
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="h-8 w-8 absolute -left-4 bg-white/80 hover:bg-white" />
+                      <CarouselNext className="h-8 w-8 absolute -right-4 bg-white/80 hover:bg-white" />
+                      <div className="absolute -bottom-6 left-0 right-0 flex items-center justify-center gap-2 py-2">
+                        {vendor.portfolio_images.map((_, index) => (
+                          <button
+                            key={index}
+                            className={`w-2 h-2 rounded-full transition-all ${
+                              portfolioActiveIndex === index ? 'bg-primary w-4' : 'bg-primary/20'
+                            }`}
+                            onClick={() => carouselApi?.scrollTo(index)}
+                            aria-label={`Go to slide ${index + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </Carousel>
+                  </div>
                 ) : (
-                  <div className="col-span-full text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-gray-500">
                     No portfolio images available
                   </div>
                 )}
