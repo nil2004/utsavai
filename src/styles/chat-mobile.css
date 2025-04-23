@@ -111,6 +111,28 @@
     margin-bottom: 1rem !important;
     border: 1px solid rgba(124, 58, 237, 0.1) !important;
   }
+
+  /* Services section styles */
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .experience-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .service-item,
+  .experience-card {
+    background: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    margin-bottom: 0.5rem;
+  }
 }
 
 /* Desktop styles for vendor cards */
@@ -361,6 +383,75 @@
   }
 
   .portfolio-carousel button[class*="rounded-full"]:hover::after {
+    opacity: 1;
+  }
+
+  /* Services section styles */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .service-item {
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+  }
+
+  .service-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+  }
+
+  .service-item .remove-button {
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+
+  .service-item:hover .remove-button {
+    opacity: 1;
+  }
+
+  /* Experience cards styles */
+  .experience-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .experience-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .experience-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+  }
+
+  .experience-card .icon {
+    color: rgb(124, 58, 237);
+    background: rgba(124, 58, 237, 0.1);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    margin-right: 0.75rem;
+  }
+
+  .experience-card .edit-button {
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+
+  .experience-card:hover .edit-button {
     opacity: 1;
   }
 }

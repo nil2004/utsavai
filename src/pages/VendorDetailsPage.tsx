@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef, useCallback, createContext, useCont
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { MapPin, Star, Calendar, ArrowLeft, Share2, Loader2 } from 'lucide-react';
-import { getVendorById, Vendor } from '@/lib/vendor-service';
+import { MapPin, Star, Calendar, ArrowLeft, Share2, Loader2, Plus, X, Trophy, Calendar as CalendarIcon } from 'lucide-react';
+import { getVendorById, updateVendorServices, updateVendorExperience, Vendor } from '@/lib/vendor-service';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -477,14 +477,137 @@ const VendorDetailsPage: React.FC = () => {
 
             {/* Services */}
             <div>
-              <h2 className="text-xl font-semibold mb-4">Services Offered</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Services Offered</h2>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    const service = window.prompt('Enter new service:');
+                    if (service && vendor) {
+                      const newServices = [...(vendor.services || []), service];
+                      updateVendorServices(vendor.id, newServices).then(success => {
+                        if (success) {
+                          setVendor(prev => prev ? { ...prev, services: newServices } : null);
+                          toast({
+                            title: "Service added successfully",
+                            description: `Added "${service}" to services list.`,
+                          });
+                        }
+                      });
+                    }
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Service
+                </Button>
+              </div>
               <div className="grid grid-cols-2 gap-4">
-                {vendorDetails.services.map((service, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-primary" />
-                    <span className="text-gray-600">{service}</span>
+                {vendor.services?.map((service, index) => (
+                  <div key={index} className="flex items-center justify-between gap-2 bg-white p-3 rounded-lg border border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                      <span className="text-gray-600">{service}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-500"
+                      onClick={() => {
+                        if (vendor) {
+                          const newServices = vendor.services.filter((_, i) => i !== index);
+                          updateVendorServices(vendor.id, newServices).then(success => {
+                            if (success) {
+                              setVendor(prev => prev ? { ...prev, services: newServices } : null);
+                              toast({
+                                title: "Service removed",
+                                description: `Removed "${service}" from services list.`,
+                              });
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Experience */}
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">Experience</h2>
+              <div className="grid grid-cols-2 gap-6">
+                <Card className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="text-sm text-gray-500">Years of Experience</p>
+                        <p className="text-lg font-semibold">{vendor.experience_years || 0} years</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const years = window.prompt('Enter years of experience:', vendor.experience_years?.toString());
+                        if (years && vendor && !isNaN(Number(years))) {
+                          updateVendorExperience(vendor.id, {
+                            years: Number(years),
+                            completed_events: vendor.completed_events || 0
+                          }).then(success => {
+                            if (success) {
+                              setVendor(prev => prev ? { ...prev, experience_years: Number(years) } : null);
+                              toast({
+                                title: "Experience updated",
+                                description: `Updated experience to ${years} years.`,
+                              });
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                </Card>
+
+                <Card className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="text-sm text-gray-500">Events Completed</p>
+                        <p className="text-lg font-semibold">{vendor.completed_events || 0} events</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const events = window.prompt('Enter number of completed events:', vendor.completed_events?.toString());
+                        if (events && vendor && !isNaN(Number(events))) {
+                          updateVendorExperience(vendor.id, {
+                            years: vendor.experience_years || 0,
+                            completed_events: Number(events)
+                          }).then(success => {
+                            if (success) {
+                              setVendor(prev => prev ? { ...prev, completed_events: Number(events) } : null);
+                              toast({
+                                title: "Events updated",
+                                description: `Updated completed events to ${events}.`,
+                              });
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                </Card>
               </div>
             </div>
 

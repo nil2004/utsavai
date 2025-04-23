@@ -1,7 +1,28 @@
 import { supabase } from './supabase';
 import type { Database } from './supabase';
 
-export type Vendor = Database['public']['Tables']['vendors']['Row'];
+export interface Vendor {
+  id: number;
+  name: string;
+  category: string;
+  city: string;
+  price: number;
+  rating: number;
+  description: string;
+  contact_email: string;
+  contact_phone: string;
+  image_url: string;
+  created_at: string;
+  status: string;
+  portfolio_images?: string[];
+  portfolio_description?: string;
+  portfolio_events?: string[];
+  instagram_reels?: string[];
+  services: string[];
+  experience_years: number;
+  completed_events: number;
+}
+
 export type VendorInsert = Database['public']['Tables']['vendors']['Insert'];
 export type VendorUpdate = Database['public']['Tables']['vendors']['Update'];
 
@@ -86,15 +107,11 @@ export const getVendorById = async (id: number): Promise<Vendor | null> => {
       .select('*')
       .eq('id', id)
       .single();
-    
-    if (error) {
-      console.error('Error fetching vendor:', error);
-      return null;
-    }
-    
+
+    if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Unexpected error fetching vendor:', error);
+    console.error('Error fetching vendor:', error);
     return null;
   }
 };
@@ -233,5 +250,41 @@ export const getFrontendVendors = async (filters?: {
   } catch (error) {
     console.error('Unexpected error fetching frontend vendors:', error);
     return [];
+  }
+};
+
+export const updateVendorServices = async (id: number, services: string[]): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('vendors')
+      .update({ services })
+      .eq('id', id);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error updating vendor services:', error);
+    return false;
+  }
+};
+
+export const updateVendorExperience = async (
+  id: number, 
+  experience: { years: number; completed_events: number }
+): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('vendors')
+      .update({ 
+        experience_years: experience.years,
+        completed_events: experience.completed_events
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error updating vendor experience:', error);
+    return false;
   }
 }; 
