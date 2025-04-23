@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/lib/auth-context';
+import { useAdminAuth } from '@/lib/admin-auth-context';
 import {
   Carousel,
   CarouselContent,
@@ -132,6 +134,11 @@ const VendorDetailsPage: React.FC = () => {
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [portfolioActiveIndex, setPortfolioActiveIndex] = useState(0);
   const [portfolioCarouselApi, setPortfolioCarouselApi] = useState<CarouselApi>();
+  const { user } = useAuth();
+  const { adminUser } = useAdminAuth();
+
+  // Check if current user has edit permissions
+  const hasEditPermissions = adminUser !== null || (user && vendor && user.email === vendor.contact_email);
 
   // Handle slide change - pause all videos
   useEffect(() => {
@@ -376,7 +383,11 @@ const VendorDetailsPage: React.FC = () => {
                 "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3"
               ],
               portfolio_description: "Sample portfolio showcasing our best work",
-              portfolio_events: ["Wedding at Grand Hotel", "Corporate Event at Tech Park", "Birthday Celebration"]
+              portfolio_events: ["Wedding at Grand Hotel", "Corporate Event at Tech Park", "Birthday Celebration"],
+              instagram_reels: [],
+              services: [],
+              experience_years: 0,
+              completed_events: 0
             });
             setError("Using sample data as fallback");
           } else {
@@ -479,28 +490,30 @@ const VendorDetailsPage: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Services Offered</h2>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => {
-                    const service = window.prompt('Enter new service:');
-                    if (service && vendor) {
-                      const newServices = [...(vendor.services || []), service];
-                      updateVendorServices(vendor.id, newServices).then(success => {
-                        if (success) {
-                          setVendor(prev => prev ? { ...prev, services: newServices } : null);
-                          toast({
-                            title: "Service added successfully",
-                            description: `Added "${service}" to services list.`,
-                          });
-                        }
-                      });
-                    }
-                  }}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Service
-                </Button>
+                {hasEditPermissions && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      const service = window.prompt('Enter new service:');
+                      if (service && vendor) {
+                        const newServices = [...(vendor.services || []), service];
+                        updateVendorServices(vendor.id, newServices).then(success => {
+                          if (success) {
+                            setVendor(prev => prev ? { ...prev, services: newServices } : null);
+                            toast({
+                              title: "Service added successfully",
+                              description: `Added "${service}" to services list.`,
+                            });
+                          }
+                        });
+                      }
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Service
+                  </Button>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {vendor.services?.map((service, index) => (
@@ -509,27 +522,29 @@ const VendorDetailsPage: React.FC = () => {
                       <div className="h-2 w-2 rounded-full bg-primary" />
                       <span className="text-gray-600">{service}</span>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-500"
-                      onClick={() => {
-                        if (vendor) {
-                          const newServices = vendor.services.filter((_, i) => i !== index);
-                          updateVendorServices(vendor.id, newServices).then(success => {
-                            if (success) {
-                              setVendor(prev => prev ? { ...prev, services: newServices } : null);
-                              toast({
-                                title: "Service removed",
-                                description: `Removed "${service}" from services list.`,
-                              });
-                            }
-                          });
-                        }
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                    {hasEditPermissions && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-500"
+                        onClick={() => {
+                          if (vendor) {
+                            const newServices = vendor.services.filter((_, i) => i !== index);
+                            updateVendorServices(vendor.id, newServices).then(success => {
+                              if (success) {
+                                setVendor(prev => prev ? { ...prev, services: newServices } : null);
+                                toast({
+                                  title: "Service removed",
+                                  description: `Removed "${service}" from services list.`,
+                                });
+                              }
+                            });
+                          }
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -548,29 +563,28 @@ const VendorDetailsPage: React.FC = () => {
                         <p className="text-lg font-semibold">{vendor.experience_years || 0} years</p>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        const years = window.prompt('Enter years of experience:', vendor.experience_years?.toString());
-                        if (years && vendor && !isNaN(Number(years))) {
-                          updateVendorExperience(vendor.id, {
-                            years: Number(years),
-                            completed_events: vendor.completed_events || 0
-                          }).then(success => {
-                            if (success) {
-                              setVendor(prev => prev ? { ...prev, experience_years: Number(years) } : null);
-                              toast({
-                                title: "Experience updated",
-                                description: `Updated experience to ${years} years.`,
-                              });
-                            }
-                          });
-                        }
-                      }}
-                    >
-                      Edit
-                    </Button>
+                    {hasEditPermissions && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const years = window.prompt('Enter years of experience:');
+                          if (years && vendor && !isNaN(Number(years))) {
+                            updateVendorExperience(vendor.id, Number(years), vendor.completed_events || 0).then(success => {
+                              if (success) {
+                                setVendor(prev => prev ? { ...prev, experience_years: Number(years) } : null);
+                                toast({
+                                  title: "Experience updated",
+                                  description: `Updated years of experience to ${years}.`,
+                                });
+                              }
+                            });
+                          }
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    )}
                   </div>
                 </Card>
 
@@ -583,29 +597,28 @@ const VendorDetailsPage: React.FC = () => {
                         <p className="text-lg font-semibold">{vendor.completed_events || 0} events</p>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        const events = window.prompt('Enter number of completed events:', vendor.completed_events?.toString());
-                        if (events && vendor && !isNaN(Number(events))) {
-                          updateVendorExperience(vendor.id, {
-                            years: vendor.experience_years || 0,
-                            completed_events: Number(events)
-                          }).then(success => {
-                            if (success) {
-                              setVendor(prev => prev ? { ...prev, completed_events: Number(events) } : null);
-                              toast({
-                                title: "Events updated",
-                                description: `Updated completed events to ${events}.`,
-                              });
-                            }
-                          });
-                        }
-                      }}
-                    >
-                      Edit
-                    </Button>
+                    {hasEditPermissions && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const events = window.prompt('Enter number of completed events:');
+                          if (events && vendor && !isNaN(Number(events))) {
+                            updateVendorExperience(vendor.id, vendor.experience_years || 0, Number(events)).then(success => {
+                              if (success) {
+                                setVendor(prev => prev ? { ...prev, completed_events: Number(events) } : null);
+                                toast({
+                                  title: "Experience updated",
+                                  description: `Updated completed events to ${events}.`,
+                                });
+                              }
+                            });
+                          }
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    )}
                   </div>
                 </Card>
               </div>

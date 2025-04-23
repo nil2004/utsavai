@@ -268,23 +268,24 @@ export const updateVendorServices = async (id: number, services: string[]): Prom
   }
 };
 
-export const updateVendorExperience = async (
-  id: number, 
-  experience: { years: number; completed_events: number }
-): Promise<boolean> => {
+export const updateVendorExperience = async (vendorId: number, experienceYears: number, completedEvents: number): Promise<boolean> => {
   try {
     const { error } = await supabase
       .from('vendors')
-      .update({ 
-        experience_years: experience.years,
-        completed_events: experience.completed_events
+      .update({
+        experience_years: experienceYears,
+        completed_events: completedEvents
       })
-      .eq('id', id);
+      .eq('id', vendorId);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error updating vendor experience:', error);
+      return false;
+    }
+
     return true;
-  } catch (error) {
-    console.error('Error updating vendor experience:', error);
+  } catch (err) {
+    console.error('Error updating vendor experience:', err);
     return false;
   }
 }; 
