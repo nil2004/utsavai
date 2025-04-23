@@ -1,7 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Define the type for your database schema
-export type Database = {
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export interface Database {
   public: {
     Tables: {
       todos: {
@@ -137,15 +145,19 @@ export type Database = {
           description: string;
           contact_email: string;
           contact_phone: string;
-          image_url?: string;
+          image_url: string;
           created_at: string;
           status: string;
-          portfolio_images?: string[];
-          portfolio_description?: string;
-          portfolio_events?: string[];
-          instagram_reels?: string[];
+          portfolio_images: string[] | null;
+          portfolio_description: string | null;
+          portfolio_events: string[] | null;
+          instagram_reels: string[] | null;
+          services: string[];
+          experience_years: number;
+          completed_events: number;
         };
         Insert: {
+          id?: number;
           name: string;
           category: string;
           city: string;
@@ -154,14 +166,19 @@ export type Database = {
           description: string;
           contact_email: string;
           contact_phone: string;
-          image_url?: string;
+          image_url: string;
+          created_at?: string;
           status?: string;
-          portfolio_images?: string[];
-          portfolio_description?: string;
-          portfolio_events?: string[];
-          instagram_reels?: string[];
+          portfolio_images?: string[] | null;
+          portfolio_description?: string | null;
+          portfolio_events?: string[] | null;
+          instagram_reels?: string[] | null;
+          services?: string[];
+          experience_years?: number;
+          completed_events?: number;
         };
         Update: {
+          id?: number;
           name?: string;
           category?: string;
           city?: string;
@@ -171,16 +188,29 @@ export type Database = {
           contact_email?: string;
           contact_phone?: string;
           image_url?: string;
+          created_at?: string;
           status?: string;
-          portfolio_images?: string[];
-          portfolio_description?: string;
-          portfolio_events?: string[];
-          instagram_reels?: string[];
+          portfolio_images?: string[] | null;
+          portfolio_description?: string | null;
+          portfolio_events?: string[] | null;
+          instagram_reels?: string[] | null;
+          services?: string[];
+          experience_years?: number;
+          completed_events?: number;
         };
       };
     };
+    Views: {
+      [_ in never]: never
+    };
+    Functions: {
+      [_ in never]: never
+    };
+    Enums: {
+      [_ in never]: never
+    };
   };
-};
+}
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;

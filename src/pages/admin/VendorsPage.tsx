@@ -93,6 +93,9 @@ const vendorFormSchema = z.object({
   portfolio_description: z.string().optional().default(""),
   portfolio_events: z.array(z.string()).default([]),
   instagram_reels: z.array(z.string().url("Please enter valid video URLs")).default([]),
+  services: z.array(z.string()).default([]),
+  experience_years: z.number().min(0, "Years of experience must be at least 0").max(100, "Years of experience cannot exceed 100"),
+  completed_events: z.number().min(0, "Completed events must be at least 0").max(100, "Completed events cannot exceed 100"),
 });
 
 // Add this new component before the VendorsPage component
@@ -194,7 +197,10 @@ const VendorsPage = () => {
       portfolio_images: [],
       portfolio_description: "",
       portfolio_events: [],
-      instagram_reels: []
+      instagram_reels: [],
+      services: [],
+      experience_years: 0,
+      completed_events: 0
     }
   });
 
@@ -293,7 +299,10 @@ const VendorsPage = () => {
           portfolio_images: data.portfolio_images || [],
           portfolio_description: data.portfolio_description || "",
           portfolio_events: data.portfolio_events || [],
-          instagram_reels: data.instagram_reels || []
+          instagram_reels: data.instagram_reels || [],
+          services: data.services || [],
+          experience_years: data.experience_years || 0,
+          completed_events: data.completed_events || 0
         };
 
         const newVendor = await createVendor(vendorData);
@@ -366,7 +375,10 @@ const VendorsPage = () => {
       portfolio_images: vendor.portfolio_images || [],
       portfolio_description: vendor.portfolio_description || "",
       portfolio_events: vendor.portfolio_events || [],
-      instagram_reels: vendor.instagram_reels || []
+      instagram_reels: vendor.instagram_reels || [],
+      services: vendor.services || [],
+      experience_years: vendor.experience_years || 0,
+      completed_events: vendor.completed_events || 0
     });
     
     // Set dialog state after form reset
@@ -392,7 +404,10 @@ const VendorsPage = () => {
       portfolio_images: [],
       portfolio_description: "",
       portfolio_events: [],
-      instagram_reels: []
+      instagram_reels: [],
+      services: [],
+      experience_years: 0,
+      completed_events: 0
     });
     setIsDialogOpen(true);
   };
@@ -593,6 +608,125 @@ const VendorsPage = () => {
             )}
           />
           
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="services"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Services Offered</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-2">
+                        {field.value.map((service, index) => (
+                          <div 
+                            key={index}
+                            className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-3 py-1 text-sm"
+                          >
+                            <span>{service}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newServices = [...field.value];
+                                newServices.splice(index, 1);
+                                field.onChange(newServices);
+                              }}
+                              className="hover:text-red-500 transition-colors"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Add a service..."
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const input = e.target as HTMLInputElement;
+                              const value = input.value.trim();
+                              if (value && !field.value.includes(value)) {
+                                field.onChange([...field.value, value]);
+                                input.value = '';
+                              }
+                            }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            const input = document.querySelector('input[placeholder="Add a service..."]') as HTMLInputElement;
+                            const value = input.value.trim();
+                            if (value && !field.value.includes(value)) {
+                              field.onChange([...field.value, value]);
+                              input.value = '';
+                            }
+                          }}
+                        >
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormDescription>Press Enter or click Add to add a service</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="experience_years"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Years of Experience</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="5" 
+                      min={0}
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value === '' ? 0 : Number(e.target.value);
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>Number of years in business</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="completed_events"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Completed Events</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="50" 
+                      min={0}
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value === '' ? 0 : Number(e.target.value);
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>Number of events completed</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -893,7 +1027,10 @@ const VendorsPage = () => {
                   portfolio_images: [],
                   portfolio_description: "",
                   portfolio_events: [],
-                  instagram_reels: []
+                  instagram_reels: [],
+                  services: [],
+                  experience_years: 0,
+                  completed_events: 0
                 });
               }
               setIsDialogOpen(open);
