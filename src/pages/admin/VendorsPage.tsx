@@ -271,7 +271,27 @@ const VendorsPage = () => {
       setError(null);
       if (editingVendor) {
         // Update existing vendor
-        const updated = await updateVendor(editingVendor.id, data as VendorUpdate);
+        const updateData: VendorUpdate = {
+          name: data.name,
+          category: data.category,
+          city: data.city,
+          price: data.price,
+          description: data.description,
+          contact_email: data.contact_email,
+          contact_phone: data.contact_phone,
+          rating: data.rating || 0,
+          image_url: data.image_url || DEFAULT_VENDOR_IMAGE,
+          status: data.status,
+          portfolio_images: data.portfolio_images,
+          portfolio_description: data.portfolio_description,
+          portfolio_events: data.portfolio_events,
+          instagram_reels: data.instagram_reels,
+          services: data.services,
+          experience_years: data.experience_years,
+          completed_events: data.completed_events
+        };
+        
+        const updated = await updateVendor(editingVendor.id, updateData);
         if (updated) {
           toast({
             title: "Success",
@@ -291,18 +311,18 @@ const VendorsPage = () => {
           city: data.city,
           price: data.price,
           description: data.description,
-          contact_email: "contact@utsavai.com",
-          contact_phone: "0000000000",
+          contact_email: data.contact_email,
+          contact_phone: data.contact_phone,
           rating: data.rating || 0,
           image_url: data.image_url || DEFAULT_VENDOR_IMAGE,
-          status: data.status || VENDOR_STATUSES.PENDING,
-          portfolio_images: data.portfolio_images || [],
-          portfolio_description: data.portfolio_description || "",
-          portfolio_events: data.portfolio_events || [],
-          instagram_reels: data.instagram_reels || [],
-          services: data.services || [],
-          experience_years: data.experience_years || 0,
-          completed_events: data.completed_events || 0
+          status: data.status,
+          portfolio_images: data.portfolio_images,
+          portfolio_description: data.portfolio_description,
+          portfolio_events: data.portfolio_events,
+          instagram_reels: data.instagram_reels,
+          services: data.services,
+          experience_years: data.experience_years,
+          completed_events: data.completed_events
         };
 
         const newVendor = await createVendor(vendorData);
@@ -368,8 +388,8 @@ const VendorsPage = () => {
       price: vendor.price,
       rating: vendor.rating || 0,
       description: vendor.description,
-      contact_email: "contact@utsavai.com",
-      contact_phone: "0000000000",
+      contact_email: vendor.contact_email || "contact@utsavai.com",
+      contact_phone: vendor.contact_phone || "0000000000",
       image_url: vendor.image_url || "",
       status: vendor.status,
       portfolio_images: vendor.portfolio_images || [],
@@ -381,10 +401,7 @@ const VendorsPage = () => {
       completed_events: vendor.completed_events || 0
     });
     
-    // Set dialog state after form reset
-    setTimeout(() => {
-      setIsDialogOpen(true);
-    }, 0);
+    setIsDialogOpen(true);
   };
 
   // Handle new vendor button click
@@ -455,7 +472,6 @@ const VendorsPage = () => {
                   <Select 
                     onValueChange={field.onChange} 
                     defaultValue={field.value}
-                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -463,7 +479,6 @@ const VendorsPage = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
                       {VENDOR_CATEGORIES.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
@@ -618,7 +633,7 @@ const VendorsPage = () => {
                   <FormControl>
                     <div className="space-y-2">
                       <div className="flex flex-wrap gap-2">
-                        {field.value.map((service, index) => (
+                        {field.value?.map((service, index) => (
                           <div 
                             key={index}
                             className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-3 py-1 text-sm"
@@ -640,14 +655,15 @@ const VendorsPage = () => {
                       </div>
                       <div className="flex gap-2">
                         <Input
+                          id="new-service"
                           placeholder="Add a service..."
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               e.preventDefault();
                               const input = e.target as HTMLInputElement;
                               const value = input.value.trim();
-                              if (value && !field.value.includes(value)) {
-                                field.onChange([...field.value, value]);
+                              if (value && !field.value?.includes(value)) {
+                                field.onChange([...(field.value || []), value]);
                                 input.value = '';
                               }
                             }
@@ -657,10 +673,10 @@ const VendorsPage = () => {
                           type="button"
                           variant="outline"
                           onClick={() => {
-                            const input = document.querySelector('input[placeholder="Add a service..."]') as HTMLInputElement;
+                            const input = document.getElementById('new-service') as HTMLInputElement;
                             const value = input.value.trim();
-                            if (value && !field.value.includes(value)) {
-                              field.onChange([...field.value, value]);
+                            if (value && !field.value?.includes(value)) {
+                              field.onChange([...(field.value || []), value]);
                               input.value = '';
                             }
                           }}
