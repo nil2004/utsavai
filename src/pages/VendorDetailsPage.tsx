@@ -137,10 +137,10 @@ const VendorDetailsPage: React.FC = () => {
   const { user } = useAuth();
   const { adminUser } = useAdminAuth();
 
-  // Check if current user has edit permissions
-  const hasEditPermissions = React.useMemo(() => {
-    return adminUser !== null || (user && vendor && user.email === vendor.contact_email);
-  }, [adminUser, user, vendor]);
+  // Check if current user is an admin
+  const isAdmin = React.useMemo(() => {
+    return adminUser !== null;
+  }, [adminUser]);
 
   // Handle slide change - pause all videos
   useEffect(() => {
@@ -492,7 +492,7 @@ const VendorDetailsPage: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Services Offered</h2>
-                {hasEditPermissions && (
+                {isAdmin && (
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -524,7 +524,7 @@ const VendorDetailsPage: React.FC = () => {
                       <div className="h-2 w-2 rounded-full bg-primary" />
                       <span className="text-gray-600">{service}</span>
                     </div>
-                    {hasEditPermissions && (
+                    {isAdmin && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -565,7 +565,7 @@ const VendorDetailsPage: React.FC = () => {
                         <p className="text-lg font-semibold">{vendor?.experience_years || 0} years</p>
                       </div>
                     </div>
-                    {hasEditPermissions && (
+                    {isAdmin && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -599,7 +599,7 @@ const VendorDetailsPage: React.FC = () => {
                         <p className="text-lg font-semibold">{vendor?.completed_events || 0} events</p>
                       </div>
                     </div>
-                    {hasEditPermissions && (
+                    {isAdmin && (
                       <Button
                         variant="ghost"
                         size="sm"
