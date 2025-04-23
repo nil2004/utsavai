@@ -138,7 +138,9 @@ const VendorDetailsPage: React.FC = () => {
   const { adminUser } = useAdminAuth();
 
   // Check if current user has edit permissions
-  const hasEditPermissions = adminUser !== null || (user && vendor && user.email === vendor.contact_email);
+  const hasEditPermissions = React.useMemo(() => {
+    return adminUser !== null || (user && vendor && user.email === vendor.contact_email);
+  }, [adminUser, user, vendor]);
 
   // Handle slide change - pause all videos
   useEffect(() => {
@@ -516,7 +518,7 @@ const VendorDetailsPage: React.FC = () => {
                 )}
               </div>
               <div className="grid grid-cols-2 gap-4">
-                {vendor.services?.map((service, index) => (
+                {vendor?.services?.map((service, index) => (
                   <div key={index} className="flex items-center justify-between gap-2 bg-white p-3 rounded-lg border border-gray-100">
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-primary" />
@@ -560,7 +562,7 @@ const VendorDetailsPage: React.FC = () => {
                       <Trophy className="h-5 w-5 text-primary" />
                       <div>
                         <p className="text-sm text-gray-500">Years of Experience</p>
-                        <p className="text-lg font-semibold">{vendor.experience_years || 0} years</p>
+                        <p className="text-lg font-semibold">{vendor?.experience_years || 0} years</p>
                       </div>
                     </div>
                     {hasEditPermissions && (
@@ -594,7 +596,7 @@ const VendorDetailsPage: React.FC = () => {
                       <CalendarIcon className="h-5 w-5 text-primary" />
                       <div>
                         <p className="text-sm text-gray-500">Events Completed</p>
-                        <p className="text-lg font-semibold">{vendor.completed_events || 0} events</p>
+                        <p className="text-lg font-semibold">{vendor?.completed_events || 0} events</p>
                       </div>
                     </div>
                     {hasEditPermissions && (
