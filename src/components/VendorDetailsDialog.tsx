@@ -1,28 +1,14 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { MapPin, Star, Calendar, ExternalLink } from 'lucide-react';
+import { MapPin, Star, Calendar, ExternalLink, Award, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Vendor } from '@/lib/vendor-service';
 
 interface VendorDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  vendor: {
-    id: number;
-    name: string;
-    category: string;
-    rating: number;
-    reviewCount: number;
-    priceRange: string;
-    image: string;
-    city: string;
-    description?: string;
-    services?: string[];
-    availability?: {
-      nextAvailable: string;
-      typicalBookingNotice: string;
-    };
-  };
+  vendor: Vendor;
 }
 
 const VendorDetailsDialog: React.FC<VendorDetailsDialogProps> = ({
@@ -30,15 +16,6 @@ const VendorDetailsDialog: React.FC<VendorDetailsDialogProps> = ({
   onClose,
   vendor,
 }) => {
-  const vendorDetails = {
-    description: vendor.description || "No description available.",
-    services: vendor.services || [],
-    availability: {
-      nextAvailable: vendor.availability?.nextAvailable || "Not available",
-      typicalBookingNotice: vendor.availability?.typicalBookingNotice || "Not specified",
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -50,7 +27,7 @@ const VendorDetailsDialog: React.FC<VendorDetailsDialogProps> = ({
           {/* Hero Image */}
           <div className="relative h-48 rounded-lg overflow-hidden">
             <img
-              src={vendor.image}
+              src={vendor.image_url}
               alt={vendor.name}
               className="w-full h-full object-cover"
             />
@@ -63,7 +40,6 @@ const VendorDetailsDialog: React.FC<VendorDetailsDialogProps> = ({
               <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full text-sm">
                 <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
                 <span className="font-bold">{vendor.rating}</span>
-                <span className="ml-1">({vendor.reviewCount} reviews)</span>
               </div>
             </div>
           </div>
@@ -75,41 +51,45 @@ const VendorDetailsDialog: React.FC<VendorDetailsDialogProps> = ({
               <p className="font-semibold">{vendor.category}</p>
             </div>
             <div className="p-4 bg-primary/5 rounded-lg">
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Price Range</h4>
-              <p className="font-semibold">{vendor.priceRange}</p>
+              <h4 className="text-sm font-medium text-gray-500 mb-1">Starting Price</h4>
+              <p className="font-semibold">₹{vendor.price.toLocaleString()}</p>
+            </div>
+          </div>
+
+          {/* Experience and Events */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-violet-50/50 rounded-lg border border-violet-100/50">
+              <div className="flex items-center gap-2 mb-1">
+                <Award className="h-4 w-4 text-violet-500" />
+                <h4 className="text-sm font-medium text-gray-500">Years of Experience</h4>
+              </div>
+              <p className="font-semibold text-lg">{vendor.experience_years} Years</p>
+            </div>
+            <div className="p-4 bg-violet-50/50 rounded-lg border border-violet-100/50">
+              <div className="flex items-center gap-2 mb-1">
+                <CheckCircle className="h-4 w-4 text-violet-500" />
+                <h4 className="text-sm font-medium text-gray-500">Events Completed</h4>
+              </div>
+              <p className="font-semibold text-lg">{vendor.completed_events}+ Events</p>
             </div>
           </div>
 
           {/* Description */}
           <div>
             <h3 className="text-lg font-semibold mb-2">About</h3>
-            <p className="text-gray-600 leading-relaxed">{vendorDetails.description}</p>
+            <p className="text-gray-600 leading-relaxed">{vendor.description}</p>
           </div>
 
           {/* Services */}
           <div>
             <h3 className="text-lg font-semibold mb-2">Services Offered</h3>
             <div className="grid grid-cols-2 gap-2">
-              {vendorDetails.services.map((service, index) => (
+              {vendor.services.map((service, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary" />
                   <span className="text-gray-600">{service}</span>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Availability */}
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Availability</h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-gray-600">
-                <Calendar className="h-4 w-4" />
-                <span>Next Available: {vendorDetails.availability.nextAvailable}</span>
-              </div>
-              <p className="text-gray-600">
-                Typical Booking Notice: {vendorDetails.availability.typicalBookingNotice}
-              </p>
             </div>
           </div>
 

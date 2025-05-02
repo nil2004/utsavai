@@ -21,7 +21,8 @@ import {
   MapPin,
   User,
   MessageSquare,
-  Gift
+  Gift,
+  Award
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -35,18 +36,13 @@ import { supabase } from '@/lib/supabase';
 import { saveFormDataToEmail } from '@/lib/email-service';
 import FreeOfferForm from '@/components/FreeOfferForm';
 import { useAdminAuth } from '@/lib/admin-auth-context';
+import { Vendor, getVendorById } from '@/lib/vendor-service';
 
 // Define TypeScript interfaces
-interface Vendor {
-  id: number;
-  name: string;
-  category: string;
-  rating: number;
+interface ChatVendor extends Vendor {
   reviewCount: number;
   priceRange: string;
-  price: number;
   image: string;
-  city: string;
 }
 
 interface VendorChecklistItem {
@@ -61,7 +57,7 @@ interface ChatMessage {
   content: string | VendorChecklistItem[];
   isVendorList?: boolean;
   isVendorSuggestions?: boolean;
-  vendors?: Vendor[];
+  vendors?: ChatVendor[];
 }
 
 interface EventType {
@@ -81,8 +77,7 @@ const eventTypes: EventType[] = [
 ];
 
 // Expanded sample vendor data for demonstration, grouped by type
-const sampleVendors: Vendor[] = [
-  // Decorators
+const sampleVendors: ChatVendor[] = [
   {
     id: 1,
     name: "Elegant Decorations",
@@ -93,6 +88,19 @@ const sampleVendors: Vendor[] = [
     price: 25000,
     image: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=2070",
     city: "Mumbai",
+    description: "Professional decoration services for all types of events",
+    contact_email: "contact@elegantdeco.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Full venue decoration", "Theme-based setups", "Flower arrangements"],
+    experience_years: 5,
+    completed_events: 200,
+    portfolio_images: [],
+    portfolio_description: "",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 4,
@@ -104,6 +112,19 @@ const sampleVendors: Vendor[] = [
     price: 60000,
     image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098",
     city: "Delhi",
+    description: "Luxurious decoration services for special occasions",
+    contact_email: "luxury@decorations.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Luxury decoration", "Custom theme setups", "Flower arrangements"],
+    experience_years: 7,
+    completed_events: 150,
+    portfolio_images: [],
+    portfolio_description: "Luxury decoration portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 5,
@@ -115,6 +136,19 @@ const sampleVendors: Vendor[] = [
     price: 12000,
     image: "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?q=80&w=2070",
     city: "Mumbai",
+    description: "Affordable decoration services for budget-conscious clients",
+    contact_email: "budget@decorations.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Basic decoration", "Themed setups", "Flower arrangements"],
+    experience_years: 3,
+    completed_events: 100,
+    portfolio_images: [],
+    portfolio_description: "Budget decoration portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   
   // Photographers
@@ -128,6 +162,19 @@ const sampleVendors: Vendor[] = [
     price: 40000,
     image: "https://images.unsplash.com/photo-1554941829-202a0b2403b8?q=80&w=2070",
     city: "Delhi",
+    description: "Professional photography services for all types of events",
+    contact_email: "photography@capturemoments.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1554941829-202a0b2403b8?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Event photography", "Portrait photography", "Commercial photography"],
+    experience_years: 6,
+    completed_events: 120,
+    portfolio_images: [],
+    portfolio_description: "Photography portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 6,
@@ -139,6 +186,19 @@ const sampleVendors: Vendor[] = [
     price: 25000,
     image: "https://images.unsplash.com/photo-1567156345300-e9a8844b19cc?q=80&w=2070",
     city: "Bangalore",
+    description: "High-quality photography services for all types of events",
+    contact_email: "photography@pixelperfect.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1567156345300-e9a8844b19cc?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Event photography", "Portrait photography", "Commercial photography"],
+    experience_years: 5,
+    completed_events: 100,
+    portfolio_images: [],
+    portfolio_description: "Photography portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 22,
@@ -150,6 +210,19 @@ const sampleVendors: Vendor[] = [
     price: 35000,
     image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=2688",
     city: "Mumbai",
+    description: "Cinematic photography services for all types of events",
+    contact_email: "cinematic@visions.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=2688",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Event photography", "Portrait photography", "Commercial photography"],
+    experience_years: 7,
+    completed_events: 90,
+    portfolio_images: [],
+    portfolio_description: "Cinematic photography portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   
   // Caterers
@@ -163,6 +236,19 @@ const sampleVendors: Vendor[] = [
     price: 30000,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
     city: "Bangalore",
+    description: "Delicious catering services for all types of events",
+    contact_email: "catering@tastyfeasts.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Buffet catering", "Plated meals", "Customized menus"],
+    experience_years: 4,
+    completed_events: 180,
+    portfolio_images: [],
+    portfolio_description: "Catering portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 7,
@@ -174,6 +260,19 @@ const sampleVendors: Vendor[] = [
     price: 50000,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
     city: "Delhi",
+    description: "High-end catering services for special occasions",
+    contact_email: "gourmet@delights.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Fine dining", "Customized menus", "Catering for large groups"],
+    experience_years: 6,
+    completed_events: 160,
+    portfolio_images: [],
+    portfolio_description: "Gourmet catering portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 8,
@@ -185,6 +284,19 @@ const sampleVendors: Vendor[] = [
     price: 15000,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
     city: "Mumbai",
+    description: "Affordable catering services for budget-conscious clients",
+    contact_email: "budget@eats.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Buffet catering", "Plated meals", "Customized menus"],
+    experience_years: 3,
+    completed_events: 100,
+    portfolio_images: [],
+    portfolio_description: "Budget catering portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   
   // Venues
@@ -198,6 +310,19 @@ const sampleVendors: Vendor[] = [
     price: 100000,
     image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098",
     city: "Mumbai",
+    description: "Luxurious venue for all types of events",
+    contact_email: "venue@grandplaza.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Full venue decoration", "Themed setups", "Catering services"],
+    experience_years: 7,
+    completed_events: 180,
+    portfolio_images: [],
+    portfolio_description: "Venue portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 10,
@@ -209,6 +334,19 @@ const sampleVendors: Vendor[] = [
     price: 80000,
     image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098",
     city: "Delhi",
+    description: "Beautiful banquet hall for all types of events",
+    contact_email: "venue@sunsetbanquet.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Full venue decoration", "Themed setups", "Catering services"],
+    experience_years: 6,
+    completed_events: 150,
+    portfolio_images: [],
+    portfolio_description: "Venue portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 11,
@@ -220,6 +358,19 @@ const sampleVendors: Vendor[] = [
     price: 60000,
     image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098",
     city: "Bangalore",
+    description: "Beautiful resort venue for all types of events",
+    contact_email: "venue@gardenviewresort.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Full venue decoration", "Themed setups", "Catering services"],
+    experience_years: 5,
+    completed_events: 120,
+    portfolio_images: [],
+    portfolio_description: "Venue portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   
   // Sound & Lighting
@@ -233,6 +384,19 @@ const sampleVendors: Vendor[] = [
     price: 40000,
     image: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=2070",
     city: "Mumbai",
+    description: "Professional sound and lighting services for all types of events",
+    contact_email: "sound@dynamicsystems.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Sound system setup", "Lighting setup", "Customized music"],
+    experience_years: 5,
+    completed_events: 100,
+    portfolio_images: [],
+    portfolio_description: "Sound and lighting portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 13,
@@ -244,6 +408,19 @@ const sampleVendors: Vendor[] = [
     price: 55000,
     image: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=2070",
     city: "Delhi",
+    description: "High-end audio visual services for all types of events",
+    contact_email: "audio@elitevisual.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Sound system setup", "Lighting setup", "Customized music"],
+    experience_years: 7,
+    completed_events: 120,
+    portfolio_images: [],
+    portfolio_description: "Audio visual portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 14,
@@ -255,6 +432,19 @@ const sampleVendors: Vendor[] = [
     price: 25000,
     image: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=2070",
     city: "Bangalore",
+    description: "Affordable sound and lighting services for budget-conscious clients",
+    contact_email: "sound@budgetsolutions.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Sound system setup", "Lighting setup", "Customized music"],
+    experience_years: 3,
+    completed_events: 80,
+    portfolio_images: [],
+    portfolio_description: "Sound and lighting portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   
   // Entertainment
@@ -268,6 +458,19 @@ const sampleVendors: Vendor[] = [
     price: 50000,
     image: "https://images.unsplash.com/photo-1501612780327-45045538702b?q=80&w=2070",
     city: "Mumbai",
+    description: "Professional entertainment services for all types of events",
+    contact_email: "entertainment@rhythmband.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1501612780327-45045538702b?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Live music", "DJ services", "Customized entertainment"],
+    experience_years: 6,
+    completed_events: 150,
+    portfolio_images: [],
+    portfolio_description: "Entertainment portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 16,
@@ -279,6 +482,19 @@ const sampleVendors: Vendor[] = [
     price: 35000,
     image: "https://images.unsplash.com/photo-1505236858219-8359eb29e329?q=80&w=2024",
     city: "Delhi",
+    description: "Professional comedy entertainment for all types of events",
+    contact_email: "comedy@centralgroup.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1505236858219-8359eb29e329?q=80&w=2024",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Stand-up comedy", "Improv comedy", "Customized comedy"],
+    experience_years: 5,
+    completed_events: 100,
+    portfolio_images: [],
+    portfolio_description: "Comedy entertainment portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 17,
@@ -290,6 +506,19 @@ const sampleVendors: Vendor[] = [
     price: 30000,
     image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2074",
     city: "Bangalore",
+    description: "Professional magic entertainment for all types of events",
+    contact_email: "magic@momentsshow.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2074",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Close-up magic", "Stage magic", "Customized magic"],
+    experience_years: 4,
+    completed_events: 90,
+    portfolio_images: [],
+    portfolio_description: "Magic entertainment portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   
   // Anchors
@@ -303,6 +532,19 @@ const sampleVendors: Vendor[] = [
     price: 25000,
     image: "https://images.unsplash.com/photo-1564510714747-69c3bc1fab41?q=80&w=1000",
     city: "Mumbai",
+    description: "Professional event hosting services for all types of events",
+    contact_email: "anchor@eliteanchors.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1564510714747-69c3bc1fab41?q=80&w=1000",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Event hosting", "Hosting for large groups", "Customized hosting"],
+    experience_years: 7,
+    completed_events: 150,
+    portfolio_images: [],
+    portfolio_description: "Anchor portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 19,
@@ -314,6 +556,19 @@ const sampleVendors: Vendor[] = [
     price: 20000,
     image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=1000",
     city: "Delhi",
+    description: "Professional event hosting services for all types of events",
+    contact_email: "host@professionalhosts.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=1000",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Event hosting", "Hosting for large groups", "Customized hosting"],
+    experience_years: 6,
+    completed_events: 120,
+    portfolio_images: [],
+    portfolio_description: "Anchor portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 20,
@@ -325,6 +580,19 @@ const sampleVendors: Vendor[] = [
     price: 18000,
     image: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?q=80&w=2070",
     city: "Bangalore",
+    description: "Professional event hosting services for all types of events",
+    contact_email: "event@masters.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?q=80&w=2070",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Event hosting", "Hosting for large groups", "Customized hosting"],
+    experience_years: 5,
+    completed_events: 100,
+    portfolio_images: [],
+    portfolio_description: "Anchor portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   
   // Makeup Artists
@@ -338,6 +606,19 @@ const sampleVendors: Vendor[] = [
     price: 25000,
     image: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=2071",
     city: "Mumbai",
+    description: "Professional makeup services for all occasions with expertise in bridal, party, and photoshoot makeup",
+    contact_email: "glamour@touch.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=2071",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Bridal Makeup", "Party Makeup", "HD Makeup", "Airbrush Makeup"],
+    experience_years: 8,
+    completed_events: 450,
+    portfolio_images: [],
+    portfolio_description: "Glamour Touch Portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 23,
@@ -349,6 +630,19 @@ const sampleVendors: Vendor[] = [
     price: 35000,
     image: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=2071",
     city: "Delhi",
+    description: "Specialized in bridal makeup with expertise in both traditional and modern styles",
+    contact_email: "bridal@beauty.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=2071",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Bridal Makeup", "Engagement Makeup", "Reception Makeup", "Trial Makeup"],
+    experience_years: 10,
+    completed_events: 600,
+    portfolio_images: [],
+    portfolio_description: "Bridal Beauty Portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
   {
     id: 24,
@@ -360,6 +654,19 @@ const sampleVendors: Vendor[] = [
     price: 20000,
     image: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=2071",
     city: "Bangalore",
+    description: "Affordable and professional makeup services for all types of events",
+    contact_email: "perfect@look.com",
+    contact_phone: "+91 98765 43210",
+    image_url: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=2071",
+    created_at: new Date().toISOString(),
+    status: "active",
+    services: ["Party Makeup", "Event Makeup", "Natural Makeup", "Professional Makeup"],
+    experience_years: 5,
+    completed_events: 300,
+    portfolio_images: [],
+    portfolio_description: "Perfect Look Portfolio",
+    portfolio_events: [],
+    instagram_reels: []
   },
 ];
 
@@ -462,10 +769,10 @@ interface MessageProps {
   content: string | VendorChecklistItem[];
   isVendorList?: boolean;
   isVendorSuggestions?: boolean;
-  vendors?: Vendor[];
-  onBookVendor?: (vendor: Vendor) => void;
+  vendors?: ChatVendor[];
+  onBookVendor?: (vendor: ChatVendor) => void;
   onConfirm?: () => void;
-  selectedVendors?: Vendor[];
+  selectedVendors?: ChatVendor[];
 }
 
 // Message component to display chat messages
@@ -482,13 +789,33 @@ const Message: React.FC<MessageProps> = ({
   const [localContent, setLocalContent] = useState<VendorChecklistItem[]>(
     Array.isArray(content) ? [...content] : []
   );
-  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  const [selectedVendor, setSelectedVendor] = useState<ChatVendor | null>(null);
+  const [completeVendorData, setCompleteVendorData] = useState<ChatVendor | null>(null);
 
   useEffect(() => {
     if (Array.isArray(content)) {
       setLocalContent([...content]);
     }
   }, [content]);
+
+  useEffect(() => {
+    const fetchCompleteVendorData = async () => {
+      if (selectedVendor) {
+        const vendorData = await getVendorById(selectedVendor.id);
+        if (vendorData) {
+          const chatVendor: ChatVendor = {
+            ...vendorData,
+            reviewCount: selectedVendor.reviewCount,
+            priceRange: selectedVendor.priceRange,
+            image: selectedVendor.image
+          };
+          setCompleteVendorData(chatVendor);
+        }
+      }
+    };
+    
+    fetchCompleteVendorData();
+  }, [selectedVendor]);
 
   const handleItemToggle = (id: string) => {
     setLocalContent(prev => 
@@ -542,7 +869,7 @@ const Message: React.FC<MessageProps> = ({
   }
   
   if (isVendorSuggestions) {
-    const categorizedVendors: Record<string, Vendor[]> = {};
+    const categorizedVendors: Record<string, ChatVendor[]> = {};
     
     // Group vendors by category
     if (Array.isArray(vendors)) {
@@ -558,12 +885,15 @@ const Message: React.FC<MessageProps> = ({
       <div className="flex justify-start mb-6 animate-fadeIn">
         <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-5 max-w-[95%] w-full shadow-[0_8px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.1)] transition-all duration-300">
           <div className="whitespace-pre-wrap break-words">{typeof content === 'string' ? content : 'No description available'}</div>
-              </div>
-        {selectedVendor && (
+        </div>
+        {selectedVendor && completeVendorData && (
           <VendorDetailsDialog
             isOpen={!!selectedVendor}
-            onClose={() => setSelectedVendor(null)}
-            vendor={selectedVendor}
+            onClose={() => {
+              setSelectedVendor(null);
+              setCompleteVendorData(null);
+            }}
+            vendor={completeVendorData}
           />
         )}
       </div>
@@ -601,7 +931,7 @@ const Message: React.FC<MessageProps> = ({
 };
 
 interface BookingFormProps {
-  vendor: Vendor;
+  vendor: ChatVendor;
   onClose: (success: boolean) => void;
 }
 
@@ -1108,17 +1438,17 @@ const ChatPage: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
   const [vendorChecklist, setVendorChecklist] = useState<VendorChecklistItem[]>([]);
   const [showingVendorsList, setShowingVendorsList] = useState<boolean>(false);
-  const [suggestedVendors, setSuggestedVendors] = useState<Vendor[]>([]);
+  const [suggestedVendors, setSuggestedVendors] = useState<ChatVendor[]>([]);
   const [location, setLocation] = useState<string>('');
   const [showingLocationInput, setShowingLocationInput] = useState<boolean>(false);
   const [budget, setBudget] = useState<string>('');
   const [showingBudgetInput, setShowingBudgetInput] = useState<boolean>(false);
-  const [bookingVendor, setBookingVendor] = useState<Vendor | null>(null);
-  const [selectedVendors, setSelectedVendors] = useState<Vendor[]>([]);
+  const [bookingVendor, setBookingVendor] = useState<ChatVendor | null>(null);
+  const [selectedVendors, setSelectedVendors] = useState<ChatVendor[]>([]);
   const [submittedInterest, setSubmittedInterest] = useState<boolean>(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [shouldAutoScroll, setShouldAutoScroll] = useState<boolean>(true);
-  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  const [selectedVendor, setSelectedVendor] = useState<ChatVendor | null>(null);
   const [showingUserDetailsForm, setShowingUserDetailsForm] = useState<boolean>(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState<boolean>(false);
   const [showingBudgetAllocation, setShowingBudgetAllocation] = useState<boolean>(false);
@@ -1308,182 +1638,53 @@ const ChatPage: React.FC = () => {
     }, 2000); // 2 seconds to view the budget allocation
   };
 
+  // Add helper functions and restore necessary state updates
+  const generateId = () => Date.now().toString();
+
   const showVendorSuggestions = async () => {
     try {
       setLoading(true);
+      const vendors = await getFrontendVendors();
       
-      // Filter criteria for getting relevant vendors
-      const filterCriteria = {
-        city: location,
-        maxPrice: parseInt(budget) || undefined
-        // No status filter to ensure we show all vendors
-      };
-      
-      // Get vendors from Supabase
-      const supabaseVendors = await getFrontendVendors(filterCriteria);
-      
-      console.log(`Loaded ${supabaseVendors.length} vendors from database`);
-      
-      // If no vendors found, use sample data as fallback (for development)
-      let availableVendors = supabaseVendors.length > 0 ? supabaseVendors : sampleVendors;
-      
-      // Map Supabase vendors to the interface expected by the UI
-      availableVendors = availableVendors.map(vendor => ({
-        id: vendor.id,
-        name: vendor.name,
-        category: vendor.category,
-        rating: vendor.rating,
-        reviewCount: Math.floor(Math.random() * 100) + 50, // Not stored in DB, generate for UI
-        priceRange: `₹${(vendor.price * 0.7).toLocaleString()} - ₹${(vendor.price * 1.3).toLocaleString()}`,
-        price: vendor.price,
-        image: vendor.image_url || "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=2070",
-        city: vendor.city
+      // Convert Vendor to ChatVendor - keep all original vendor data
+      const chatVendors: ChatVendor[] = vendors.map(vendor => ({
+        ...vendor, // Keep all original vendor data
+        reviewCount: Math.floor(Math.random() * 100) + 20, // Only add reviewCount as it's not in the database
+        priceRange: `₹${vendor.price.toLocaleString('en-IN')}`, // Format price range
+        image: vendor.image_url // Use image_url as image
       }));
       
-      // Filter only vendors in requested location (if any)
-      if (location && location !== '') {
-        availableVendors = availableVendors.filter(vendor => 
-          vendor.city.toLowerCase() === location.toLowerCase()
-        );
-      }
+      setSuggestedVendors(chatVendors);
       
-      // Budget filter (if specified)
-      if (budget && budget !== '') {
-        const maxBudget = parseInt(budget);
-        availableVendors = availableVendors.filter(vendor => vendor.price <= maxBudget);
-      }
-
-      // IMPORTANT: Filter vendors to only show categories that the user selected
-      const selectedVendorCategories = messages
-        .filter(msg => msg.isVendorList && Array.isArray(msg.content))
-        .flatMap(msg => Array.isArray(msg.content) 
-          ? msg.content.filter(item => item.selected).map(item => item.name) 
-          : []
-        );
-
-      console.log("Selected vendor categories:", selectedVendorCategories);
-      
-      if (selectedVendorCategories.length > 0) {
-        availableVendors = availableVendors.filter(vendor => 
-          selectedVendorCategories.includes(vendor.category)
-        );
-      }
-      
-      // Get prioritized vendor types based on event type
-      let priorityVendorTypes: string[] = [];
-      
-      // Customize priorities based on event type
-      switch (selectedEvent) {
-        case 'wedding':
-          priorityVendorTypes = ['Venue', 'Caterer', 'Photographer', 'Decorator'];
-          break;
-        case 'birthday':
-          priorityVendorTypes = ['Caterer', 'Decorator', 'Photographer'];
-          break;
-        case 'corporate':
-          priorityVendorTypes = ['Venue', 'Caterer', 'Sound & Lighting'];
-          break;
-        case 'collegeFest':
-          priorityVendorTypes = ['Sound & Lighting', 'Caterer', 'Entertainment'];
-          break;
-        case 'schoolEvent':
-          priorityVendorTypes = ['Decorator', 'Caterer', 'Photographer'];
-          break;
-        default:
-          priorityVendorTypes = ['Venue', 'Caterer', 'Photographer', 'Decorator'];
-      }
-      
-      // Sort vendors based on priority for this event type
-      availableVendors.sort((a, b) => {
-        const aIndex = priorityVendorTypes.indexOf(a.category);
-        const bIndex = priorityVendorTypes.indexOf(b.category);
-        
-        // If both have priority, sort by priority
-        if (aIndex >= 0 && bIndex >= 0) {
-          return aIndex - bIndex;
-        }
-        // If only one has priority, it comes first
-        else if (aIndex >= 0) return -1;
-        else if (bIndex >= 0) return 1;
-        // If neither has priority, sort by rating
-        return b.rating - a.rating;
-      });
-      
-      // Use all available vendors instead of limiting to 10
-      const suggestedVendors = availableVendors;
-      
-      // Update the state variable
-      setSuggestedVendors(suggestedVendors);
-      
-      console.log(`Displaying ${suggestedVendors.length} vendors to user`);
-      
-      // Prepare the message based on event type
-      let message = '';
-      switch(selectedEvent) {
-        case 'wedding':
-          message = "Based on your wedding plans, these vendors would be perfect. I've prioritized venue, catering, and decoration services that match your budget.";
-          break;
-        case 'birthday':
-          message = "For your birthday celebration, I recommend these vendors. I've highlighted catering and decoration services within your budget range.";
-          break;
-        case 'corporate':
-          message = "For your corporate event, these professional vendors would be ideal. I've prioritized venues and services that will make your business event successful.";
-          break;
-        case 'collegeFest':
-          message = "These vendors would be perfect for your college fest! I've focused on sound systems, catering, and entertainment options that students will love.";
-          break;
-        case 'schoolEvent':
-          message = "For your school event, these vendors would work well. I've selected professional services that are appropriate for educational settings.";
-          break;
-        default:
-          message = "Based on your requirements, here are some vendor suggestions that fit your budget and location preferences.";
-      }
-      
-      // Add the suggestions message
-      const newMessage: ChatMessage = {
-        id: Date.now().toString(),
-          sender: 'bot', 
-        content: message,
+      setMessages(prev => [...prev, {
+        id: generateId(),
+        sender: 'bot',
+        content: 'Here are some vendors that match your requirements:',
         isVendorSuggestions: true,
-        vendors: suggestedVendors
-      };
+        vendors: chatVendors
+      }]);
       
-      setMessages(prev => [...prev, newMessage]);
       setShowingBudgetAllocation(false);
     } catch (error) {
-      console.error('Error showing vendor suggestions:', error);
+      console.error('Error fetching vendors:', error);
+      // Use sample data as fallback
+      setSuggestedVendors(sampleVendors);
       
-      // Fallback to sample data in case of error - use all vendors, but filter by selected categories
-      const selectedVendorCategories = messages
-        .filter(msg => msg.isVendorList && Array.isArray(msg.content))
-        .flatMap(msg => Array.isArray(msg.content) 
-          ? msg.content.filter(item => item.selected).map(item => item.name) 
-          : []
-        );
-      
-      const filteredVendors = selectedVendorCategories.length > 0 
-        ? sampleVendors.filter(vendor => selectedVendorCategories.includes(vendor.category))
-        : sampleVendors;
-        
-      // Update the state with the fallback vendors
-      setSuggestedVendors(filteredVendors);
-        
-      const fallbackMessage: ChatMessage = {
-        id: Date.now().toString(),
-            sender: 'bot', 
-        content: "I found these vendors that might work for your event:",
+      setMessages(prev => [...prev, {
+        id: generateId(),
+        sender: 'bot',
+        content: 'Here are some sample vendors (using fallback data):',
         isVendorSuggestions: true,
-        vendors: filteredVendors
-      };
+        vendors: sampleVendors
+      }]);
       
-      setMessages(prev => [...prev, fallbackMessage]);
       setShowingBudgetAllocation(false);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBookVendor = (vendor: Vendor) => {
+  const handleBookVendor = (vendor: ChatVendor) => {
     setSelectedVendors(prev => {
       const isAlreadySelected = prev.some(v => v.id === vendor.id);
       if (isAlreadySelected) {
@@ -1580,7 +1781,7 @@ const ChatPage: React.FC = () => {
     }
   };
 
-  const renderVendorSuggestions = (vendors: Vendor[]) => {
+  const renderVendorSuggestions = (vendors: ChatVendor[]) => {
     // Group vendors by category
     const categorizedVendors = vendors.reduce((acc, vendor) => {
       if (!acc[vendor.category]) {
@@ -1588,7 +1789,7 @@ const ChatPage: React.FC = () => {
       }
       acc[vendor.category].push(vendor);
       return acc;
-    }, {} as Record<string, Vendor[]>);
+    }, {} as Record<string, ChatVendor[]>);
 
     // Count vendors by category and prepare text summary
     const totalVendorsCount = vendors.length;
@@ -1640,7 +1841,17 @@ const ChatPage: React.FC = () => {
                         <span className="truncate">{vendor.city}</span>
                       </div>
                       <div className="font-medium mt-2">
-                        ₹{vendor.price.toLocaleString()} - ₹{(vendor.price * 1.5).toLocaleString()}
+                        ₹{vendor.price.toLocaleString()}
+                      </div>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Award className="h-3.5 w-3.5 text-violet-500" />
+                          <span>{vendor.experience_years}y exp</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckCircle className="h-3.5 w-3.5 text-violet-500" />
+                          <span>{vendor.completed_events}+ events</span>
+                        </div>
                       </div>
                       <div className="button-container mt-4 flex gap-2">
                         <Button
@@ -1662,8 +1873,8 @@ const ChatPage: React.FC = () => {
                         >
                           View Details
                         </Button>
+                      </div>
                     </div>
-                  </div>
                   </Card>
                 );
               })}
