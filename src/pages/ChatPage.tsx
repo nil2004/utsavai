@@ -43,7 +43,6 @@ interface ChatVendor extends Vendor {
   reviewCount: number;
   priceRange: string;
   image: string;
-  isInterested?: boolean;
 }
 
 interface VendorChecklistItem {
@@ -792,8 +791,6 @@ const Message: React.FC<MessageProps> = ({
   );
   const [selectedVendor, setSelectedVendor] = useState<ChatVendor | null>(null);
   const [completeVendorData, setCompleteVendorData] = useState<ChatVendor | null>(null);
-  const [showVendorDetails, setShowVendorDetails] = useState<boolean>(false);
-  const [interestedVendors, setInterestedVendors] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (Array.isArray(content)) {
@@ -826,19 +823,6 @@ const Message: React.FC<MessageProps> = ({
         item.id === id ? { ...item, selected: !item.selected } : item
       )
     );
-  };
-
-  const handleVendorInterest = (vendor: ChatVendor) => {
-    setInterestedVendors(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(vendor.id)) {
-        newSet.delete(vendor.id);
-      } else {
-        newSet.add(vendor.id);
-      }
-      return newSet;
-    });
-    setShowVendorDetails(false);
   };
 
   if (isVendorList) {
@@ -901,13 +885,15 @@ const Message: React.FC<MessageProps> = ({
       <div className="flex justify-start mb-6 animate-fadeIn">
         <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 text-gray-800 rounded-2xl p-5 max-w-[95%] w-full shadow-[0_8px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.1)] transition-all duration-300">
           <div className="whitespace-pre-wrap break-words">{typeof content === 'string' ? content : 'No description available'}</div>
-        </div>
-        {showVendorDetails && selectedVendor && (
+              </div>
+        {selectedVendor && completeVendorData && (
           <VendorDetailsDialog
-            vendor={selectedVendor}
-            onClose={() => setShowVendorDetails(false)}
-            onInterested={() => handleVendorInterest(selectedVendor)}
-            isInterested={interestedVendors.has(selectedVendor.id)}
+            isOpen={!!selectedVendor}
+            onClose={() => {
+              setSelectedVendor(null);
+              setCompleteVendorData(null);
+            }}
+            vendor={completeVendorData}
           />
         )}
       </div>
@@ -1469,8 +1455,6 @@ const ChatPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [lastRequestId, setLastRequestId] = useState<number | undefined>(undefined);
   const [showingFreeOfferForm, setShowingFreeOfferForm] = useState<boolean>(false);
-  const [interestedVendors, setInterestedVendors] = useState<Set<number>>(new Set());
-  const [showVendorDetails, setShowVendorDetails] = useState<boolean>(false);
 
   useEffect(() => {
     // Only scroll if auto-scroll is enabled and the user is near the bottom
@@ -1707,9 +1691,15 @@ const ChatPage: React.FC = () => {
   };
 
   const handleCloseBookingForm = (success: boolean) => {
-    setBookingVendor(null);
-    if (success) {
-      setShowSuccessPopup(true);
+    if (success && bookingVendor) {
+      // If not already in selected vendors, add it
+      if (!selectedVendors.some(v => v.id === bookingVendor.id)) {
+        setSelectedVendors([...selectedVendors, bookingVendor]);
+      }
+      
+      setBookingVendor(null);
+    } else {
+      setBookingVendor(null);
     }
   };
 
@@ -1786,71 +1776,141 @@ const ChatPage: React.FC = () => {
     }
   };
 
-  const handleVendorInterest = (vendor: ChatVendor) => {
-    setInterestedVendors(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(vendor.id)) {
-        newSet.delete(vendor.id);
-      } else {
-        newSet.add(vendor.id);
-      }
-      return newSet;
-    });
-    setShowVendorDetails(false);
-  };
-
   const renderVendorSuggestions = (vendors: ChatVendor[]) => {
-    return vendors.map(vendor => (
-      <Card key={vendor.id} className="p-4 mb-4 hover:shadow-lg transition-shadow">
-        <div className="flex items-start gap-4">
-          <div className="relative w-24 h-24 flex-shrink-0">
-            <img
-              src={vendor.image}
-              alt={vendor.name}
-              className="w-full h-full object-cover rounded-lg"
-            />
-            {interestedVendors.has(vendor.id) && (
-              <div className="absolute top-0 right-0 bg-green-500 text-white p-1 rounded-full">
-                <CheckCircle className="w-4 h-4" />
-              </div>
-            )}
-          </div>
-          <div className="flex-grow">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-semibold text-lg">{vendor.name}</h3>
-                <p className="text-sm text-gray-600">{vendor.category}</p>
-              </div>
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                <span>{vendor.rating}</span>
-                <span className="text-gray-500">({vendor.reviewCount})</span>
-              </div>
+    // Group vendors by category
+    const categorizedVendors = vendors.reduce((acc, vendor) => {
+      if (!acc[vendor.category]) {
+        acc[vendor.category] = [];
+      }
+      acc[vendor.category].push(vendor);
+      return acc;
+    }, {} as Record<string, ChatVendor[]>);
+
+    // Count vendors by category and prepare text summary
+    const totalVendorsCount = vendors.length;
+    const categoryCountText = Object.entries(categorizedVendors)
+      .map(([category, vendorsList]) => `${category}: ${vendorsList.length}`)
+      .join(', ');
+
+  return (
+            <div>
+        <div className="font-medium mb-6 text-lg">
+          Vendor recommendations for your event
             </div>
-            <p className="text-sm text-gray-600 mt-1">{vendor.priceRange}</p>
-            <div className="flex gap-2 mt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedVendor(vendor);
-                  setShowVendorDetails(true);
-                }}
-              >
-                View Details
-              </Button>
-              <Button
-                variant={interestedVendors.has(vendor.id) ? "secondary" : "default"}
-                size="sm"
-                onClick={() => handleVendorInterest(vendor)}
-              >
-                {interestedVendors.has(vendor.id) ? "Interested ✓" : "Interested"}
-              </Button>
-            </div>
+        
+        <div className="text-sm text-gray-500 mb-4">
+          Found {totalVendorsCount} vendors across {Object.keys(categorizedVendors).length} categories ({categoryCountText})
           </div>
+          
+        {Object.entries(categorizedVendors).map(([category, categoryVendors]) => (
+          <div key={category} className="mb-8 last:mb-0">
+            <div className="flex items-center gap-3 mb-3 p-3 bg-violet-50/50 rounded-lg border border-violet-100/50">
+              {getVendorIcon(category)}
+              <h3 className="text-lg font-semibold">{category}s ({categoryVendors.length})</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              {categoryVendors.map((vendor) => {
+                const isSelected = selectedVendors.some(v => v.id === vendor.id);
+                
+                return (
+                  <Card key={vendor.id} className="vendor-card flex flex-col h-full">
+                    <div className="image-container h-48 relative overflow-hidden">
+                      <img 
+                        src={vendor.image} 
+                        alt={vendor.name} 
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" 
+                      />
+                    </div>
+                    <div className="card-content flex-1 p-4 flex flex-col">
+                      <div className="flex justify-between items-start gap-2">
+                        <h3 className="font-semibold text-lg truncate flex-1">{vendor.name}</h3>
+                        <div className="flex items-center shrink-0">
+                          <span className="text-yellow-400 mr-1">★</span>
+                          <span className="font-bold">{vendor.rating}</span>
+                          <span className="text-gray-500 text-sm ml-1">({vendor.reviewCount})</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center text-gray-500 text-sm mt-2">
+                        <MapPin className="h-3.5 w-3.5 mr-1 shrink-0" />
+                        <span className="truncate">{vendor.city}</span>
+                      </div>
+                      <div className="font-medium mt-2">
+                        ₹{vendor.price.toLocaleString()}
+                      </div>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Award className="h-3.5 w-3.5 text-violet-500" />
+                          <span>{vendor.experience_years}y exp</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckCircle className="h-3.5 w-3.5 text-violet-500" />
+                          <span>{vendor.completed_events}+ events</span>
+                        </div>
+                      </div>
+                      <div className="button-container mt-4 flex gap-2">
+                        <Button
+                          onClick={() => handleBookVendor(vendor)}
+                          className={`transition-all ${
+                            isSelected
+                              ? 'bg-green-500 hover:bg-green-600' 
+                              : 'bg-violet-500 hover:bg-violet-600'
+                          } text-sm py-1 px-4 rounded-md flex-1`}
+                          size="sm"
+                        >
+                          {isSelected ? 'Selected ✓' : 'Interested'}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-sm py-1 px-4 rounded-md border-gray-300"
+                          onClick={async () => {
+                            const fullVendor = await getVendorById(vendor.id);
+                            if (fullVendor) setSelectedVendor({
+                              ...fullVendor,
+                              reviewCount: vendor.reviewCount ?? 0,
+                              priceRange: vendor.priceRange ?? `₹${fullVendor.price?.toLocaleString('en-IN')}`,
+                              image: fullVendor.image_url
+                            });
+                          }}
+                        >
+                          View Details
+                        </Button>
+                    </div>
+                  </div>
+                  </Card>
+                );
+              })}
+                </div>
+          </div>
+        ))}
+        
+        {/* Add Free Event Planning Offer */}
+        <div className="mt-8 mb-4 p-6 rounded-lg border border-violet-200 bg-gradient-to-br from-violet-50 to-white">
+          <h3 className="text-xl font-semibold mb-4 text-violet-800">🎁 Free Expert Event Planning</h3>
+          <p className="mb-4 text-gray-700">
+            Want expert help planning your perfect event? Our team with 7+ years of experience provides insider knowledge and ideas to plan your event.
+          </p>
+          <Button
+            className="bg-accent hover:bg-accent/90 text-white"
+            onClick={() => {
+              // Show consultation form directly without adding message to chat
+              setShowingFreeOfferForm(true);
+            }}
+          >
+            Get Free Expert Advice
+          </Button>
         </div>
-      </Card>
-    ));
+        
+        {selectedVendor && (
+          <VendorDetailsDialog
+            isOpen={!!selectedVendor}
+            onClose={() => setSelectedVendor(null)}
+            vendor={selectedVendor}
+          />
+        )}
+      </div>
+    );
   };
 
   return (
@@ -2081,25 +2141,13 @@ const ChatPage: React.FC = () => {
       </div>
       
       {bookingVendor && (
-        <BookingForm
-          vendor={bookingVendor}
-          onClose={handleCloseBookingForm}
-        />
+        <BookingForm vendor={bookingVendor} onClose={handleCloseBookingForm} />
       )}
       
       {showSuccessPopup && (
-        <SuccessPopup
-          onClose={() => setShowSuccessPopup(false)}
-          requestId={lastRequestId}
-        />
-      )}
-      
-      {showVendorDetails && selectedVendor && (
-        <VendorDetailsDialog
-          vendor={selectedVendor}
-          onClose={() => setShowVendorDetails(false)}
-          onInterested={() => handleVendorInterest(selectedVendor)}
-          isInterested={interestedVendors.has(selectedVendor.id)}
+        <SuccessPopup 
+          onClose={() => setShowSuccessPopup(false)} 
+          requestId={lastRequestId} 
         />
       )}
     </div>
