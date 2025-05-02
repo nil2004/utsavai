@@ -113,6 +113,23 @@ const VideoPlayer: React.FC<{
   );
 };
 
+// Add this helper at the top (after other helpers)
+function getGoogleDriveImageUrl(url: string): string {
+  if (url.includes('drive.google.com')) {
+    let fileId = '';
+    if (url.includes('/file/d/')) {
+      fileId = url.split('/file/d/')[1].split('/')[0];
+    } else if (url.includes('id=')) {
+      fileId = url.split('id=')[1].split('&')[0];
+    }
+    if (fileId) {
+      // Use Google Drive's direct image export endpoint
+      return `https://drive.google.com/uc?export=view&id=${fileId}`;
+    }
+  }
+  return url;
+}
+
 const VendorDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [vendor, setVendor] = useState<Vendor | null>(null);
@@ -556,7 +573,7 @@ const VendorDetailsPage: React.FC = () => {
                           <CarouselItem key={index} className="basis-full md:basis-1/2 lg:basis-1/3">
                             <div className="aspect-square rounded-lg overflow-hidden mx-2">
                               <img
-                                src={image}
+                                src={getGoogleDriveImageUrl(image)}
                                 alt={`Portfolio ${index + 1}`}
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                                 onError={(e) => {
