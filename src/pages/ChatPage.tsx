@@ -1644,18 +1644,16 @@ const ChatPage: React.FC = () => {
   const showVendorSuggestions = async () => {
     try {
       setLoading(true);
-      const vendors = await getFrontendVendors();
-      
+      // Pass city as a filter
+      const vendors = await getFrontendVendors({ city: location });
       // Convert Vendor to ChatVendor - keep all original vendor data
       const chatVendors: ChatVendor[] = vendors.map(vendor => ({
-        ...vendor, // Keep all original vendor data
-        reviewCount: Math.floor(Math.random() * 100) + 20, // Only add reviewCount as it's not in the database
-        priceRange: `₹${vendor.price.toLocaleString('en-IN')}`, // Format price range
-        image: vendor.image_url // Use image_url as image
+        ...vendor,
+        reviewCount: Math.floor(Math.random() * 100) + 20,
+        priceRange: `₹${vendor.price.toLocaleString('en-IN')}`,
+        image: vendor.image_url
       }));
-      
       setSuggestedVendors(chatVendors);
-      
       setMessages(prev => [...prev, {
         id: generateId(),
         sender: 'bot',
@@ -1663,13 +1661,11 @@ const ChatPage: React.FC = () => {
         isVendorSuggestions: true,
         vendors: chatVendors
       }]);
-      
       setShowingBudgetAllocation(false);
     } catch (error) {
       console.error('Error fetching vendors:', error);
       // Use sample data as fallback
       setSuggestedVendors(sampleVendors);
-      
       setMessages(prev => [...prev, {
         id: generateId(),
         sender: 'bot',
@@ -1677,7 +1673,6 @@ const ChatPage: React.FC = () => {
         isVendorSuggestions: true,
         vendors: sampleVendors
       }]);
-      
       setShowingBudgetAllocation(false);
     } finally {
       setLoading(false);
