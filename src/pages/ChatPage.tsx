@@ -1644,9 +1644,12 @@ const ChatPage: React.FC = () => {
   const showVendorSuggestions = async () => {
     try {
       setLoading(true);
+      // Get selected vendor types
+      const selectedTypes = vendorChecklist.filter(item => item.selected).map(item => item.name);
+      
       // Pass city as a filter
       const vendors = await getFrontendVendors({ city: location });
-      const selectedTypes = vendorChecklist.filter(item => item.selected).map(item => item.name);
+      // Filter vendors by selected types
       const filteredVendors = vendors.filter(vendor => selectedTypes.includes(vendor.category));
       // Convert Vendor to ChatVendor - keep all original vendor data
       const chatVendors: ChatVendor[] = filteredVendors.map(vendor => ({
@@ -1659,21 +1662,23 @@ const ChatPage: React.FC = () => {
       setMessages(prev => [...prev, {
         id: generateId(),
         sender: 'bot', 
-        content: 'Here are some vendors that match your requirements:',
+        content: `Here are some vendors that match your requirements in ${selectedTypes.join(', ')}:`,
         isVendorSuggestions: true,
         vendors: chatVendors
       }]);
       setShowingBudgetAllocation(false);
     } catch (error) {
       console.error('Error fetching vendors:', error);
-      // Use sample data as fallback
-      setSuggestedVendors(sampleVendors);
+      // Use sample data as fallback, but filter it by selected types
+      const selectedTypes = vendorChecklist.filter(item => item.selected).map(item => item.name);
+      const filteredSampleVendors = sampleVendors.filter(vendor => selectedTypes.includes(vendor.category));
+      setSuggestedVendors(filteredSampleVendors);
       setMessages(prev => [...prev, {
         id: generateId(),
-            sender: 'bot', 
-        content: 'Here are some sample vendors (using fallback data):',
+        sender: 'bot', 
+        content: `Here are some sample vendors in ${selectedTypes.join(', ')} (using fallback data):`,
         isVendorSuggestions: true,
-        vendors: sampleVendors
+        vendors: filteredSampleVendors
       }]);
       setShowingBudgetAllocation(false);
     } finally {
