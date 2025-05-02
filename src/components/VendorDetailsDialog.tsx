@@ -95,7 +95,7 @@ const VendorDetailsDialog: React.FC<VendorDetailsDialogProps> = ({
 
           {/* Actions */}
           <div className="flex gap-4 pt-4">
-            <Button className="flex-1">Interested</Button>
+            <Button className="flex-1">Request Booking</Button>
             <Button variant="outline" asChild className="flex items-center gap-2">
               <Link to={`/vendor/${vendor.id}`}>
                 View Full Profile
