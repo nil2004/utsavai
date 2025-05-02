@@ -222,7 +222,8 @@ const MarketplacePage: React.FC = () => {
     if (usingSampleData) {
       return (vendor as SampleVendor).priceRange;
     } else {
-      return `₹${(vendor as Vendor).price?.toLocaleString('en-IN') || '0'}`;
+      const price = `₹${(vendor as Vendor).price?.toLocaleString('en-IN') || '0'}`;
+      return (vendor as Vendor).category === 'Caterer' ? `${price} per plate` : price;
     }
   };
   
