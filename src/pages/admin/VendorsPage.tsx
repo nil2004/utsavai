@@ -94,8 +94,8 @@ const vendorFormSchema = z.object({
   portfolio_events: z.array(z.string()).default([]),
   instagram_reels: z.array(z.string().url("Please enter valid video URLs")).default([]),
   services: z.array(z.string()).default([]),
-  experience_years: z.number().min(0, "Years of experience must be at least 0").max(100, "Years of experience cannot exceed 100"),
-  completed_events: z.number().min(0, "Completed events must be at least 0").max(100, "Completed events cannot exceed 100"),
+  experience_years: z.number().min(0, "Years of experience must be at least 0"),
+  completed_events: z.number().min(0, "Completed events must be at least 0"),
 });
 
 // Add this new component before the VendorsPage component
