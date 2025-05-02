@@ -1837,6 +1837,7 @@ const ChatPage: React.FC = () => {
                       </div>
                       <div className="font-medium mt-2">
                         ₹{vendor.price.toLocaleString()}
+                        {vendor.category === 'Caterer' ? ' per plate' : ''}
                       </div>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
