@@ -569,21 +569,42 @@ const VendorDetailsPage: React.FC = () => {
                       setApi={setPortfolioCarouselApi}
                     >
                       <CarouselContent>
-                        {vendor.portfolio_images.map((image, index) => (
-                          <CarouselItem key={index} className="basis-full md:basis-1/2 lg:basis-1/3">
-                            <div className="aspect-square rounded-lg overflow-hidden mx-2">
-                              <img
-                                src={getGoogleDriveImageUrl(image)}
-                                alt={`Portfolio ${index + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = 'https://via.placeholder.com/300x300?text=Image+Not+Found';
-                                }}
-                              />
-                            </div>
-                          </CarouselItem>
-                        ))}
+                        {vendor.portfolio_images.map((image, index) => {
+                          const isGoogleDrive = image.includes('drive.google.com');
+                          let fileId = '';
+                          if (isGoogleDrive) {
+                            if (image.includes('/file/d/')) {
+                              fileId = image.split('/file/d/')[1].split('/')[0];
+                            } else if (image.includes('id=')) {
+                              fileId = image.split('id=')[1].split('&')[0];
+                            }
+                          }
+                          return (
+                            <CarouselItem key={index} className="basis-full md:basis-1/2 lg:basis-1/3">
+                              <div className="aspect-square rounded-lg overflow-hidden mx-2 flex items-center justify-center bg-gray-100">
+                                {isGoogleDrive && fileId ? (
+                                  <iframe
+                                    src={`https://drive.google.com/file/d/${fileId}/preview`}
+                                    className="w-full h-full"
+                                    allow="autoplay"
+                                    frameBorder="0"
+                                    title={`Portfolio ${index + 1}`}
+                                  />
+                                ) : (
+                                  <img
+                                    src={image}
+                                    alt={`Portfolio ${index + 1}`}
+                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = 'https://via.placeholder.com/300x300?text=Image+Not+Found';
+                                    }}
+                                  />
+                                )}
+                              </div>
+                            </CarouselItem>
+                          );
+                        })}
                       </CarouselContent>
                       <CarouselPrevious 
                         className="h-6 w-6 absolute -left-3 bg-primary/10 hover:bg-primary hover:text-white border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:-translate-x-1 animate-in fade-in" 
