@@ -113,7 +113,7 @@ const VideoPlayer: React.FC<{
   );
 };
 
-// Add this helper at the top (after other helpers)
+// Update the getGoogleDriveImageUrl helper
 function getGoogleDriveImageUrl(url: string): string {
   if (url.includes('drive.google.com')) {
     let fileId = '';
