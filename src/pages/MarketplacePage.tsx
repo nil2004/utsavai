@@ -52,7 +52,7 @@ export const sampleVendors: SampleVendor[] = [
     category: "Caterer",
     rating: 4.7,
     reviewCount: 156,
-    priceRange: "₹500 - ₹1,200 per plate",
+    priceRange: "₹500 - ₹1,200",
     price: 30000,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
     city: "Bangalore",
@@ -96,7 +96,7 @@ export const sampleVendors: SampleVendor[] = [
     category: "Caterer",
     rating: 4.8,
     reviewCount: 178,
-    priceRange: "₹800 - ₹2,000 per plate",
+    priceRange: "₹800 - ₹2,000",
     price: 50000,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
     city: "Delhi",
@@ -107,7 +107,7 @@ export const sampleVendors: SampleVendor[] = [
     category: "Caterer",
     rating: 4.3,
     reviewCount: 87,
-    priceRange: "₹300 - ₹600 per plate",
+    priceRange: "₹300 - ₹600",
     price: 15000,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
     city: "Mumbai",
@@ -220,10 +220,9 @@ const MarketplacePage: React.FC = () => {
   // Helper function to get price display
   const getPriceDisplay = (vendor: any): string => {
     if (usingSampleData) {
-      return (vendor as SampleVendor).priceRange;
+      return (vendor as SampleVendor).priceRange.replace(/ per plate/gi, '');
     } else {
-      const price = `₹${(vendor as Vendor).price?.toLocaleString('en-IN') || '0'}`;
-      return (vendor as Vendor).category === 'Caterer' ? `${price} per plate` : price;
+      return `₹${(vendor as Vendor).price?.toLocaleString('en-IN') || '0'}`;
     }
   };
   
