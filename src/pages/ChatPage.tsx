@@ -232,7 +232,7 @@ const sampleVendors: ChatVendor[] = [
     category: "Caterer",
     rating: 4.7,
     reviewCount: 156,
-    priceRange: "₹500 - ₹1,200 per plate",
+    priceRange: "₹500 - ₹1,200",
     price: 30000,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
     city: "Bangalore",
@@ -256,7 +256,7 @@ const sampleVendors: ChatVendor[] = [
     category: "Caterer",
     rating: 4.8,
     reviewCount: 178,
-    priceRange: "₹800 - ₹2,000 per plate",
+    priceRange: "₹800 - ₹2,000",
     price: 50000,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
     city: "Delhi",
@@ -280,7 +280,7 @@ const sampleVendors: ChatVendor[] = [
     category: "Caterer",
     rating: 4.3,
     reviewCount: 87,
-    priceRange: "₹300 - ₹600 per plate",
+    priceRange: "₹300 - ₹600",
     price: 15000,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070",
     city: "Mumbai",
@@ -1837,7 +1837,6 @@ const ChatPage: React.FC = () => {
                       </div>
                       <div className="font-medium mt-2">
                         ₹{vendor.price.toLocaleString()}
-                        {vendor.category === 'Caterer' ? ' per plate' : ''}
                       </div>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
