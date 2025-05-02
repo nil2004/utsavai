@@ -1646,8 +1646,10 @@ const ChatPage: React.FC = () => {
       setLoading(true);
       // Pass city as a filter
       const vendors = await getFrontendVendors({ city: location });
+      const selectedTypes = vendorChecklist.filter(item => item.selected).map(item => item.name);
+      const filteredVendors = vendors.filter(vendor => selectedTypes.includes(vendor.category));
       // Convert Vendor to ChatVendor - keep all original vendor data
-      const chatVendors: ChatVendor[] = vendors.map(vendor => ({
+      const chatVendors: ChatVendor[] = filteredVendors.map(vendor => ({
         ...vendor,
         reviewCount: Math.floor(Math.random() * 100) + 20,
         priceRange: `₹${vendor.price.toLocaleString('en-IN')}`,
@@ -1656,7 +1658,7 @@ const ChatPage: React.FC = () => {
       setSuggestedVendors(chatVendors);
       setMessages(prev => [...prev, {
         id: generateId(),
-          sender: 'bot', 
+        sender: 'bot', 
         content: 'Here are some vendors that match your requirements:',
         isVendorSuggestions: true,
         vendors: chatVendors
