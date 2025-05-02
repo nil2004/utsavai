@@ -700,8 +700,9 @@ const VendorDetailsPage: React.FC = () => {
             <Card className="p-6">
               <h3 className="text-xl font-semibold mb-2">Pricing</h3>
               <p className="text-3xl font-bold text-primary mb-4">
-                ₹{vendor.price.toLocaleString('en-IN')}
-                {vendor.category === 'Caterer' ? ' per plate' : ''}
+                {vendor.price
+                  ? String(vendor.price).replace(/ per plate/gi, '').replace(/^₹/, '₹')
+                  : '₹0'}
               </p>
               <Button 
                 className="w-full mb-4"
