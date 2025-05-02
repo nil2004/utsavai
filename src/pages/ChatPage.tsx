@@ -1871,7 +1871,12 @@ const ChatPage: React.FC = () => {
                           className="text-sm py-1 px-4 rounded-md border-gray-300"
                           onClick={async () => {
                             const fullVendor = await getVendorById(vendor.id);
-                            if (fullVendor) setSelectedVendor({ ...fullVendor, reviewCount: vendor.reviewCount, priceRange: vendor.priceRange, image: vendor.image });
+                            if (fullVendor) setSelectedVendor({
+                              ...fullVendor,
+                              reviewCount: vendor.reviewCount ?? 0,
+                              priceRange: vendor.priceRange ?? `₹${fullVendor.price?.toLocaleString('en-IN')}`,
+                              image: fullVendor.image_url
+                            });
                           }}
                         >
                           View Details
