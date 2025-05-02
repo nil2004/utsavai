@@ -1869,7 +1869,10 @@ const ChatPage: React.FC = () => {
                           variant="outline"
                           size="sm"
                           className="text-sm py-1 px-4 rounded-md border-gray-300"
-                          onClick={() => setSelectedVendor(vendor)}
+                          onClick={async () => {
+                            const fullVendor = await getVendorById(vendor.id);
+                            if (fullVendor) setSelectedVendor({ ...fullVendor, reviewCount: vendor.reviewCount, priceRange: vendor.priceRange, image: vendor.image });
+                          }}
                         >
                           View Details
                         </Button>
