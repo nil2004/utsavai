@@ -16,6 +16,12 @@ interface VendorDetailsDialogProps {
     priceRange: string;
     image: string;
     city: string;
+    description?: string;
+    services?: string[];
+    availability?: {
+      nextAvailable: string;
+      typicalBookingNotice: string;
+    };
   };
 }
 
@@ -24,20 +30,12 @@ const VendorDetailsDialog: React.FC<VendorDetailsDialogProps> = ({
   onClose,
   vendor,
 }) => {
-  // Sample additional vendor details (in a real app, these would come from the API)
   const vendorDetails = {
-    description: "We are a professional team dedicated to making your events memorable. With years of experience in the industry, we provide top-notch services tailored to your specific needs.",
-    services: [
-      "Full venue decoration",
-      "Theme-based setups",
-      "Flower arrangements",
-      "Lighting design",
-      "Stage decoration",
-      "Entry gate decoration"
-    ],
+    description: vendor.description || "No description available.",
+    services: vendor.services || [],
     availability: {
-      nextAvailable: "2024-04-15",
-      typicalBookingNotice: "2-3 weeks",
+      nextAvailable: vendor.availability?.nextAvailable || "Not available",
+      typicalBookingNotice: vendor.availability?.typicalBookingNotice || "Not specified",
     }
   };
 
