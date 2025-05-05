@@ -1661,7 +1661,7 @@ const ChatPage: React.FC = () => {
       setSuggestedVendors(chatVendors);
       setMessages(prev => [...prev, {
         id: generateId(),
-        sender: 'bot', 
+          sender: 'bot', 
         content: `Here are some vendors that match your requirements in ${selectedTypes.join(', ')}:`,
         isVendorSuggestions: true,
         vendors: chatVendors
@@ -1675,7 +1675,7 @@ const ChatPage: React.FC = () => {
       setSuggestedVendors(filteredSampleVendors);
       setMessages(prev => [...prev, {
         id: generateId(),
-        sender: 'bot', 
+            sender: 'bot', 
         content: `Here are some sample vendors in ${selectedTypes.join(', ')} (using fallback data):`,
         isVendorSuggestions: true,
         vendors: filteredSampleVendors

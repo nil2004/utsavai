@@ -130,7 +130,7 @@ const MarketplacePage: React.FC = () => {
 
   // Initialize price range with explicit values
   const minPrice = 5000;
-  const maxPrice = 120000;
+  const maxPrice = 10000000; // 1 crore
   const step = 1000;
   const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
 
@@ -349,8 +349,8 @@ const MarketplacePage: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPriceRange([50000, 120000])}
-                    className={`price-preset-button ${priceRange[0] === 50000 && priceRange[1] === 120000 ? 'active' : ''}`}
+                    onClick={() => setPriceRange([50000, 10000000])}
+                    className={`price-preset-button ${priceRange[0] === 50000 && priceRange[1] === 10000000 ? 'active' : ''}`}
                   >
                     Premium
                   </Button>
