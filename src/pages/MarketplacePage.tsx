@@ -179,7 +179,8 @@ const MarketplacePage: React.FC = () => {
   const filteredVendors = sourceData
     .filter(vendor => {
       const matchesSearch = vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (vendor.category && vendor.category.toLowerCase().includes(searchQuery.toLowerCase()));
+                         (vendor.category && vendor.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                         (vendor.city && vendor.city.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesCategory = selectedCategory === "All" || vendor.category === selectedCategory;
       const matchesCity = selectedCity === "All" || vendor.city === selectedCity;
       const matchesPriceRange = vendor.price >= priceRange[0] && vendor.price <= priceRange[1];
