@@ -368,6 +368,35 @@ const VendorDetailsPage: React.FC = () => {
     return url;
   };
 
+  // Share handler for the Share button
+  const handleShare = () => {
+    const shareData = {
+      title: vendor?.name ? `Check out ${vendor.name} on UtsavAI!` : 'Check out this vendor on UtsavAI!',
+      text: vendor?.name ? `I found ${vendor.name} on UtsavAI.` : 'I found this great vendor on UtsavAI.',
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      navigator.share(shareData)
+        .catch((error) => {
+          // Optionally handle errors
+          if (error && error.name !== 'AbortError') {
+            toast({ title: 'Share failed', description: 'Could not share the link.' });
+          }
+        });
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => {
+          toast({ title: 'Link copied!', description: 'The vendor link has been copied to your clipboard.' });
+        })
+        .catch(() => {
+          toast({ title: 'Copy failed', description: 'Could not copy the link.' });
+        });
+    } else {
+      // Fallback: prompt
+      window.prompt('Copy this link:', window.location.href);
+    }
+  };
+
   useEffect(() => {
     const loadVendorDetails = async () => {
       try {
@@ -710,7 +739,7 @@ const VendorDetailsPage: React.FC = () => {
               >
                 Request Booking
               </Button>
-              <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+              <Button variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleShare}>
                 <Share2 className="h-4 w-4" />
                 Share
               </Button>
