@@ -721,10 +721,6 @@ const VendorDetailsPage: React.FC = () => {
               <h3 className="text-xl font-semibold mb-4">Availability</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Next Available Date</p>
-                  <p className="text-gray-900">{vendorDetails.availability.nextAvailable}</p>
-                </div>
-                <div>
                   <p className="text-sm font-medium text-gray-500">Peak Seasons</p>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {vendorDetails.availability.peakSeasons.map((season, index) => (
