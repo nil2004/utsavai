@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { 
   VendorInsert, 
   VENDOR_CATEGORIES, 
@@ -627,69 +627,70 @@ const VendorsPage = () => {
             <FormField
               control={form.control}
               name="services"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Services Offered</FormLabel>
-                  <FormControl>
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap gap-2">
-                        {field.value?.map((service, index) => (
-                          <div 
-                            key={index}
-                            className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-3 py-1 text-sm"
-                          >
-                            <span>{service}</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newServices = [...field.value];
-                                newServices.splice(index, 1);
-                                field.onChange(newServices);
-                              }}
-                              className="hover:text-red-500 transition-colors"
+              render={({ field }) => {
+                const newServiceRef = useRef<HTMLInputElement>(null);
+                return (
+                  <FormItem>
+                    <FormLabel>Services Offered</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          {field.value?.map((service, index) => (
+                            <div 
+                              key={index}
+                              className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-3 py-1 text-sm"
                             >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex gap-2">
-                        <Input
-                          id="new-service"
-                          placeholder="Add a service..."
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              const input = e.target as HTMLInputElement;
-                              const value = input.value.trim();
+                              <span>{service}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newServices = [...field.value];
+                                  newServices.splice(index, 1);
+                                  field.onChange(newServices);
+                                }}
+                                className="hover:text-red-500 transition-colors"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <Input
+                            ref={newServiceRef}
+                            placeholder="Add a service..."
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const value = newServiceRef.current?.value.trim() || '';
+                                if (value && !field.value?.includes(value)) {
+                                  field.onChange([...(field.value || []), value]);
+                                  if (newServiceRef.current) newServiceRef.current.value = '';
+                                }
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              const value = newServiceRef.current?.value.trim() || '';
                               if (value && !field.value?.includes(value)) {
                                 field.onChange([...(field.value || []), value]);
-                                input.value = '';
+                                if (newServiceRef.current) newServiceRef.current.value = '';
                               }
-                            }
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            const input = document.getElementById('new-service') as HTMLInputElement;
-                            const value = input.value.trim();
-                            if (value && !field.value?.includes(value)) {
-                              field.onChange([...(field.value || []), value]);
-                              input.value = '';
-                            }
-                          }}
-                        >
-                          Add
-                        </Button>
+                            }}
+                          >
+                            Add
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </FormControl>
-                  <FormDescription>Press Enter or click Add to add a service</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+                    </FormControl>
+                    <FormDescription>Press Enter or click Add to add a service</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           </div>
 
