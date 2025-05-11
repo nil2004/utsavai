@@ -12,12 +12,15 @@ import {
   Users,
   X,
   Database,
-  BookOpen
+  BookOpen,
+  LayoutDashboard,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Link } from "react-router-dom";
 
 interface NavItem {
   title: string;
@@ -75,6 +78,33 @@ const AdminLayout = () => {
                   <span className="ml-3">{item.title}</span>
                 </NavLink>
               ))}
+              <Link
+                to="/admin/vendors"
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  location.pathname === '/admin/vendors' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Users className="h-5 w-5" />
+                <span>Vendors</span>
+              </Link>
+              <Link
+                to="/admin/blog"
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  location.pathname === '/admin/blog' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <BookOpen className="h-5 w-5" />
+                <span>Blog</span>
+              </Link>
+              <Link
+                to="/admin/analytics"
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  location.pathname === '/admin/analytics' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <BarChart3 className="h-5 w-5" />
+                <span>Analytics</span>
+              </Link>
             </nav>
           </ScrollArea>
           <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
@@ -140,6 +170,33 @@ const AdminLayout = () => {
                   <span className="ml-3">{item.title}</span>
                 </NavLink>
               ))}
+              <Link
+                to="/admin/vendors"
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  location.pathname === '/admin/vendors' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Users className="h-5 w-5" />
+                <span>Vendors</span>
+              </Link>
+              <Link
+                to="/admin/blog"
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  location.pathname === '/admin/blog' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <BookOpen className="h-5 w-5" />
+                <span>Blog</span>
+              </Link>
+              <Link
+                to="/admin/analytics"
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  location.pathname === '/admin/analytics' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <BarChart3 className="h-5 w-5" />
+                <span>Analytics</span>
+              </Link>
             </nav>
           </ScrollArea>
           <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">

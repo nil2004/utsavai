@@ -1,39 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
-// Mock data for blog posts
-const blogPosts = [
-  {
-    id: 1,
-    title: "10 Tips for Planning the Perfect Wedding",
-    excerpt: "Learn the essential steps to create your dream wedding celebration...",
-    content: "Full content here...",
-    category: "Wedding Planning",
-    date: "2024-03-15",
-    author: "Sarah Johnson",
-    image: "https://images.unsplash.com/photo-1519741497674-611481863552",
-    featured: true,
-    tags: ["Wedding", "Planning", "Tips"]
-  },
-  {
-    id: 2,
-    title: "Corporate Event Trends in 2024",
-    excerpt: "Discover the latest trends shaping corporate events this year...",
-    content: "Full content here...",
-    category: "Corporate Events",
-    date: "2024-03-10",
-    author: "Michael Chen",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87",
-    featured: true,
-    tags: ["Corporate", "Trends", "2024"]
-  },
-  // Add more blog posts here
-];
+import { supabase } from '@/lib/supabase';
 
 const categories = [
   "All",
@@ -49,10 +21,33 @@ const BlogPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const postsPerPage = 6;
 
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPosts(data || []);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Filter posts based on search and category
-  const filteredPosts = blogPosts.filter(post => {
+  const filteredPosts = posts.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
@@ -66,7 +61,17 @@ const BlogPage = () => {
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
 
   // Featured posts
-  const featuredPosts = blogPosts.filter(post => post.featured);
+  const featuredPosts = posts.filter(post => post.featured);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -115,7 +120,7 @@ const BlogPage = () => {
               <Card key={post.id} className="overflow-hidden">
                 <div className="aspect-video relative">
                   <img
-                    src={post.image}
+                    src={post.image_url}
                     alt={post.title}
                     className="object-cover w-full h-full"
                   />
@@ -123,7 +128,7 @@ const BlogPage = () => {
                 <CardHeader>
                   <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
                     <Calendar className="h-4 w-4" />
-                    <span>{new Date(post.date).toLocaleDateString()}</span>
+                    <span>{new Date(post.created_at).toLocaleDateString()}</span>
                     <Tag className="h-4 w-4" />
                     <span>{post.category}</span>
                   </div>
@@ -147,7 +152,7 @@ const BlogPage = () => {
           <Card key={post.id}>
             <div className="aspect-video relative">
               <img
-                src={post.image}
+                src={post.image_url}
                 alt={post.title}
                 className="object-cover w-full h-full"
               />
@@ -155,7 +160,7 @@ const BlogPage = () => {
             <CardHeader>
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
                 <Calendar className="h-4 w-4" />
-                <span>{new Date(post.date).toLocaleDateString()}</span>
+                <span>{new Date(post.created_at).toLocaleDateString()}</span>
               </div>
               <CardTitle className="text-lg">{post.title}</CardTitle>
               <CardDescription>{post.excerpt}</CardDescription>

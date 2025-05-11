@@ -36,6 +36,7 @@ import VendorsPage from "./pages/admin/VendorsPage";
 import UsersPage from "./pages/admin/UsersPage";
 import DbDebugPage from "./pages/admin/DbDebugPage";
 import VendorBookingsPage from "./pages/admin/VendorBookingsPage";
+import BlogManagementPage from "./pages/admin/BlogManagementPage";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
                     <Route path="vendor-bookings" element={<VendorBookingsPage />} />
                     <Route path="users" element={<UsersPage />} />
                     <Route path="vendors" element={<VendorsPage />} />
+                    <Route path="blog" element={<BlogManagementPage />} />
                     <Route path="analytics" element={<div>Analytics Coming Soon</div>} />
                     <Route path="settings" element={<div>Settings Coming Soon</div>} />
                     <Route path="db-status" element={<SupabaseConnectionTest />} />
