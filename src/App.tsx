@@ -22,6 +22,8 @@ import BookingConfirmationPage from "./pages/BookingConfirmationPage";
 import { AuthProvider } from "./lib/auth-context";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
+import BlogPage from "./pages/BlogPage";
+import BlogPostPage from "./pages/BlogPostPage";
 
 // Admin imports
 import { AdminAuthProvider } from "./lib/admin-auth-context";
@@ -80,6 +82,8 @@ const App = () => (
                         <Route path="/marketplace" element={<MarketplacePage />} />
                         <Route path="/vendor/:id" element={<VendorDetailsPage />} />
                         <Route path="/booking-confirmation" element={<BookingConfirmationPage />} />
+                        <Route path="/blog" element={<BlogPage />} />
+                        <Route path="/blog/:id" element={<BlogPostPage />} />
                         <Route path="/supabase-status" element={<SupabaseConnectionTest />} />
                         <Route path="/db-debug" element={<DbDebugPage />} />
                         
