@@ -34,6 +34,7 @@ const navItems: NavItem[] = [
   { title: "Event Requests", href: "/admin/event-requests", icon: <Calendar className="h-5 w-5" /> },
   { title: "Vendor Bookings", href: "/admin/vendor-bookings", icon: <BookOpen className="h-5 w-5" /> },
   { title: "Vendors", href: "/admin/vendors", icon: <ShoppingBag className="h-5 w-5" /> },
+  { title: "Blog", href: "/admin/blog", icon: <BookOpen className="h-5 w-5" /> },
   { title: "Analytics", href: "/admin/analytics", icon: <BarChart3 className="h-5 w-5" /> },
   { title: "Settings", href: "/admin/settings", icon: <Settings className="h-5 w-5" /> },
   { title: "Database Status", href: "/admin/db-status", icon: <Database className="h-5 w-5" /> },
@@ -78,33 +79,6 @@ const AdminLayout = () => {
                   <span className="ml-3">{item.title}</span>
                 </NavLink>
               ))}
-              <Link
-                to="/admin/vendors"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
-                  location.pathname === '/admin/vendors' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Users className="h-5 w-5" />
-                <span>Vendors</span>
-              </Link>
-              <Link
-                to="/admin/blog"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
-                  location.pathname === '/admin/blog' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <BookOpen className="h-5 w-5" />
-                <span>Blog</span>
-              </Link>
-              <Link
-                to="/admin/analytics"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
-                  location.pathname === '/admin/analytics' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <BarChart3 className="h-5 w-5" />
-                <span>Analytics</span>
-              </Link>
             </nav>
           </ScrollArea>
           <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
@@ -170,33 +144,6 @@ const AdminLayout = () => {
                   <span className="ml-3">{item.title}</span>
                 </NavLink>
               ))}
-              <Link
-                to="/admin/vendors"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
-                  location.pathname === '/admin/vendors' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Users className="h-5 w-5" />
-                <span>Vendors</span>
-              </Link>
-              <Link
-                to="/admin/blog"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
-                  location.pathname === '/admin/blog' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <BookOpen className="h-5 w-5" />
-                <span>Blog</span>
-              </Link>
-              <Link
-                to="/admin/analytics"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
-                  location.pathname === '/admin/analytics' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <BarChart3 className="h-5 w-5" />
-                <span>Analytics</span>
-              </Link>
             </nav>
           </ScrollArea>
           <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
