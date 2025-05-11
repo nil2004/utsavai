@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 const Footer = () => {
+  const { user } = useAuth();
+
   return (
     <footer className="bg-gray-50 pt-16 pb-8">
       <div className="container mx-auto px-6">
@@ -54,18 +57,37 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-gray-800 mb-4">For Users</h3>
             <ul className="space-y-2">
-              <li>
-                <Link to="/signup" className="text-gray-600 hover:text-primary text-sm">Sign Up</Link>
-              </li>
-              <li>
-                <Link to="/login" className="text-gray-600 hover:text-primary text-sm">Login</Link>
-              </li>
-              <li>
-                <Link to="/vendor-signup" className="text-gray-600 hover:text-primary text-sm">Become a Vendor</Link>
-              </li>
-              <li>
-                <Link to="/faq" className="text-gray-600 hover:text-primary text-sm">FAQ</Link>
-              </li>
+              {user ? (
+                <>
+                  <li>
+                    <Link to="/profile" className="text-gray-600 hover:text-primary text-sm">My Profile</Link>
+                  </li>
+                  <li>
+                    <Link to="/my-events" className="text-gray-600 hover:text-primary text-sm">My Events</Link>
+                  </li>
+                  <li>
+                    <Link to="/vendor-signup" className="text-gray-600 hover:text-primary text-sm">Become a Vendor</Link>
+                  </li>
+                  <li>
+                    <Link to="/faq" className="text-gray-600 hover:text-primary text-sm">FAQ</Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link to="/signup" className="text-gray-600 hover:text-primary text-sm">Sign Up</Link>
+                  </li>
+                  <li>
+                    <Link to="/login" className="text-gray-600 hover:text-primary text-sm">Login</Link>
+                  </li>
+                  <li>
+                    <Link to="/vendor-signup" className="text-gray-600 hover:text-primary text-sm">Become a Vendor</Link>
+                  </li>
+                  <li>
+                    <Link to="/faq" className="text-gray-600 hover:text-primary text-sm">FAQ</Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 
